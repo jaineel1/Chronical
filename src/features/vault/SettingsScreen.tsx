@@ -34,27 +34,24 @@ function SettingsForm({ profile }: { profile: Profile }) {
     const answers = current.onboardingAnswers;
     await profileRepo.update(answers ? { displayName: trimmed, onboardingAnswers: { ...answers, [NAME_QUESTION_ID]: trimmed } } : { displayName: trimmed });
   });
-  const [nightly, setNightly] = useSavedField(s.models.nightly, async (v) => {
-    const cur = (await profileRepo.ensure()).settings.models;
-    await update({ models: { ...cur, nightly: v.trim() || cur.nightly } });
-  });
-  const [weekly, setWeekly] = useSavedField(s.models.weekly, async (v) => {
-    const cur = (await profileRepo.ensure()).settings.models;
-    await update({ models: { ...cur, weekly: v.trim() || cur.weekly } });
-  });
-  const [deep, setDeep] = useSavedField(s.models.deep, async (v) => {
-    const cur = (await profileRepo.ensure()).settings.models;
-    await update({ models: { ...cur, deep: v.trim() || cur.deep } });
-  });
+  // Nested settings are merged with the stored value inside one transaction: two fields saved
+  // together (both flush when the page closes) keep both changes.
+  const [nightly, setNightly] = useSavedField(s.models.nightly, (v) =>
+    profileRepo.updateSettingsWith((cur) => ({ models: { ...cur.models, nightly: v.trim() || cur.models.nightly } })),
+  );
+  const [weekly, setWeekly] = useSavedField(s.models.weekly, (v) =>
+    profileRepo.updateSettingsWith((cur) => ({ models: { ...cur.models, weekly: v.trim() || cur.models.weekly } })),
+  );
+  const [deep, setDeep] = useSavedField(s.models.deep, (v) =>
+    profileRepo.updateSettingsWith((cur) => ({ models: { ...cur.models, deep: v.trim() || cur.models.deep } })),
+  );
 
-  const [morning, setMorning] = useSavedField(s.reminders.morning, async (v) => {
-    const cur = (await profileRepo.ensure()).settings.reminders;
-    await update({ reminders: { ...cur, morning: v || cur.morning } });
-  });
-  const [night, setNight] = useSavedField(s.reminders.night, async (v) => {
-    const cur = (await profileRepo.ensure()).settings.reminders;
-    await update({ reminders: { ...cur, night: v || cur.night } });
-  });
+  const [morning, setMorning] = useSavedField(s.reminders.morning, (v) =>
+    profileRepo.updateSettingsWith((cur) => ({ reminders: { ...cur.reminders, morning: v || cur.reminders.morning } })),
+  );
+  const [night, setNight] = useSavedField(s.reminders.night, (v) =>
+    profileRepo.updateSettingsWith((cur) => ({ reminders: { ...cur.reminders, night: v || cur.reminders.night } })),
+  );
   // The select follows the choice at once; the stored value re-syncs it.
   const [rollover, setRollover] = useState(s.rolloverHour);
   useEffect(() => setRollover(s.rolloverHour), [s.rolloverHour]);

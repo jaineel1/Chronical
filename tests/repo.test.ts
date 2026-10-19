@@ -41,6 +41,15 @@ describe('repositories under concurrent writes', () => {
     expect(p?.settings.excludeMoney).toBe(true);
   });
 
+  it('updateSettingsWith merges nested settings from the stored value', async () => {
+    await Promise.all([
+      profileRepo.updateSettingsWith((s) => ({ models: { ...s.models, nightly: 'claude-haiku-x' } })),
+      profileRepo.updateSettingsWith((s) => ({ models: { ...s.models, weekly: 'claude-sonnet-x' } })),
+    ]);
+    const models = (await profileRepo.get())?.settings.models;
+    expect(models).toMatchObject({ nightly: 'claude-haiku-x', weekly: 'claude-sonnet-x' });
+  });
+
   it('patch keeps two changes to one row made at once', async () => {
     const r = await routineRepo.create({
       name: 'Gym',

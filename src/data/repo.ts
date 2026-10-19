@@ -91,6 +91,13 @@ export const profileRepo = {
       return profileRepo.update({ settings: { ...current.settings, ...changes } });
     });
   },
+  /** Settings computed from the stored ones inside the same transaction, for nested objects like `models`. */
+  async updateSettingsWith(change: (current: Settings) => Partial<Settings>): Promise<Profile> {
+    return db.transaction('rw', PROFILE_TABLES(), async () => {
+      const current = await profileRepo.ensure();
+      return profileRepo.update({ settings: { ...current.settings, ...change(current.settings) } });
+    });
+  },
 };
 
 /** Creating the profile also creates the pillars, so every profile write covers those tables. */
