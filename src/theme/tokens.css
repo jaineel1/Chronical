@@ -1,0 +1,107 @@
+@import 'tailwindcss';
+/* Latin subsets only: keeps the offline cache small. Add 'japanese-400.css' if CJK text is ever shown. */
+@import '@fontsource/dotgothic16/latin-400.css';
+@import '@fontsource/dotgothic16/latin-ext-400.css';
+@import '@fontsource/newsreader/latin-400.css';
+@import '@fontsource/newsreader/latin-400-italic.css';
+@import '@fontsource/newsreader/latin-500.css';
+
+/*
+  Chronicle "Paper" system. Four tones + one red + one brown. Nothing else.
+  paper  background sheet          faint  rules, tracks, empty states
+  mid    secondary text, bar fill  ink    text, filled pixels, bars (top/bottom)
+  red    signals only: sun, drop cap, negative deltas, warnings
+  walnut buttons, the single action on a screen
+*/
+@theme {
+  --color-paper: #ebe3d4;
+  --color-paper-2: #e3d9c6;
+  --color-faint: #cfc3ae;
+  --color-mid: #8a4a52;
+  --color-ink: #3a1219;
+  --color-red: #b8323b;
+  --color-walnut: #6b3f2a;
+  --color-bar-muted: #b9a6a0;
+  --color-bar-text: #cfc3ae;
+
+  --font-pixel: 'DotGothic16', ui-monospace, monospace;
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+
+  --spacing-gutter: 24px;
+}
+
+@layer base {
+  html {
+    background: var(--color-ink);
+  }
+  body {
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-pixel);
+    font-size: 16px;
+    line-height: 1.25;
+    -webkit-font-smoothing: none;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: none;
+  }
+  #root {
+    min-height: 100dvh;
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-mid);
+    opacity: 0.75;
+  }
+  a {
+    color: var(--color-mid);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  [data-pixel] {
+    image-rendering: pixelated;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+}
+
+@layer components {
+  /* Prose block for the game master's letter. */
+  .letter {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--color-ink);
+    max-width: 62ch;
+  }
+  .letter p + p {
+    margin-top: 0.8em;
+  }
+  .letter .drop {
+    float: left;
+    font-family: var(--font-pixel);
+    font-size: 46px;
+    line-height: 0.8;
+    margin: 5px 8px 0 0;
+    color: var(--color-red);
+  }
+  .hairline {
+    height: 1px;
+    background: var(--color-faint);
+  }
+}
