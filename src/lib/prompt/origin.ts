@@ -30,7 +30,7 @@ export function buildOriginPrompt({ displayName, originSheetMd, today, excludeMo
   const sheet = excludeMoney ? stripMoney(originSheetMd) : originSheetMd;
 
   const task = `## Your task
-${name} has just finished the Origin Sheet below the line: up to 118 questions in ten parts, answered in their own words. Questions they skipped are left out. Today is ${formatSheetDate(today)} (${today}). Tomorrow is Day 1 of the game.
+${name} has just finished the Origin Sheet below the line: up to 118 questions in ten parts, answered in their own words. Questions they skipped are left out. Today is ${formatSheetDate(today)} (${today}), Day 1 of the game: your letter is the first thing they read, and tonight is their first Campfire.
 
 Read the whole sheet before you write anything. Then set up the game from it: a State of Me that will be read back to you every night, the skills they already have, the routines that would move them, the goals they named, and the first morning letter.
 
@@ -51,7 +51,7 @@ At most 400 words: the notes the game master keeps about the player, written pla
 ### Where I am
 - One line per pillar (${pillars}), with the sheet's numbers.
 ### Patterns the game master has noticed
-- On Day 0 this is usually empty: write "- None yet." unless the sheet states a pattern outright.
+- On the first day this is usually empty: write "- None yet." unless the sheet states a pattern outright.
 ### People
 - Who matters and how often they talk, who is fading, who they want closer.
 ### Voice
@@ -76,7 +76,7 @@ Start small: routines they can keep in a bad week, built on what they already do
 Format example, not their data: Evening skincare | Skin | Routine | 2 | daily | 22:00-22:30 | clear skin by January stays possible | two misses a week push January to March
 
 ## GOALS
-4 to 8 lines taken from the goals they wrote, one per line:
+4 to 8 lines taken from the goals they wrote (if they wrote none, from what the rest of the sheet says they want), one per line:
 Title | Pillar | why | target date YYYY-MM-DD or none
 Format example, not their data: Sub-4 marathon | Body | proof they can hold a 22-week plan | 2027-02-14
 

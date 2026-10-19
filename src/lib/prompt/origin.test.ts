@@ -41,7 +41,7 @@ describe('buildOriginPrompt', () => {
   it('includes the whole sub-stat vocabulary and the date', () => {
     for (const subs of Object.values(SUBSTATS)) for (const s of subs) expect(md).toContain(s);
     expect(md).toContain('- Body: Strength, Endurance, Recovery, Nutrition');
-    expect(md).toContain('Today is Monday, 19 October 2026 (2026-10-19).');
+    expect(md).toContain('Today is Monday, 19 October 2026 (2026-10-19), Day 1 of the game');
     expect(md).toContain('Riya has just finished the Origin Sheet');
   });
 

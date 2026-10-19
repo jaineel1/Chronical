@@ -56,7 +56,7 @@ export const PARTS: readonly Part[] = [
   { id: 'mind', n: 4, name: 'Mind', intro: 'Reading, calm and the people you lean on. Answer for a normal week, not your best one.', minutes: 4 },
   { id: 'dopamine', n: 5, name: 'Dopamine', intro: 'Attention and the phone. Open your screen-time page before the first question.', minutes: 3 },
   { id: 'work', n: 6, name: 'Work', intro: 'What you build, what you study, and what gets in the way.', minutes: 5 },
-  { id: 'money', n: 7, name: 'Money', intro: 'Stays on this device. Leave money out below and none of this part is sent to Claude.', minutes: 3 },
+  { id: 'money', n: 7, name: 'Money', intro: 'With Leave money out on, this part never leaves the device; without it, it goes to Claude like the rest.', minutes: 3 },
   { id: 'people', n: 8, name: 'People', intro: 'The people who shape your days. The game grows them into a tree you can look after.', minutes: 4 },
   { id: 'goals', n: 9, name: 'Goals', intro: 'Three horizons. Goals you could tick off, with numbers, not wishes.', minutes: 5 },
   { id: 'today', n: 10, name: 'Today', intro: 'Day zero. These answers are the first entry in your log.', minutes: 2 },

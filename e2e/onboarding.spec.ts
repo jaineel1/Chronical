@@ -70,6 +70,17 @@ test.describe('onboarding', () => {
     await page.getByTestId('archive-row').click();
     await expect(page.getByTestId('reply-text')).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath('07-archive-origin.png'), fullPage: true });
+
+    // Running it later: the reply rewrites the State of Me and offers everything as new suggestions.
+    await page.getByTestId('reply-text').fill(ORIGIN_REPLY_FIXTURE);
+    await page.getByTestId('use-reply').click();
+    await expect(page.getByText('State of Me updated.')).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Routine name' }).first()).toHaveValue('Deep work on Streaks');
+    await page.getByTestId('add-suggestions').click();
+    await expect(page.getByText('Added 6 skills, 8 routines, 6 goals.')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('07b-archive-added.png'), fullPage: true });
+    await page.goto('/#/vault/archive');
+    await expect(page.getByTestId('archive-row')).toContainText('parsed');
   });
 
   test('reopening the app resumes the sheet at the saved part', async ({ page }) => {
@@ -111,6 +122,10 @@ test.describe('onboarding', () => {
     await expect(page).toHaveURL(/#\/$/);
     await page.reload();
     await expect(page).toHaveURL(/#\/$/);
+
+    await page.goto('/#/onboarding/done');
+    await expect(page.getByText('he game is running.')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('08b-done.png') });
 
     await page.goto('/#/vault/letters');
     await expect(page.getByTestId('letter').first()).toContainText('Day 1. You answered the whole sheet');
