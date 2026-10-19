@@ -19,6 +19,7 @@ import {
   type Settings,
   type SubStatState,
 } from './types';
+import type { Food, Meal, MealSlot, StarredAffirmation } from './types';
 
 /* ------------------------------------------------------------------ */
 /* Generic helpers                                                     */
@@ -302,3 +303,54 @@ export async function resetAll(): Promise<void> {
 export function tableNames(): readonly TableName[] {
   return TABLE_NAMES;
 }
+
+/* ------------------------------------------------------------------ */
+/* Foods, meals, kept affirmations (added for the night loop)          */
+/* ------------------------------------------------------------------ */
+
+export const foodRepo = {
+  list(): Promise<Food[]> {
+    return db.foods.orderBy('name').toArray();
+  },
+  /** The food with this name (case-insensitive), created if it is new. */
+  async ensure(name: string): Promise<Food> {
+    const clean = name.trim().replace(/\s+/g, ' ');
+    const wanted = clean.toLowerCase();
+    const existing = await db.foods.filter((f) => f.name.trim().toLowerCase() === wanted).first();
+    if (existing) return existing;
+    const row = stamp<Food>({ name: clean, tags: [] });
+    await db.foods.put(row);
+    return row;
+  },
+};
+
+export const MEAL_SLOTS: readonly MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
+
+export const mealRepo = {
+  /** Meals for a day, in the order they were logged. */
+  async forDate(date: string): Promise<Meal[]> {
+    return db.meals.where('date').equals(date).sortBy('createdAt');
+  },
+  async add(date: string, foodId: string, slot: MealSlot, feltAfter?: number): Promise<Meal> {
+    const row = stamp<Meal>({ date, foodId, slot, feltAfter });
+    await db.meals.put(row);
+    return row;
+  },
+  async remove(id: string): Promise<void> {
+    await db.meals.delete(id);
+  },
+};
+
+export const affirmationRepo = {
+  list(): Promise<StarredAffirmation[]> {
+    return db.affirmations.orderBy('date').reverse().toArray();
+  },
+  /** Keep an affirmation. Keeping the same line from the same day twice stores it once. */
+  async keep(text: string, date: string): Promise<StarredAffirmation> {
+    const existing = await db.affirmations.where('date').equals(date).filter((a) => a.text === text).first();
+    if (existing) return existing;
+    const row = stamp<StarredAffirmation>({ text, date });
+    await db.affirmations.put(row);
+    return row;
+  },
+};

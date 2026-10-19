@@ -128,10 +128,18 @@ describe('tonightBlock', () => {
   it('explains each routine outcome', () => {
     expect(block).toContain('Routines. The app has already scored them: Body +3 · Skin 0 · Mind +1 · Work 0 · Dopamine -1.');
     expect(block).toContain('- done: Gym (Body/Strength, weight 3), streak 15');
-    expect(block).toContain("This week's shield covers it, so the 2-day streak holds");
-    expect(block).toContain('Cost of missing: Three misses and it slips a week');
-    expect(block).toContain('No shield left this week; the 3-day streak ends.');
+    expect(block).toContain("The week's shield covers it, so the 2-day streak holds, and no shield is left this week.");
+    expect(block).toContain('Cost of missing: Three misses and it slips a week.');
+    expect(block).toContain('No shield left this week, so the 3-day streak ends.');
     expect(block).toContain('- done on a day off: Read 20 pages');
+  });
+
+  it('describes a past day as recorded, without costs', () => {
+    const past = tonightBlock({ ...TONIGHT, past: true, heading: '### Day 23, Sunday, 18 October' });
+    expect(past.startsWith('### Day 23, Sunday, 18 October\nRoutines, app score: Body +3')).toBe(true);
+    expect(past).toContain('A shield covered it; the 2-day streak held.');
+    expect(past).toContain('- skipped: Phone-free evening (Dopamine/Restraint, weight 2); the 3-day streak ended.');
+    expect(past).not.toContain('Cost of missing');
   });
 
   it('has no emoji', () => {

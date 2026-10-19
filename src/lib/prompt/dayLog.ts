@@ -79,6 +79,10 @@ export interface TonightRoutine {
 export interface TonightInput {
   date: string;
   dayNo: number;
+  /** Replaces the "## Tonight, Day N, …" heading (the weekly prompt uses "### Day N, …"). */
+  heading?: string;
+  /** A day already lived (weekly review): routines read as what the logs recorded, in the past tense. */
+  past?: boolean;
   log?: LoggedDay;
   yesterday?: { weightKg?: number; sleepHours?: number; screenMin?: number };
   routines: TonightRoutine[];
@@ -95,28 +99,43 @@ export function formatRoutineScore(score: Partial<Record<Pillar, number>>): stri
   return PILLARS.map((p) => `${PILLAR_LABEL[p]} ${signed(score[p] ?? 0)}`).join(' · ');
 }
 
-function routineLine(r: TonightRoutine): string {
+function sentence(text: string): string {
+  const t = text.trim();
+  return /[.?!]$/.test(t) ? t : `${t}.`;
+}
+
+function routineLine(r: TonightRoutine, past: boolean): string {
   const where = `${PILLAR_LABEL[r.pillar]}/${r.subStat}, weight ${r.weight}`;
+  const cost = !past && r.cost ? ` Cost of missing: ${sentence(r.cost)}` : '';
+  const run = r.streakBefore > 0 ? `${r.streakBefore}-day streak` : '';
   switch (r.status) {
     case 'done':
       return `- done: ${r.name} (${where}), streak ${r.streak}`;
     case 'extra':
       return `- done on a day off: ${r.name} (${where})`;
     case 'shielded':
-      return `- skipped: ${r.name} (${where}). This week's shield covers it${r.streakBefore > 0 ? `, so the ${r.streakBefore}-day streak holds` : ''}; no shield left this week.${r.cost ? ` Cost of missing: ${r.cost}` : ''}`;
+      return past
+        ? `- skipped: ${r.name} (${where}). A shield covered it${run ? `; the ${run} held` : ''}.`
+        : `- skipped: ${r.name} (${where}). The week's shield covers it${run ? `, so the ${run} holds` : ''}, and no shield is left this week.${cost}`;
     case 'missed':
-      return `- skipped: ${r.name} (${where}). No shield left this week${r.streakBefore > 0 ? `; the ${r.streakBefore}-day streak ends` : ''}.${r.cost ? ` Cost of missing: ${r.cost}` : ''}`;
+      return past
+        ? `- skipped: ${r.name} (${where})${run ? `; the ${run} ended` : ''}.`
+        : `- skipped: ${r.name} (${where}). No shield left this week${run ? `, so the ${run} ends` : ''}.${cost}`;
   }
 }
 
 /** Everything logged tonight, in full. */
 export function tonightBlock(t: TonightInput): string {
   const log = t.log ?? { date: t.date };
-  const lines: string[] = [`## Tonight, Day ${t.dayNo}, ${formatLongDate(t.date)}`];
+  const lines: string[] = [t.heading ?? `## Tonight, Day ${t.dayNo}, ${formatLongDate(t.date)}`];
 
   if (t.routines.length) {
-    lines.push(`Routines. The app has already scored them: ${formatRoutineScore(t.routineScore)}.`);
-    lines.push(...t.routines.map(routineLine));
+    lines.push(
+      t.past
+        ? `Routines, app score: ${formatRoutineScore(t.routineScore)}.`
+        : `Routines. The app has already scored them: ${formatRoutineScore(t.routineScore)}.`,
+    );
+    lines.push(...t.routines.map((r) => routineLine(r, !!t.past)));
   } else {
     lines.push('No routines yet.');
   }
