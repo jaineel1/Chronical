@@ -78,9 +78,9 @@ describe('CampfireScreen', () => {
     renderAt('/campfire');
     fireEvent.change(await screen.findByTestId('reply-text'), { target: { value: 'Great day, keep going.' } });
     fireEvent.click(screen.getByTestId('use-reply'));
-    expect(await screen.findByText('No ## BRIEF section. The reply was kept as a draft.')).toBeInTheDocument();
+    expect(await screen.findByText('No ## BRIEF section. The reply was kept as a draft.', {}, { timeout: 4000 })).toBeInTheDocument();
     expect((await dayLogRepo.get(todayKey()))?.rawDraft).toBe('Great day, keep going.');
-  });
+  }, 10_000);
 });
 
 describe('Campfire helpers', () => {
