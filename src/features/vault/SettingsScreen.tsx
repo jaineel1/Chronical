@@ -198,11 +198,11 @@ function ApiKeySection({ settings }: { settings: Settings }) {
           <Button variant="outline" onClick={save} disabled={!key.trim()}>
             Save key
           </Button>
-          <Button variant="text" onClick={test} disabled={(!key.trim() && !has) || state.kind === 'testing'}>
+          <Button variant="text" className="px-0!" onClick={test} disabled={(!key.trim() && !has) || state.kind === 'testing'}>
             {state.kind === 'testing' ? 'Testing' : 'Test key'}
           </Button>
           {has ? (
-            <Button variant="text" onClick={remove}>
+            <Button variant="text" className="px-0!" onClick={remove}>
               Remove key
             </Button>
           ) : null}

@@ -38,7 +38,7 @@ export function LettersScreen() {
               <Section className="gap-3">
                 <LetterView md={md} firstOnly={!whole} />
                 {i > 0 ? (
-                  <Button variant="text" className="self-start" onClick={() => toggle(log.id)}>
+                  <Button variant="text" className="self-start px-0!" onClick={() => toggle(log.id)}>
                     {whole ? 'Show less' : 'Read the whole letter'}
                   </Button>
                 ) : null}
@@ -50,7 +50,7 @@ export function LettersScreen() {
       )}
       {letters && letters.length > limit ? (
         <Section>
-          <Button variant="text" className="self-start" onClick={() => setLimit((l) => l + PAGE)}>
+          <Button variant="text" className="self-start px-0!" onClick={() => setLimit((l) => l + PAGE)}>
             Show {Math.min(PAGE, letters.length - limit)} older letters
           </Button>
         </Section>

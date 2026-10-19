@@ -71,13 +71,14 @@ export function SheetView({ md, limitParts }: { md: string; limitParts?: number 
         switch (b.kind) {
           case 'title':
             return (
-              <p key={i} className="px-2.5">
+              <p key={i} className="px-2.5 text-mid">
                 {b.text}
               </p>
             );
           case 'part':
+            // A sub-level under the page's shaded header: ink title on a hairline, not a second strip.
             return (
-              <div key={i} className="mt-2 bg-paper-2 px-2.5 py-[3px]">
+              <div key={i} className="mx-2.5 mt-3 border-b border-faint pb-1">
                 {b.text}
               </div>
             );

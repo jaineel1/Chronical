@@ -15,6 +15,7 @@ export function WelcomeStep() {
   const navigate = useNavigate();
   const [needName, setNeedName] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [seeding, setSeeding] = useState(false);
 
   const nameAnswer = wiz.answers[NAME_QUESTION_ID];
   const name = typeof nameAnswer === 'string' ? nameAnswer : '';
@@ -44,9 +45,17 @@ export function WelcomeStep() {
 
   async function demo() {
     setBusy(true);
-    await wiz.flush();
-    await seedDemo();
-    navigate('/', { replace: true });
+    setSeeding(true);
+    wiz.holdRedirect(true);
+    try {
+      await wiz.flush();
+      await seedDemo();
+      navigate('/', { replace: true });
+    } catch {
+      wiz.holdRedirect(false);
+      setSeeding(false);
+      setBusy(false);
+    }
   }
 
   return (
@@ -89,7 +98,7 @@ export function WelcomeStep() {
             Begin the Origin Sheet
           </Button>
           <Button variant="outline" onClick={demo} disabled={busy}>
-            Try the demo first
+            {seeding ? 'Setting up the demo' : 'Try the demo first'}
           </Button>
         </div>
 

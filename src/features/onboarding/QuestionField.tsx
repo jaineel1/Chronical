@@ -7,11 +7,17 @@ type SetAnswer = (id: string, value: OnboardingAnswer | undefined) => void;
 
 const NUMBER_CLASS = '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
 
-/** Under the control: the red "needed" line after a failed Continue, else the hint, else nothing. */
-function noteFor(q: Question, missing: boolean): ReactNode {
-  if (missing) return <span className="text-red">The game needs this one.</span>;
-  return q.hint;
+/** The question, with its hint tucked under it in a quieter serif so it never reads as the next label. */
+function QuestionLabel({ q }: { q: Question }) {
+  return (
+    <>
+      {q.text}
+      {q.hint ? <span className="mt-0.5 block font-serif text-[15px] leading-[1.4] italic">{q.hint}</span> : null}
+    </>
+  );
 }
+
+const NEEDED = <span className="text-red">The game needs this one.</span>;
 
 /** Number input that keeps what is typed ("7.") while storing a number or nothing. */
 function NumberInput({ id, value, onChange, q }: { id: string; value: number | undefined; onChange: (n: number | undefined) => void; q: Question }) {
@@ -43,19 +49,33 @@ function NumberInput({ id, value, onChange, q }: { id: string; value: number | u
   );
 }
 
+/** A group of chips (T, L) labelled like a Field, without a <label> that would click the first chip. */
+function ChoiceGroup({ q, missing, children, after }: { q: Question; missing: boolean; children: ReactNode; after?: ReactNode }) {
+  const labelId = `${useId()}-label`;
+  return (
+    <div role="group" aria-labelledby={labelId} className="flex flex-col gap-1.5">
+      <span id={labelId} className="text-mid">
+        <QuestionLabel q={q} />
+      </span>
+      <div className="flex flex-wrap gap-1.5">{children}</div>
+      {after}
+      {missing ? NEEDED : null}
+    </div>
+  );
+}
+
 /** A question with its control: S line, M box, T chips (+ something else), L five chips, N number + unit. */
 export function QuestionField({ q, answers, setAnswer, missing = false }: { q: Question; answers: Answers; setAnswer: SetAnswer; missing?: boolean }) {
-  const uid = useId();
-  const inputId = `${uid}-input`;
-  const labelId = `${uid}-label`;
+  const inputId = `${useId()}-input`;
   const raw = answers[q.id];
-  const note = noteFor(q, missing);
+  const label = <QuestionLabel q={q} />;
+  const below = missing ? NEEDED : undefined;
 
   let body: ReactNode;
   switch (q.type) {
     case 'S':
       body = (
-        <Field label={q.text} hint={note}>
+        <Field label={label} hint={below}>
           <TextInput
             id={inputId}
             value={typeof raw === 'string' ? raw : ''}
@@ -69,14 +89,14 @@ export function QuestionField({ q, answers, setAnswer, missing = false }: { q: Q
       break;
     case 'M':
       body = (
-        <Field label={q.text} hint={note}>
+        <Field label={label} hint={below}>
           <TextArea id={inputId} rows={3} value={typeof raw === 'string' ? raw : ''} placeholder={q.placeholder} onChange={(e) => setAnswer(q.id, e.target.value)} />
         </Field>
       );
       break;
     case 'N':
       body = (
-        <Field label={q.text} hint={note}>
+        <Field label={label} hint={below}>
           <span className="flex items-baseline gap-3">
             <span className="w-28 shrink-0">
               <NumberInput id={inputId} q={q} value={numberValue(raw)} onChange={(n) => setAnswer(q.id, n ?? null)} />
@@ -101,50 +121,43 @@ export function QuestionField({ q, answers, setAnswer, missing = false }: { q: Q
       const toggle = (o: string) => setAnswer(q.id, picked.includes(o) ? picked.filter((p) => p !== o) : [...picked, o]);
       const other = answers[otherKey(q.id)];
       body = (
-        <div role="group" aria-labelledby={labelId} className="flex flex-col gap-1.5">
-          <span id={labelId} className="text-mid">
-            {q.text}
-          </span>
-          <div className="flex flex-wrap gap-1.5">
-            {q.options!.map((o) => (
-              <Chip key={o} active={picked.includes(o)} onClick={() => toggle(o)}>
-                {o}
-                {picked.includes(o) ? <span className="sr-only">, chosen</span> : null}
-              </Chip>
-            ))}
-          </div>
-          {q.allowOther ? (
-            <TextInput
-              aria-label={`${q.text}: something else`}
-              placeholder="Something else"
-              className="font-serif"
-              value={typeof other === 'string' ? other : ''}
-              onChange={(e) => setAnswer(otherKey(q.id), e.target.value)}
-            />
-          ) : null}
-          {note ? <span className="text-mid">{note}</span> : null}
-        </div>
+        <ChoiceGroup
+          q={q}
+          missing={missing}
+          after={
+            q.allowOther ? (
+              <TextInput
+                aria-label={`${q.text}: something else`}
+                placeholder="Something else"
+                className="font-serif"
+                value={typeof other === 'string' ? other : ''}
+                onChange={(e) => setAnswer(otherKey(q.id), e.target.value)}
+              />
+            ) : null
+          }
+        >
+          {q.options!.map((o) => (
+            <Chip key={o} active={picked.includes(o)} onClick={() => toggle(o)}>
+              {o}
+              {picked.includes(o) ? <span className="sr-only">, chosen</span> : null}
+            </Chip>
+          ))}
+        </ChoiceGroup>
       );
       break;
     }
     case 'L': {
       const v = likertValue(raw);
       body = (
-        <div role="group" aria-labelledby={labelId} className="flex flex-col gap-1.5">
-          <span id={labelId} className="text-mid">
-            {q.text}
-          </span>
-          <div className="flex flex-wrap gap-1.5">
-            {q.labels!.map((label, i) => (
-              <Chip key={label} active={v === i + 1} onClick={() => setAnswer(q.id, v === i + 1 ? null : i + 1)}>
-                <span className="sr-only">{i + 1} of 5, </span>
-                {label}
-                {v === i + 1 ? <span className="sr-only">, chosen</span> : null}
-              </Chip>
-            ))}
-          </div>
-          {note ? <span className="text-mid">{note}</span> : null}
-        </div>
+        <ChoiceGroup q={q} missing={missing}>
+          {q.labels!.map((l, i) => (
+            <Chip key={l} active={v === i + 1} onClick={() => setAnswer(q.id, v === i + 1 ? null : i + 1)}>
+              <span className="sr-only">{i + 1} of 5, </span>
+              {l}
+              {v === i + 1 ? <span className="sr-only">, chosen</span> : null}
+            </Chip>
+          ))}
+        </ChoiceGroup>
       );
       break;
     }

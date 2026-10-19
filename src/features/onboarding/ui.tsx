@@ -8,9 +8,16 @@ import { BOOK_MAP, COINS_MAP, DROP_MAP, MID_PALETTE, MOON_SMALL_MAP, MOUNTAIN_MA
 import { Check } from '@/ui/primitives';
 import type { PartId } from './questions';
 
-export function Select({ className = '', children, ...rest }: SelectHTMLAttributes<HTMLSelectElement>) {
+/**
+ * Native select in the underline style. `bare` drops the underline and sizes to the chosen option
+ * (where supported), so it can sit inside a line of text: "Work ⌄ · by 30 Nov 2026".
+ */
+export function Select({ className = '', bare = false, children, ...rest }: SelectHTMLAttributes<HTMLSelectElement> & { bare?: boolean }) {
+  const look = bare
+    ? 'border-0 bg-transparent p-0 [field-sizing:content]'
+    : 'border-0 border-b border-faint bg-transparent py-1 pr-1 outline-none focus:border-ink';
   return (
-    <select className={`cursor-pointer border-0 border-b border-faint bg-transparent py-1 pr-1 outline-none focus:border-ink ${className}`} {...rest}>
+    <select className={`cursor-pointer ${look} ${className}`} {...rest}>
       {children}
     </select>
   );

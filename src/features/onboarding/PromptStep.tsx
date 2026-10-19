@@ -71,11 +71,17 @@ export function PromptStep() {
 
   async function skip() {
     setBusy(true);
-    await wiz.flush();
-    // Keep the prompt in the Archive, unanswered, so it can be pasted into Claude later.
-    await promptId();
-    await startWithoutClaude(sheet);
-    navigate('/', { replace: true });
+    wiz.holdRedirect(true);
+    try {
+      await wiz.flush();
+      // Keep the prompt in the Archive, unanswered, so it can be pasted into Claude later.
+      await promptId();
+      await startWithoutClaude(sheet);
+      navigate('/', { replace: true });
+    } catch {
+      wiz.holdRedirect(false);
+      setBusy(false);
+    }
   }
 
   return (

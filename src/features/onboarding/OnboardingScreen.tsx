@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useSearchParams } from 'react-router';
 import { useProfile } from '@/data/hooks';
 import { CompileStep } from './CompileStep';
@@ -17,19 +18,22 @@ import { WizardProvider } from './wizard';
  *   /onboarding/prompt          the first Claude hand-off (or "Skip Claude for now")
  *   /onboarding/review          accept skills, routines, goals → "Create my game"
  *   /onboarding/done            closing page
- * An onboarded profile is sent home, except in edit mode and on /done.
+ * An onboarded profile is sent home, except in edit mode, on /done, and while a step is still
+ * writing (the demo seed and "Create my game" mark the profile onboarded before they finish; the
+ * step navigates home itself once everything has landed).
  */
 export function OnboardingScreen() {
   const profile = useProfile();
   const [params] = useSearchParams();
   const location = useLocation();
   const editMode = params.get('edit') === '1';
+  const [holding, setHolding] = useState(false);
 
   if (profile === undefined) return <QuietPaper />;
-  if (profile?.onboardedAt && !editMode && !location.pathname.endsWith('/done')) return <Navigate to="/" replace />;
+  if (profile?.onboardedAt && !editMode && !holding && !location.pathname.endsWith('/done')) return <Navigate to="/" replace />;
 
   return (
-    <WizardProvider profile={profile} editMode={editMode}>
+    <WizardProvider profile={profile} editMode={editMode} holdRedirect={setHolding}>
       <Routes>
         <Route index element={<WelcomeStep />} />
         <Route path="part/:n" element={<PartStep />} />

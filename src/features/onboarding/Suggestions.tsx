@@ -1,10 +1,10 @@
 /**
  * Review lists for what Claude suggested: skills, routines and goals, each checked by default,
- * names editable, the key fields visible and adjustable (skill level; routine weight and sub-stat;
- * goal pillar). Used by /onboarding/review and by the Vault's "Run the origin prompt again".
+ * names editable, the key fields visible (routine sub-stat, days, window) and the ones worth
+ * adjusting editable (skill level, routine weight, goal pillar). Used by /onboarding/review and by the Vault's "Run the origin prompt again".
  */
 import { useEffect, useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
-import { PILLARS, PILLAR_LABEL, SUBSTATS, type Pillar } from '@/data/types';
+import { PILLARS, PILLAR_LABEL, type Pillar } from '@/data/types';
 import { fromDayKey } from '@/lib/dates';
 import { formatDays, type OriginGoal, type OriginRoutine, type OriginSkill } from '@/lib/parse/origin';
 import { Check, Section, SectionHeader, TextInput } from '@/ui/primitives';
@@ -33,6 +33,8 @@ export interface SuggestionState {
   accepted: Accepted;
   acceptedCount: number;
 }
+
+const NBSP = '\u00a0';
 
 const keepAll = <T,>(list: T[]): Keepable<T>[] => list.map((value) => ({ keep: true, value }));
 
@@ -141,33 +143,22 @@ export function SuggestionLists({ state, emptyNote }: { state: SuggestionState; 
               const r = it.value;
               return (
                 <RowShell key={i} keep={it.keep} onKeep={(keep) => patchAt(setRoutines, i, { keep })} label={r.name}>
-                  <div className="flex items-baseline gap-3">
-                    <TextInput aria-label="Routine name" className="font-serif" value={r.name} onChange={(e) => patchAt(setRoutines, i, { value: { name: e.target.value } })} />
-                    <span className="flex shrink-0 items-baseline gap-1.5">
-                      <span className="text-mid">weight</span>
-                      <Select aria-label={`${r.name} weight`} value={r.weight} onChange={(e) => patchAt(setRoutines, i, { value: { weight: Number(e.target.value) } })}>
+                  <TextInput aria-label="Routine name" className="font-serif" value={r.name} onChange={(e) => patchAt(setRoutines, i, { value: { name: e.target.value } })} />
+                  {/* Inline flow with no-break spaces before each "·", so a wrapped line never starts with one. */}
+                  <p className="text-mid">
+                    {`${PILLAR_LABEL[r.pillar]}/${r.subStat}${NBSP}· `}
+                    <label className="whitespace-nowrap">
+                      {'weight '}
+                      <Select bare aria-label={`${r.name} weight`} value={r.weight} className="text-ink" onChange={(e) => patchAt(setRoutines, i, { value: { weight: Number(e.target.value) } })}>
                         {[1, 2, 3, 4, 5].map((w) => (
                           <option key={w} value={w}>
                             {w}
                           </option>
                         ))}
                       </Select>
-                    </span>
-                  </div>
-                  <span className="flex flex-wrap items-baseline gap-x-1.5 text-mid">
-                    <span>{PILLAR_LABEL[r.pillar]} /</span>
-                    <Select aria-label={`${r.name} sub-stat`} value={r.subStat} className="text-mid" onChange={(e) => patchAt(setRoutines, i, { value: { subStat: e.target.value } })}>
-                      {SUBSTATS[r.pillar].map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </Select>
-                    <span>
-                      · {formatDays(r.days)}
-                      {r.window ? ` · ${r.window}` : ''}
-                    </span>
-                  </span>
+                    </label>
+                    {`${NBSP}· ${formatDays(r.days)}${r.window ? `${NBSP}· ${r.window}` : ''}`}
+                  </p>
                   {r.upside ? <span className="text-mid">{r.upside}</span> : null}
                   {r.cost ? <span className="text-mid">Miss: {r.cost}</span> : null}
                 </RowShell>
@@ -187,7 +178,7 @@ export function SuggestionLists({ state, emptyNote }: { state: SuggestionState; 
                 <RowShell key={i} keep={it.keep} onKeep={(keep) => patchAt(setGoals, i, { keep })} label={g.title}>
                   <TextInput aria-label="Goal title" className="font-serif" value={g.title} onChange={(e) => patchAt(setGoals, i, { value: { title: e.target.value } })} />
                   <span className="flex flex-wrap items-baseline gap-x-1.5 text-mid">
-                    <Select aria-label={`${g.title} pillar`} value={g.pillar} className="text-mid" onChange={(e) => patchAt(setGoals, i, { value: { pillar: e.target.value as Pillar } })}>
+                    <Select bare aria-label={`${g.title} pillar`} value={g.pillar} className="text-ink" onChange={(e) => patchAt(setGoals, i, { value: { pillar: e.target.value as Pillar } })}>
                       {PILLARS.map((p) => (
                         <option key={p} value={p}>
                           {PILLAR_LABEL[p]}

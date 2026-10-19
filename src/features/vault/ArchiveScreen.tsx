@@ -102,9 +102,7 @@ export function ArchiveDetail() {
         <>
           <SectionHeader title={`${kind} · ${prompt.model}`} note={<ReplyTag prompt={prompt} />} />
           <Section className="gap-3">
-            <p className="text-mid">
-              Not run yet. Copy it into Claude and paste the reply here: it rewrites your State of Me and suggests skills, routines and goals to add. {tokens}.
-            </p>
+            <p className="text-mid">Not run yet. Copy it into Claude and paste the reply here: it rewrites your State of Me and suggests skills, routines and goals to add.</p>
             <OriginRerun promptMd={prompt.promptMd} promptId={prompt.id} />
           </Section>
         </>

@@ -199,7 +199,7 @@ export function DataScreen() {
               <button type="button" className={DANGER} onClick={confirmImport} disabled={busy}>
                 Replace everything
               </button>
-              <Button variant="text" onClick={() => setPending(null)} disabled={busy}>
+              <Button variant="text" className="px-0!" onClick={() => setPending(null)} disabled={busy}>
                 Cancel
               </Button>
             </span>
@@ -233,7 +233,7 @@ export function DataScreen() {
             : 'Everything lives in this browser’s database on this device.'}
         </p>
         {storage && storage.persisted === false && typeof navigator.storage?.persist === 'function' ? (
-          <Button variant="text" className="self-start" onClick={askToPersist}>
+          <Button variant="text" className="self-start px-0!" onClick={askToPersist}>
             Ask the browser to keep it
           </Button>
         ) : null}
@@ -247,7 +247,7 @@ export function DataScreen() {
       <Section className="gap-4 pb-2">
         {profile?.settings.demo ? (
           <div className="flex flex-col gap-1">
-            <Button className="self-start" onClick={ownGame} disabled={busy} data-testid="start-own-game">
+            <Button variant="outline" className="self-start" onClick={ownGame} disabled={busy} data-testid="start-own-game">
               Start my own game
             </Button>
             <span className="text-mid">Clears the demo world and opens the Origin Sheet.</span>

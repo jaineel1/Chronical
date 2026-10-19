@@ -62,7 +62,7 @@ export function OriginScreen() {
             Save
           </Button>
           {draft !== null ? (
-            <Button variant="text" onClick={() => setDraft(null)}>
+            <Button variant="text" className="px-0!" onClick={() => setDraft(null)}>
               Undo changes
             </Button>
           ) : null}
@@ -74,7 +74,7 @@ export function OriginScreen() {
         title="Origin Sheet"
         note={sheet ? `${countWords(sheet).toLocaleString('en-IN')} words` : undefined}
         action={
-          <Link to="/onboarding/part/1?edit=1" className="no-underline" data-testid="edit-answers">
+          <Link to="/onboarding/part/1?edit=1" className="text-walnut no-underline" data-testid="edit-answers">
             Edit answers
           </Link>
         }
@@ -83,7 +83,7 @@ export function OriginScreen() {
         <>
           <SheetView md={sheet} limitParts={wholeSheet ? undefined : 1} />
           <Section className="pb-2">
-            <Button variant="text" className="self-start" onClick={() => setWholeSheet((v) => !v)}>
+            <Button variant="text" className="self-start px-0!" onClick={() => setWholeSheet((v) => !v)}>
               {wholeSheet ? 'Show less' : 'Show the whole sheet'}
             </Button>
           </Section>

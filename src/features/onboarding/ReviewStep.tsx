@@ -54,6 +54,7 @@ function Review({ origin }: { origin: OriginResult }) {
   async function create() {
     setBusy(true);
     setError(null);
+    wiz.holdRedirect(true);
     try {
       await wiz.flush();
       const sheet = compileOriginSheet(wiz.answers, { excludeMoney: settings.excludeMoney, displayName: wiz.profile?.displayName, date: todayKey(settings.rolloverHour) });
@@ -67,6 +68,7 @@ function Review({ origin }: { origin: OriginResult }) {
       });
       navigate('/', { replace: true });
     } catch (e) {
+      wiz.holdRedirect(false);
       setBusy(false);
       setError(e instanceof Error ? e.message : 'Could not create the game. Nothing was saved; try again.');
     }

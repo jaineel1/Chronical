@@ -10,6 +10,10 @@ test.describe('vault', () => {
     await expect(page.locator('header')).toContainText('1 prompt');
     await expect(page.getByTestId('vault-archive')).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath('01-vault.png'), fullPage: true });
+    // Seeding must be over before the demo lands home: nothing may pull us back to Morning now.
+    await page.waitForTimeout(500);
+    await expect(page).toHaveURL(/#\/vault$/);
+    await expect(page.locator('header')).toContainText('Vault');
 
     await page.goto('/#/vault/archive');
     await expect(page.getByTestId('archive-row')).toHaveCount(1);

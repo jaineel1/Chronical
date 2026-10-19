@@ -46,6 +46,8 @@ interface WizardValue {
   writeSettings: (changes: Partial<Settings>) => Promise<void>;
   origin: OriginResult | null;
   setOrigin: (o: OriginResult | null) => void;
+  /** Keep the onboarded-redirect off while a step finishes writing, then navigate yourself. */
+  holdRedirect: (hold: boolean) => void;
 }
 
 const WizardContext = createContext<WizardValue | null>(null);
@@ -60,7 +62,17 @@ function isEmptyAnswer(v: OnboardingAnswer | undefined): boolean {
   return v === undefined || v === null || (typeof v === 'string' && v.length === 0) || (Array.isArray(v) && v.length === 0) || (typeof v === 'number' && !Number.isFinite(v));
 }
 
-export function WizardProvider({ profile, editMode, children }: { profile: Profile | null; editMode: boolean; children: ReactNode }) {
+export function WizardProvider({
+  profile,
+  editMode,
+  holdRedirect,
+  children,
+}: {
+  profile: Profile | null;
+  editMode: boolean;
+  holdRedirect: (hold: boolean) => void;
+  children: ReactNode;
+}) {
   // Mounted once the profile has loaded, so these initialisers see stored data.
   const [answers, setAnswers] = useState<Answers>(() => ({ ...(profile?.onboardingAnswers ?? {}) }));
   const [initialStep] = useState(() => profile?.onboardingStep ?? 0);
@@ -127,8 +139,8 @@ export function WizardProvider({ profile, editMode, children }: { profile: Profi
   const markResumed = useCallback(() => setResumed(true), []);
 
   const value = useMemo<WizardValue>(
-    () => ({ profile, editMode, answers, setAnswer, initialStep, resumed, markResumed, saveStep, flush, writeProfile, writeSettings, origin, setOrigin }),
-    [profile, editMode, answers, setAnswer, initialStep, resumed, markResumed, saveStep, flush, writeProfile, writeSettings, origin],
+    () => ({ profile, editMode, answers, setAnswer, initialStep, resumed, markResumed, saveStep, flush, writeProfile, writeSettings, origin, setOrigin, holdRedirect }),
+    [profile, editMode, answers, setAnswer, initialStep, resumed, markResumed, saveStep, flush, writeProfile, writeSettings, origin, holdRedirect],
   );
   return <WizardContext.Provider value={value}>{children}</WizardContext.Provider>;
 }
