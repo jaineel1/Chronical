@@ -203,3 +203,30 @@ export async function closeNight(date: string): Promise<{ warnings: string[]; ro
     return { warnings: plan.warnings, routineStats: plan.routineStats };
   });
 }
+
+/* ------------------------------------------------------------------ */
+/* Display                                                             */
+/* ------------------------------------------------------------------ */
+
+const SHIELD_SUFFIX = ': shield used, none left this week';
+
+function listJoin(items: string[]): string {
+  if (items.length <= 1) return items.join('');
+  return `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`;
+}
+
+/** True for "X: shield used…" lines and their summary: a shield doing its job, not an alarm. */
+export function isShieldNote(text: string): boolean {
+  return text.endsWith(SHIELD_SUFFIX) || text.startsWith('Shields used on ');
+}
+
+/**
+ * For display: two or more "X: shield used, none left this week" lines become one line, so a
+ * night with several covered misses reads as one note. Other warnings pass through in order.
+ */
+export function summariseNightWarnings(warnings: readonly string[]): string[] {
+  const shielded = warnings.filter((w) => w.endsWith(SHIELD_SUFFIX));
+  if (shielded.length < 2) return [...warnings];
+  const names = shielded.map((w) => (w.slice(0, -SHIELD_SUFFIX.length).split(',')[0] ?? '').trim());
+  return [...warnings.filter((w) => !w.endsWith(SHIELD_SUFFIX)), `Shields used on ${listJoin(names)}. None left this week for them.`];
+}

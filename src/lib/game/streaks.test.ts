@@ -148,3 +148,18 @@ describe('closeNight (store)', () => {
     expect(await db.routines.get('gym')).toMatchObject({ streak: 7, shields: 1, lastDoneDate: '2026-10-12' });
   });
 });
+
+describe('summariseNightWarnings', () => {
+  it('folds several shield lines into one and keeps the rest', async () => {
+    const { summariseNightWarnings } = await import('./streaks');
+    expect(summariseNightWarnings(['Gym: shield used, none left this week'])).toEqual(['Gym: shield used, none left this week']);
+    expect(
+      summariseNightWarnings([
+        'Run, 8 km at 5:52: shield used, none left this week',
+        'Gym streak broken at 14 days',
+        'Evening skincare: shield used, none left this week',
+        'Read: shield used, none left this week',
+      ]),
+    ).toEqual(['Gym streak broken at 14 days', 'Shields used on Run, Evening skincare and Read. None left this week for them.']);
+  });
+});
