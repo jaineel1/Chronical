@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { copyText, openClaude, readClipboard } from '@/lib/clipboard';
+import { CLAUDE_NEW_CHAT_URL, copyText, readClipboard } from '@/lib/clipboard';
 import { estimateTokens, formatTokens } from '@/lib/prompt/shared';
 import { Button, TextArea } from './primitives';
 
@@ -97,9 +97,9 @@ export function PromptHandoff({
             For {model}. About {formatTokens(tokens)} tokens.
           </span>
           <span className="flex gap-3">
-            <Button variant="text" onClick={openClaude}>
+            <a href={CLAUDE_NEW_CHAT_URL} target="_blank" rel="noopener noreferrer" className="text-walnut no-underline">
               Open Claude
-            </Button>
+            </a>
             <Button variant="text" onClick={() => setShowRaw((v) => !v)}>
               {showRaw ? 'Hide text' : 'Show text'}
             </Button>
