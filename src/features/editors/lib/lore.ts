@@ -146,13 +146,28 @@ function oneLine(v: string, max = 280): string {
   return v.replace(/\s+/g, ' ').trim().slice(0, max);
 }
 
+/** "62 -> 64", "3 → 4", "from 62 to 64", "reading -> done": the value after the change. */
+function changedTo(v: string): string {
+  const arrow = /.*(?:->|→|⟶|➝|=>|–>|—>)\s*(.+)$/.exec(v);
+  if (arrow) return arrow[1]!.trim();
+  const fromTo = /^\s*from\s+.+?\s+to\s+(.+)$/i.exec(v);
+  return fromTo ? fromTo[1]!.trim() : v;
+}
+
+/** The first YYYY-MM-DD in the value, when it is a real day: "2027-02-14 (race day)" → "2027-02-14". */
+function dayKeyIn(v: string): string | undefined {
+  const m = /\d{4}-\d{2}-\d{2}/.exec(v);
+  return m && isDayKey(m[0]) ? m[0] : undefined;
+}
+
 /** Turn the reply's `## UPDATES` into a patch, keeping only the fields allowed for the type. */
 export function loreChanges(type: LoreSubjectType, updates: Record<string, string>): LoreChanges {
   const changes: LoreChanges['changes'] = {};
   const applied: string[] = [];
   const ignored: string[] = [];
   for (const [key, raw] of Object.entries(updates)) {
-    const value = raw.trim();
+    // Free-text fields keep their words; typed fields read the value after an arrow ("62 -> 64").
+    const value = ['goal', 'notes', 'why', 'author'].includes(key) ? raw.trim() : changedTo(raw.trim());
     let ok = false;
     if (type === 'skill' && key === 'level') {
       const n = num(value);
@@ -194,9 +209,9 @@ export function loreChanges(type: LoreSubjectType, updates: Record<string, strin
       changes.why = oneLine(value);
       applied.push('why');
       ok = true;
-    } else if (type === 'goal' && key === 'targetDate' && isDayKey(value)) {
-      changes.targetDate = value;
-      applied.push(`target date ${value}`);
+    } else if (type === 'goal' && key === 'targetDate' && dayKeyIn(value)) {
+      changes.targetDate = dayKeyIn(value)!;
+      applied.push(`target date ${changes.targetDate}`);
       ok = true;
     } else if (type === 'book' && key === 'status') {
       const s = bookStatus(value);

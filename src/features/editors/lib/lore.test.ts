@@ -15,6 +15,14 @@ describe('loreChanges', () => {
     const r = loreChanges('person', { closeness: '9', contactEveryDays: 'every 10 days', wantCloser: 'Yes, clearly', notes: 'Ask about  the move.' });
     expect(r.changes).toEqual({ closeness: 5, contactEveryDays: 10, wantCloser: true, notes: 'Ask about the move.' });
   });
+  it('reads the new value when an update shows the change', () => {
+    expect(loreChanges('skill', { level: '62 -> 64' }).changes).toEqual({ level: 64 });
+    expect(loreChanges('skill', { level: 'from 62 to 64 (Advanced)' }).changes).toEqual({ level: 64 });
+    expect(loreChanges('person', { closeness: '3 → 4', contactEveryDays: '14 -> 7 days' }).changes).toEqual({ closeness: 4, contactEveryDays: 7 });
+    expect(loreChanges('goal', { targetDate: '2027-01-01 → 2027-02-14' }).changes).toEqual({ targetDate: '2027-02-14' });
+    expect(loreChanges('goal', { targetDate: '2027-02-14 (race day)' }).changes).toEqual({ targetDate: '2027-02-14' });
+    expect(loreChanges('book', { status: 'reading -> done' }).changes).toEqual({ status: 'done' });
+  });
   it('validates goal dates and book statuses', () => {
     expect(loreChanges('goal', { targetDate: 'January', why: 'Proof.' }).changes).toEqual({ why: 'Proof.' });
     expect(loreChanges('goal', { targetDate: '2027-01-18' }).changes).toEqual({ targetDate: '2027-01-18' });
