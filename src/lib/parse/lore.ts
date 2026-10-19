@@ -62,10 +62,24 @@ function unfence(md: string): string {
   return md.replace(/^\s*```[\w-]*\s*$/gm, '');
 }
 
+const MARKED_RE = /^\s*(?:[-*•]|\d+[.)])\s+/;
+
+/** List items. When some lines are bullets, unmarked lines ("Here is what I will remember:") are prose, not items. */
 function items(body: string | undefined): string[] {
   if (!body) return [];
-  return bullets(body).filter((l) => !NONE_RE.test(l.replace(/[*_]/g, '').trim()));
+  const marked = body.split('\n').filter((l) => MARKED_RE.test(l));
+  return bullets(marked.length ? marked.join('\n') : body).filter((l) => !NONE_RE.test(l.replace(/[*_]/g, '').trim()));
 }
+
+/** Cells of a "| a | b |" row without the empty cells at both ends. */
+function tableCells(line: string): string[] {
+  return line
+    .split('|')
+    .map((c) => c.trim())
+    .filter((c, i, all) => !(c === '' && (i === 0 || i === all.length - 1)));
+}
+
+const RULE_CELL = /^:?-{2,}:?$/;
 
 export function isDayKey(s: string): boolean {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
@@ -90,11 +104,10 @@ export function parseValueUnit(raw: string | undefined): { value?: number; unit?
 }
 
 function parseAchievement(line: string, errors: string[]): LoreAchievement | undefined {
-  const cells = line
-    .split('|')
-    .map((c) => c.trim())
-    .filter((c, i, all) => !(c === '' && (i === 0 || i === all.length - 1)));
-  if (cells.length === 0) return undefined;
+  const cells = tableCells(line);
+  if (cells.length === 0 || cells.every((c) => RULE_CELL.test(c))) return undefined;
+  // A table's header row ("Date | Achievement | Value") or an echoed format line.
+  if (cells.length > 1 && /^(date|day|when|yyyy-mm-dd\b.*)$/i.test(cells[0]!.replace(/[*_`]/g, ''))) return undefined;
   let dateCell: string | undefined;
   let text: string | undefined;
   let valueCell: string | undefined;
@@ -125,7 +138,14 @@ function parseAchievement(line: string, errors: string[]): LoreAchievement | und
 function parseUpdates(body: string | undefined): Record<string, string> {
   const out: Record<string, string> = {};
   if (!body) return out;
-  for (const line of bullets(body)) {
+  for (const raw of bullets(body)) {
+    let line = raw;
+    if (line.startsWith('|')) {
+      // A "| Field | Value |" table: skip the header and rule rows, read the rest as "field: value".
+      const cells = tableCells(line);
+      if (cells.length < 2 || RULE_CELL.test(cells[0]!) || /^(field|key|name)$/i.test(cells[0]!.replace(/[*_`]/g, ''))) continue;
+      line = `${cells[0]}: ${cells.slice(1).join(' | ')}`;
+    }
     const m = /^\**`?([A-Za-z][A-Za-z _-]{0,40}?)`?\**\s*[:=|]\s*(.+)$/.exec(line);
     if (!m) continue;
     const norm = m[1]!.toLowerCase().replace(/[^a-z]/g, '');
