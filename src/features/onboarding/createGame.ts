@@ -92,6 +92,8 @@ export interface CreatedGame extends AddedCounts {
 export async function createGame(input: CreateGameInput): Promise<CreatedGame> {
   return db.transaction('rw', GAME_TABLES(), async () => {
     const profile = await profileRepo.ensure();
+    // A second run (another tab, a retry) would add every skill, routine and goal again.
+    if (profile.onboardedAt) throw new Error('The game is already created; nothing was added twice.');
     const rollover = profile.settings.rolloverHour;
     const now = nowIso();
     const counts = await addSuggestions(input.accepted, { promptId: input.promptId, rolloverHour: rollover });

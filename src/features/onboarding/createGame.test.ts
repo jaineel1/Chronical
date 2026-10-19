@@ -54,6 +54,23 @@ describe('createGame', () => {
     expect((await dayLogRepo.latestWithBrief())?.date).toBe(created.letterDate);
   });
 
+  it('creates the game once: a second run changes nothing', async () => {
+    const parsed = parseOriginReply(ORIGIN_REPLY_FIXTURE);
+    const input = {
+      accepted: { skills: parsed.skills, routines: parsed.routines, goals: parsed.goals },
+      stateOfMeMd: parsed.stateOfMeMd,
+      briefMd: parsed.briefMd,
+      affirmations: parsed.affirmations,
+      originSheetMd: '# Origin Sheet — Riya',
+    };
+    const results = await Promise.allSettled([createGame(input), createGame(input)]);
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+    await expect(createGame(input)).rejects.toThrow(/already/);
+    expect(await db.skills.count()).toBe(6);
+    expect(await db.routines.count()).toBe(8);
+    expect(await db.goals.count()).toBe(6);
+  });
+
   it('adds suggestions after existing rows without disturbing them', async () => {
     const parsed = parseOriginReply(ORIGIN_REPLY_FIXTURE);
     await addSuggestions({ skills: parsed.skills.slice(0, 2), routines: parsed.routines.slice(0, 2), goals: [] });
