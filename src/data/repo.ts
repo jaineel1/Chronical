@@ -313,8 +313,35 @@ export async function exportBackup(): Promise<BackupFile> {
   return { app: 'chronicle', version: 1, exportedAt: nowIso(), tables };
 }
 
+/**
+ * Refuse a backup that would not restore cleanly, before anything is cleared: a table that is not a
+ * list (it would be wiped and left empty), a row without an id, two day logs for one date, or, when
+ * replacing, no profile (it would leave an empty game).
+ */
+function checkBackup(file: BackupFile, mode: 'replace' | 'merge'): void {
+  if (!file || file.app !== 'chronicle' || file.version !== 1) throw new Error('Not a Chronicle backup file');
+  if (!file.tables || typeof file.tables !== 'object') throw new Error('This backup has no tables. Nothing was changed.');
+  for (const name of TABLE_NAMES) {
+    const rows = file.tables[name];
+    if (rows === undefined) continue;
+    if (!Array.isArray(rows)) throw new Error(`This backup is damaged: ${name} is not a list of rows. Nothing was changed.`);
+    for (const row of rows) {
+      const id = (row as { id?: unknown } | null)?.id;
+      if (typeof id !== 'string' || !id) throw new Error(`This backup is damaged: a row in ${name} has no id. Nothing was changed.`);
+    }
+  }
+  const dates = new Set<unknown>();
+  for (const log of (file.tables.dayLogs ?? []) as { date?: unknown }[]) {
+    if (dates.has(log.date)) throw new Error(`This backup has two day logs for ${String(log.date)}. Nothing was changed.`);
+    dates.add(log.date);
+  }
+  if (mode === 'replace' && !(file.tables.profile ?? []).some((p) => (p as { id?: unknown }).id === 'me')) {
+    throw new Error('This backup has no profile, so it would leave an empty game. Nothing was changed.');
+  }
+}
+
 export async function importBackup(file: BackupFile, mode: 'replace' | 'merge' = 'replace'): Promise<void> {
-  if (file.app !== 'chronicle' || file.version !== 1) throw new Error('Not a Chronicle backup file');
+  checkBackup(file, mode);
   await db.transaction('rw', TABLE_NAMES.map((n) => db.table(n)), async () => {
     for (const name of TABLE_NAMES) {
       const rows = file.tables[name] ?? [];

@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '@/data/db';
-import { dayLogRepo, patch, profileRepo, resetAll, routineLogRepo, routineRepo } from '@/data/repo';
+import { dayLogRepo, exportBackup, importBackup, patch, profileRepo, resetAll, routineLogRepo, routineRepo } from '@/data/repo';
+import { seedDemo } from '@/data/seed';
+import type { BackupFile } from '@/data/types';
 
 /**
  * Screens save fields independently (a debounced name, a toggle, a number tile), so two writes to
@@ -71,5 +73,47 @@ describe('repositories under concurrent writes', () => {
   it('routineLogRepo.set twice at once writes one log for the day', async () => {
     await Promise.all([routineLogRepo.set('r1', '2026-10-18', true), routineLogRepo.set('r1', '2026-10-18', true)]);
     expect(await db.routineLogs.where('[routineId+date]').equals(['r1', '2026-10-18']).count()).toBe(1);
+  });
+});
+
+describe('importBackup', () => {
+  beforeEach(async () => {
+    await resetAll();
+    await seedDemo();
+  });
+
+  async function counts() {
+    return { dayLogs: await db.dayLogs.count(), routines: await db.routines.count(), profile: await db.profile.count() };
+  }
+
+  it('refuses a file whose tables are not lists, and changes nothing', async () => {
+    const before = await counts();
+    const backup = await exportBackup();
+    const broken = { ...backup, tables: { ...backup.tables, dayLogs: { '0': backup.tables.dayLogs![0] } } } as unknown as BackupFile;
+    await expect(importBackup(broken, 'replace')).rejects.toThrow(/dayLogs/);
+    expect(await counts()).toEqual(before);
+  });
+
+  it('refuses rows without an id, and changes nothing', async () => {
+    const before = await counts();
+    const backup = await exportBackup();
+    const broken: BackupFile = { ...backup, tables: { ...backup.tables, routines: [{ name: 'Gym' }] } };
+    await expect(importBackup(broken, 'replace')).rejects.toThrow(/routines/);
+    expect(await counts()).toEqual(before);
+  });
+
+  it('refuses to replace the game with a file that has no profile', async () => {
+    const before = await counts();
+    const empty: BackupFile = { app: 'chronicle', version: 1, exportedAt: new Date().toISOString(), tables: {} };
+    await expect(importBackup(empty, 'replace')).rejects.toThrow(/profile/);
+    expect(await counts()).toEqual(before);
+  });
+
+  it('still restores a whole backup', async () => {
+    const backup = await exportBackup();
+    await resetAll();
+    await importBackup(backup, 'replace');
+    expect(await db.routines.count()).toBe(8);
+    expect((await profileRepo.get())?.settings.demo).toBe(true);
   });
 });
