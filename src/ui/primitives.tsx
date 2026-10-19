@@ -102,11 +102,12 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primar
 
 export function Button({ variant = 'primary', size = 'md', className = '', ...rest }: ButtonProps) {
   const base = 'inline-flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer disabled:cursor-default disabled:opacity-50';
-  const sizes = size === 'lg' ? 'h-12 px-4 text-[18px]' : 'h-9 px-3';
+  // Text buttons carry no box: no height, no horizontal padding, so they align with the text around them.
+  const sizes = variant === 'text' ? (size === 'lg' ? 'text-[18px]' : '') : size === 'lg' ? 'h-12 px-4 text-[18px]' : 'h-9 px-3';
   const variants = {
     primary: 'bg-walnut text-paper border-0',
     outline: 'bg-transparent text-walnut border border-walnut',
-    text: 'bg-transparent text-walnut border-0 px-0 h-auto',
+    text: 'bg-transparent text-walnut border-0 p-0 h-auto',
   }[variant];
   return <button className={`${base} ${sizes} ${variants} ${className}`} {...rest} />;
 }

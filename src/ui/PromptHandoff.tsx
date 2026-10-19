@@ -92,11 +92,11 @@ export function PromptHandoff({
         <Button size="lg" onClick={copy} data-testid="copy-prompt">
           {copied === 'ok' ? 'Copied. Now paste it into Claude' : (copyLabel ?? 'Copy the prompt')}
         </Button>
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <span className="text-mid">
             For {model}. About {formatTokens(tokens)} tokens.
           </span>
-          <span className="flex gap-3">
+          <span className="flex gap-4">
             <a href={CLAUDE_NEW_CHAT_URL} target="_blank" rel="noopener noreferrer" className="text-walnut no-underline">
               Open Claude
             </a>

@@ -1,15 +1,23 @@
+import { lazy, Suspense } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router';
 import { Shell } from './Shell';
 import { ShellProvider } from './shellContext';
 import { RequireOnboarded } from './RequireOnboarded';
 import { MorningScreen } from '@/features/morning/MorningScreen';
 import { CampfireScreen } from '@/features/campfire/CampfireScreen';
-import { YouScreen } from '@/features/you/YouScreen';
-import { MapScreen } from '@/features/map/MapScreen';
-import { PeopleScreen } from '@/features/people/PeopleScreen';
-import { VaultScreen } from '@/features/vault/VaultScreen';
-import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen';
-import { EditorsRoutes } from '@/features/editors/EditorsRoutes';
+
+// The two daily screens load with the app; everything else arrives when first opened.
+const YouScreen = lazy(() => import('@/features/you/YouScreen').then((m) => ({ default: m.YouScreen })));
+const MapScreen = lazy(() => import('@/features/map/MapScreen').then((m) => ({ default: m.MapScreen })));
+const PeopleScreen = lazy(() => import('@/features/people/PeopleScreen').then((m) => ({ default: m.PeopleScreen })));
+const VaultScreen = lazy(() => import('@/features/vault/VaultScreen').then((m) => ({ default: m.VaultScreen })));
+const OnboardingScreen = lazy(() => import('@/features/onboarding/OnboardingScreen').then((m) => ({ default: m.OnboardingScreen })));
+const EditorsRoutes = lazy(() => import('@/features/editors/EditorsRoutes').then((m) => ({ default: m.EditorsRoutes })));
+
+/** Quiet paper while a chunk loads; never a spinner. */
+function Quiet() {
+  return <div className="min-h-[40vh] bg-paper" aria-busy="true" />;
+}
 
 /**
  * HashRouter keeps deep links working from any static host (artifact preview, file://, Capacitor)
@@ -19,21 +27,23 @@ export function App() {
   return (
     <HashRouter>
       <ShellProvider>
-        <Routes>
-          <Route path="/onboarding/*" element={<OnboardingScreen />} />
-          <Route element={<RequireOnboarded />}>
-            <Route element={<Shell />}>
-              <Route index element={<MorningScreen />} />
-              <Route path="campfire" element={<CampfireScreen />} />
-              <Route path="you" element={<YouScreen />} />
-              <Route path="map" element={<MapScreen />} />
-              <Route path="people" element={<PeopleScreen />} />
-              <Route path="vault/*" element={<VaultScreen />} />
-              <Route path="edit/*" element={<EditorsRoutes />} />
+        <Suspense fallback={<Quiet />}>
+          <Routes>
+            <Route path="/onboarding/*" element={<OnboardingScreen />} />
+            <Route element={<RequireOnboarded />}>
+              <Route element={<Shell />}>
+                <Route index element={<MorningScreen />} />
+                <Route path="campfire" element={<CampfireScreen />} />
+                <Route path="you" element={<YouScreen />} />
+                <Route path="map" element={<MapScreen />} />
+                <Route path="people" element={<PeopleScreen />} />
+                <Route path="vault/*" element={<VaultScreen />} />
+                <Route path="edit/*" element={<EditorsRoutes />} />
+              </Route>
             </Route>
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </ShellProvider>
     </HashRouter>
   );
