@@ -53,12 +53,13 @@ describe('buildSkillRankPrompt', () => {
     expect(md).toContain('## ASSESSMENT\nName | level | percentile among everyone | percentile among practitioners | one-line reasoning');
     expect(md).toContain('## NEXT_MILESTONES\nName | from -> to: what would prove it');
     expect(md).toMatch(/never inflate/i);
+    expect(md).toContain('Beginner 1-19, Capable 20-39, Solid 40-59, Advanced 60-79, Expert 80-94, Elite 95-100.');
     expect(md.indexOf('---')).toBeGreaterThan(md.indexOf('## NEXT_MILESTONES'));
   });
 
   it('includes hours, previous level, goal, milestones and the five newest achievements per skill', () => {
     expect(md).toContain('## Running');
-    expect(md).toContain('Level now: 62.4. Previous ranking: 62, on 13 Oct.');
+    expect(md).toContain('Level now: 62.4 (Advanced). Previous ranking: 62, on 13 Oct.');
     expect(md).toContain('Hours logged in total: 216');
     expect(md).toContain('What it is for: Sub-4 marathon');
     expect(md).toContain('Next milestones on record: 62 to 70: a half marathon under 1:55');
@@ -68,7 +69,7 @@ describe('buildSkillRankPrompt', () => {
   });
 
   it('marks a never-ranked skill and an empty achievement list', () => {
-    expect(md).toContain("Level now: 31, the player's own starting guess. Never ranked by you.");
+    expect(md).toContain("Level now: 31 (Capable), the player's own starting guess. Never ranked by you.");
     expect(md).toContain('Recent achievements: none logged');
   });
 

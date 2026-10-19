@@ -85,9 +85,10 @@ Two to four sentences to the player, in character as the game master: what you w
 export function buildLorePrompt(item: LoreSubject, freeText: string, opts: { today?: string } = {}): string {
   const today = opts.today ?? toDayKey(new Date());
   const noun = TYPE_NOUN[item.type];
+  const pronoun = item.type === 'person' ? 'them' : 'it';
   const task = `# Task: remember this ${noun}
 
-The player wrote the note below about one ${noun} in their game: ${item.name}. Read it and extract what the game should remember about it. Use only what the note and the summary say; never invent. If the note mentions a day ("last Sunday", "yesterday"), turn it into a date using today's date.`;
+The player wrote the note below about one ${noun} in their game: ${item.name}. Read it and extract what the game should remember about ${pronoun}. Use only what the note and the summary say; never invent. If the note mentions a day ("last Sunday", "yesterday"), turn it into a date using today's date.`;
   const summary = item.summaryLines.length ? item.summaryLines.map((l) => `- ${l}`).join('\n') : '- Nothing yet.';
   const data = joinBlocks(
     `# The ${noun}: ${item.name}\n${summary}`,

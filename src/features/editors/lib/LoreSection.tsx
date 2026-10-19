@@ -94,7 +94,7 @@ export function LoreSection({ type, itemId, onApplied }: { type: LoreSubjectType
   const count = history?.length ?? 0;
   return (
     <section aria-label="Tell the game master more" className="flex flex-col gap-2">
-      <SectionHeader title="Tell the game master more" note={count ? `${count} ${count === 1 ? 'note' : 'notes'} kept` : 'nothing kept yet'} />
+      <SectionHeader title="Tell the game master more" note={count ? `${count} ${count === 1 ? 'note' : 'notes'}` : undefined} />
       <div className="flex flex-col gap-3 px-2.5">
         <p className="m-0 text-mid">{INTRO[type]}</p>
         <TextArea
@@ -118,7 +118,9 @@ export function LoreSection({ type, itemId, onApplied }: { type: LoreSubjectType
             }}
             onReply={onReply}
           />
-        ) : null}
+        ) : (
+          <span className="text-mid">Write a few lines and the prompt for Claude appears here, with a box for the reply.</span>
+        )}
         {message ? <span className="text-mid">{message}</span> : null}
         {latestReply ? <Letter md={latestReply} /> : null}
         {facts.length ? (

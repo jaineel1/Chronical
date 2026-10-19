@@ -111,7 +111,9 @@ export function parsePercentile(text: string | undefined): number | undefined {
   return Math.max(0, Math.min(100, Math.round(n * 10) / 10));
 }
 
+/** Skills live on 1-100 with one decimal; anything unreadable becomes 1. */
 export function clampSkillLevel(n: number): number {
+  if (!Number.isFinite(n)) return 1;
   return Math.max(1, Math.min(100, Math.round(n * 10) / 10));
 }
 
