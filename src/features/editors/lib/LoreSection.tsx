@@ -55,9 +55,10 @@ export function Letter({ md }: { md: string }) {
 
 /**
  * "Tell the game master more": free text about one item → lore prompt → pasted reply → facts,
- * achievements, lessons and whitelisted updates. The latest reply is shown as a letter.
+ * achievements, lessons and whitelisted updates. The latest reply is shown as a letter. Editors
+ * built on `useDraft` pick up the updated fields on their own.
  */
-export function LoreSection({ type, itemId, onApplied }: { type: LoreSubjectType; itemId: string; onApplied?: () => void }) {
+export function LoreSection({ type, itemId }: { type: LoreSubjectType; itemId: string }) {
   const today = useToday();
   const history = useLore(type, itemId);
   const subject = useLiveQuery(() => loreSubject(type, itemId, today), [type, itemId, today, history?.length]);
@@ -86,7 +87,6 @@ export function LoreSection({ type, itemId, onApplied }: { type: LoreSubjectType
       setText('');
       writeDraft(key, '');
       sent.current = null;
-      onApplied?.();
     }
     return { ok: r.ok, error: r.error, message: r.message };
   }

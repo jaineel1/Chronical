@@ -126,7 +126,7 @@ export function ConfirmAction({
     );
   }
   return (
-    <div role="alertdialog" aria-label={label} className={`flex flex-col gap-2 border border-dashed border-red p-3 ${className} ${askingClassName}`}>
+    <div role="group" aria-label={label} className={`flex flex-col gap-2 border border-dashed border-red p-3 ${className} ${askingClassName}`}>
       <span className="text-red">{question}</span>
       <div className="flex items-center gap-5">
         <button
@@ -145,7 +145,8 @@ export function ConfirmAction({
         >
           {confirmLabel}
         </button>
-        <Button type="button" variant="text" onClick={() => setAsking(false)}>
+        {/* Focus lands on the safe choice. */}
+        <Button type="button" variant="text" autoFocus onClick={() => setAsking(false)}>
           Keep it
         </Button>
       </div>
