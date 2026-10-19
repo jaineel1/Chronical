@@ -206,6 +206,13 @@ export function readPillar(raw: string | undefined): PillarRead {
     const p = pillarFromLabel(combined[1]!);
     if (p) return { pillar: p, subStat: combined[2]!.trim() };
   }
+  // "Body (Endurance)" arrives here as "Body Endurance": only when the second word is that pillar's sub-stat.
+  const spaced = /^([A-Za-z]+)\s+([A-Za-z]+)$/.exec(t);
+  if (spaced) {
+    const p = pillarFromLabel(spaced[1]!);
+    const sub = p ? matchSubStat(p, spaced[2]) : undefined;
+    if (p && sub) return { pillar: p, subStat: sub };
+  }
   const syn = PILLAR_SYNONYMS[t.toUpperCase()];
   if (syn) return { pillar: syn, loose: t };
   const owner = pillarOfSubStat(t);
@@ -248,6 +255,16 @@ export function parseDays(raw: string | undefined): DaysRead {
     .replace(/\./g, '')
     .trim();
   if (!t) return { days: [], ok: false };
+  // "daily except Sunday", "weekdays but Wed": the first part minus the second.
+  const except = /^(.+?)\s*,?\s*\b(?:except|but|apart from|other than|not on)\b\s*(.+)$/.exec(t);
+  if (except) {
+    const base = parseDays(except[1]);
+    const minus = parseDays(except[2]);
+    if (base.ok && minus.ok && minus.days.length) {
+      const days = (base.days.length ? base.days : [0, 1, 2, 3, 4, 5, 6]).filter((d) => !minus.days.includes(d));
+      if (days.length) return { days: days.length === 7 ? [] : days, ok: true };
+    }
+  }
   if (/\b(daily|every ?day|everyday|each day|all days|all week|7 days|seven days|7\/7)\b|\b7 ?x\b/.test(t)) return { days: [], ok: true };
 
   const set = new Set<number>();
@@ -340,6 +357,15 @@ export function parseTargetDate(raw: string | undefined): { date?: string; ok: b
     if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) return { date: `${y}-${pad2(mo)}-${pad2(d)}`, ok: true };
     return { ok: false };
   }
+  // 31/03/2027 or 03/31/2027 when the order is clear from a part above 12; 03/04/2027 is left unread.
+  const slashed = /(\d{1,2})[/.](\d{1,2})[/.](\d{4})/.exec(t);
+  if (slashed) {
+    const [a, b, y] = [Number(slashed[1]), Number(slashed[2]), Number(slashed[3])];
+    const [d, mo] = a > 12 && b <= 12 ? [a, b] : b > 12 && a <= 12 ? [b, a] : [0, 0];
+    const date = new Date(y, mo - 1, d);
+    if (d && date.getMonth() === mo - 1 && date.getDate() === d) return { date: `${y}-${pad2(mo)}-${pad2(d)}`, ok: true };
+    return { ok: false };
+  }
   if (/\d{4}/.test(t)) {
     const ms = Date.parse(t);
     if (!Number.isNaN(ms)) return { date: toDayKey(new Date(ms)), ok: true };
@@ -371,6 +397,8 @@ function rowsOf(body: string, label: string, notes: string[]): string[][] {
     if (l.startsWith('|')) l = l.slice(1);
     if (l.endsWith('|')) l = l.slice(0, -1);
     const cells = l.split('|').map(clean);
+    // A numbered table ("| # | Skill | …", "| 1 | Running | …"): the number is not part of the row.
+    if (cells.length > 2 && /^(#|no\.?|\d{1,3}[.)]?)$/i.test(cells[0]!)) cells.shift();
     if (HEADER_FIRST_CELLS.has(cells[0]!.toLowerCase())) continue;
     if (!cells[0]) continue;
     rows.push(cells);
@@ -382,7 +410,8 @@ function clampInt(n: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, Math.round(n)));
 }
 
-const LEVEL_CELL = /^\D{0,12}\d{1,3}(?:\.\d+)?\s*(?:\/\s*100)?\s*$/;
+/** "34", "Level 34", "34/100", "34 (Capable)", "22 — capable", "Level 41, solid". */
+const LEVEL_CELL = /^\D{0,12}\d{1,3}(?:\.\d+)?\s*(?:\/\s*100)?\s*(?:\(\s*(?:beginner|capable|solid|advanced|expert|elite)\s*\)|[,;:—–-]?\s*(?:beginner|capable|solid|advanced|expert|elite))?\s*$/i;
 
 function parseSkills(body: string, notes: string[]): OriginSkill[] {
   const out: OriginSkill[] = [];
@@ -475,7 +504,15 @@ function parseRoutines(body: string, notes: string[]): OriginRoutine[] {
       notes.push(`"${name}": read "${cells[4]}" as ${formatDays(daysRead.days)}.`);
     }
 
-    const windowRead = parseWindow(cells[5]);
+    let windowRead = parseWindow(cells[5]);
+    let upside = cells[6] ?? '';
+    let costCells = cells.slice(7);
+    if (!windowRead.ok && cells.length === 7) {
+      // "… | days | upside | cost": the window cell was left out, so upside and cost sit one early.
+      windowRead = { ok: true };
+      upside = cells[5] ?? '';
+      costCells = cells.slice(6);
+    }
     if (!windowRead.ok) notes.push(`"${name}": could not read the window "${cells[5]}"; left it open.`);
 
     out.push({
@@ -485,8 +522,8 @@ function parseRoutines(body: string, notes: string[]): OriginRoutine[] {
       weight: clampInt(weight, 1, 5),
       days: daysRead.days,
       window: windowRead.window,
-      upside: cells[6] ?? '',
-      cost: cells.slice(7).filter(Boolean).join(' | '),
+      upside,
+      cost: costCells.filter(Boolean).join(' | '),
     });
   }
   return out;
@@ -568,7 +605,10 @@ export function parseOriginReply(md: string): OriginReply {
   const stateBody = groups.STATE_OF_ME.join('\n\n').trim();
   const stateOfMeMd = stateBody ? `# State of Me\n\n${stateBody}\n` : '';
   const briefMd = groups.BRIEF.join('\n\n').trim();
-  const affirmations = bullets(groups.AFFIRMATIONS.join('\n'))
+  // When the affirmations are a list, an unmarked line after it is Claude's closing remark.
+  const affirmationText = groups.AFFIRMATIONS.join('\n');
+  const markedAffirmations = affirmationText.split('\n').filter((l) => /^\s*(?:[-*•]|\d+[.)])\s+/.test(l));
+  const affirmations = bullets(markedAffirmations.length ? markedAffirmations.join('\n') : affirmationText)
     .filter((l) => !FENCE_LINE.test(l))
     .map((l) => clean(l))
     .filter(Boolean);

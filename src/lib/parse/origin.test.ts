@@ -228,6 +228,47 @@ Read | Mind | Learning | 1 | daily | none | books | lost
   });
 });
 
+describe('parseOriginReply on replies Claude writes in the wild', () => {
+  it('keeps a closing remark out of the affirmations', () => {
+    const plain = parseOriginReply(`${MIN_STATE}${MIN_BRIEF}## AFFIRMATIONS\n- 61 kg is a start.\n- 2 clients at 20.\n\nLet me know if you would like me to adjust anything.`);
+    expect(plain.affirmations).toEqual(['61 kg is a start.', '2 clients at 20.']);
+    const ruled = parseOriginReply(`${MIN_STATE}${MIN_BRIEF}## AFFIRMATIONS\n1. 61 kg is a start.\n2. 2 clients at 20.\n\n---\n\n*Want me to change the routines?*`);
+    expect(ruled.affirmations).toEqual(['61 kg is a start.', '2 clients at 20.']);
+    const unmarked = parseOriginReply(`${MIN_STATE}${MIN_BRIEF}## AFFIRMATIONS\n61 kg is a start.\n2 clients at 20.`);
+    expect(unmarked.affirmations).toEqual(['61 kg is a start.', '2 clients at 20.']);
+  });
+
+  it('reads a level written with its band', () => {
+    const r = parseOriginReply(`${MIN_STATE}${MIN_BRIEF}## SKILLS\nRunning | Body | 34 (Capable) | 5 km in 29:10\nCooking | Body | 22 — capable | dal rice\nReading | Mind | Level 41, solid | 12 books`);
+    expect(r.skills.map((s) => [s.name, s.level, s.why])).toEqual([
+      ['Running', 34, '5 km in 29:10'],
+      ['Cooking', 22, 'dal rice'],
+      ['Reading', 41, '12 books'],
+    ]);
+    expect(r.errors).toEqual([]);
+  });
+
+  it('reads "Body (Endurance)" as a pillar with its sub-stat', () => {
+    const r = parseOriginReply(`${MIN_STATE}${MIN_BRIEF}## ROUTINES\nRun | Body (Endurance) | 3 | Mon,Wed | 06:00-07:00 | pace | slower`);
+    expect(r.routines[0]).toMatchObject({ name: 'Run', pillar: 'BODY', subStat: 'Endurance', weight: 3, days: [1, 3], upside: 'pace', cost: 'slower' });
+  });
+
+  it('drops a numbered first column', () => {
+    const r = parseOriginReply(`${MIN_STATE}${MIN_BRIEF}## SKILLS\n| # | Skill | Pillar | Level | Why |\n|---|---|---|---|---|\n| 1 | Running | Body | 34 | 5 km |\n| 2 | Cooking | Body | 22 | dal |`);
+    expect(r.skills.map((s) => [s.name, s.level])).toEqual([
+      ['Running', 34],
+      ['Cooking', 22],
+    ]);
+    expect(r.errors).toEqual([]);
+  });
+
+  it('keeps upside and cost in place when the window cell is left out', () => {
+    const r = parseOriginReply(`${MIN_STATE}${MIN_BRIEF}## ROUTINES\nGym | Body | Strength | 3 | Mon-Sat | squat 80 kg arrives on schedule | each miss adds 4 days`);
+    expect(r.routines[0]).toMatchObject({ window: undefined, upside: 'squat 80 kg arrives on schedule', cost: 'each miss adds 4 days' });
+    expect(r.errors).toEqual([]);
+  });
+});
+
 describe('field readers', () => {
   it('parseDays understands the common ways of writing days', () => {
     const cases: [string, number[]][] = [
@@ -249,6 +290,9 @@ describe('field readers', () => {
     for (const [input, days] of cases) expect(parseDays(input), input).toEqual({ days, ok: true });
     expect(parseDays('3x a week')).toEqual({ days: [1, 3, 5], ok: true, spread: true });
     expect(parseDays('4 times per week')).toEqual({ days: [1, 2, 4, 6], ok: true, spread: true });
+    expect(parseDays('daily except Sunday')).toEqual({ days: [1, 2, 3, 4, 5, 6], ok: true });
+    expect(parseDays('every day but Sat and Sun')).toEqual({ days: [1, 2, 3, 4, 5], ok: true });
+    expect(parseDays('weekdays except Wed')).toEqual({ days: [1, 2, 4, 5], ok: true });
     expect(parseDays('sometimes').ok).toBe(false);
     expect(parseDays(undefined).ok).toBe(false);
     expect(formatDays([])).toBe('daily');
@@ -273,6 +317,7 @@ describe('field readers', () => {
     expect(parseTargetDate('by 2027-02-14')).toEqual({ date: '2027-02-14', ok: true });
     expect(parseTargetDate('31 January 2027')).toEqual({ date: '2027-01-31', ok: true });
     expect(parseTargetDate('none')).toEqual({ ok: true });
+    expect(parseTargetDate('31/03/2027')).toEqual({ date: '2027-03-31', ok: true });
     expect(parseTargetDate('soon').ok).toBe(false);
     expect(parseTargetDate('2027-13-01').ok).toBe(false);
   });
