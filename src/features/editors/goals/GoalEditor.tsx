@@ -201,7 +201,7 @@ function GoalFormView({ bundle }: { bundle: GoalBundle | null }) {
             <ChipChoice options={PILLARS} value={draft.pillar || undefined} render={(p) => PILLAR_LABEL[p]} onChange={(p) => set({ pillar: p })} />
           </ChoiceGroup>
           <Field label="Why it matters" hint="One line you would say out loud.">
-            <TextInput value={draft.why} onChange={(e) => set({ why: e.target.value })} placeholder="Proof that I can hold a hard thing for 22 weeks." />
+            <TextInput value={draft.why} onChange={(e) => set({ why: e.target.value })} placeholder="Proof I can hold a hard thing" />
           </Field>
           <Field label="Target date, optional">
             <TextInput type="date" value={draft.targetDate} onChange={(e) => set({ targetDate: e.target.value })} />

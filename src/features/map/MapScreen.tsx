@@ -128,7 +128,7 @@ function GoalRow({ goal, milestones }: { goal: Goal; milestones: Milestone[] }) 
     <Link to={`/edit/goals/${goal.id}`} className="flex items-center gap-[10px] text-ink no-underline">
       <span className="line-clamp-2 min-w-0 flex-1 break-words">{goal.title}</span>
       <div className="flex w-[90px] shrink-0">
-        <Bar value={p.value * 100} max={100} label={`${goal.title}, ${p.label}`} />
+        <Bar value={p.value * 100} max={100} />
       </div>
       <span className="w-16 shrink-0 text-right text-mid">{p.label}</span>
     </Link>

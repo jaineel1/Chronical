@@ -69,7 +69,7 @@ function GoalRow({ item }: { item: GoalWithMilestones }) {
       <Link to={`/edit/goals/${goal.id}`} className={`flex items-center gap-[10px] no-underline ${goal.status === 'paused' ? 'text-mid' : 'text-ink'}`}>
         <span className="line-clamp-2 min-w-0 flex-1 break-words">{goal.title}</span>
         <span className="flex w-[90px] shrink-0">
-          <Bar value={p.value * 100} max={100} label={`${goal.title}, ${label}`} />
+          <Bar value={p.value * 100} max={100} />
         </span>
         <span className="w-16 shrink-0 text-right text-mid">{label}</span>
       </Link>

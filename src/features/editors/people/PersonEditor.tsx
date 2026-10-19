@@ -122,7 +122,7 @@ function PersonFormView({ row }: { row: Person | null }) {
             {errors.contactEveryDays ? <ErrorText>{errors.contactEveryDays}</ErrorText> : null}
           </Field>
           <Field label="Notes" hint="What you will want to remember before the next call.">
-            <TextInput value={draft.notes} onChange={(e) => set({ notes: e.target.value })} placeholder="Last time: coffee. They asked about the agency." />
+            <TextInput value={draft.notes} onChange={(e) => set({ notes: e.target.value })} placeholder="Last time: coffee, asked about work" />
           </Field>
         </div>
         <SaveBar onBack={goBack} saving={saving} note={missing ? <ErrorText>{missing === 1 ? 'One thing to fix above.' : `${missing} things to fix above.`}</ErrorText> : null} />
