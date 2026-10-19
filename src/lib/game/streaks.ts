@@ -134,8 +134,11 @@ export function planClose(
       status = 'off';
       if (today?.shielded) write = { done: false, shielded: false };
     } else {
+      // One shield a week: none used on another day this week, and the routine's own counter agrees
+      // (a counter from an earlier week resets to 1).
       const usedThisWeek = own.some((l) => l.shielded && l.date !== date && weekKey(l.date) === week);
-      if (today?.shielded || !usedThisWeek) {
+      const counterAllows = routine.shieldWeek !== week || routine.shields > 0;
+      if (today?.shielded || (!usedThisWeek && counterAllows)) {
         status = 'shielded';
         if (!today?.shielded) write = { done: false, shielded: true };
         warnings.push(`${routine.name}: shield used, none left this week`);

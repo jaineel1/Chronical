@@ -7,7 +7,7 @@ import { DEFAULT_ROLLOVER_HOUR, addDays, formatLongDate, todayKey } from '@/lib/
 import { dayNoFor, mondayOf } from '@/lib/game/calendar';
 import { pillarTotals } from '@/lib/game/daily';
 import { displayLevel } from '@/lib/game/level';
-import { planClose, summariseNightWarnings } from '@/lib/game/streaks';
+import { isShieldNote, planClose, summariseNightWarnings } from '@/lib/game/streaks';
 import { playerSummary, weekGrid, type PlayerSummary } from '@/lib/game/xp';
 import { isPeriodQuest } from '@/lib/parse/weekly';
 import { Empty, Section, SectionHeader, StatRow } from '@/ui/primitives';
@@ -222,8 +222,9 @@ function Notes({ view, desktop = false }: { view: MorningView; desktop?: boolean
   const insights = (source?.insights ?? []).map((i) => `Pattern noticed: ${lowerFirst(i, nouns)}`);
   const lesson = source?.lessonMd ? lessonLine(source.lessonMd) : undefined;
   if (!warnings.length && !insights.length && !lesson) return null;
+  // A used shield is the game working, so it reads in mid; Claude's warnings and broken streaks are red.
   const warningLines = warnings.map((w) => (
-    <span key={`w-${w}`} className="text-red">
+    <span key={`w-${w}`} className={isShieldNote(w) ? 'text-mid' : 'text-red'}>
       {w}
     </span>
   ));

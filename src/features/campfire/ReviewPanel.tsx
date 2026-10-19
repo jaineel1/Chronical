@@ -20,16 +20,14 @@ interface Built {
   label: string;
 }
 
-const COPY: Record<PeriodKind, { title: string; intro: string; copy: string; saved: string; savedNoState: string }> = {
+const COPY: Record<PeriodKind, { intro: string; copy: string; saved: string; savedNoState: string }> = {
   weekly: {
-    title: 'Weekly review',
     intro: 'Seven nights in one prompt. Claude writes the week in 150 words, rewrites your State of Me and sets three quests for the week.',
     copy: 'Copy the weekly review',
     saved: 'Week saved. Your State of Me is up to date.',
     savedNoState: 'Week saved. The reply had no State of Me, so yours stayed as it was.',
   },
   monthly: {
-    title: 'Monthly digest',
     intro: 'The month in one prompt: its weekly digests and every day in a line. Claude writes the month, rewrites your State of Me and sets three quests for the month.',
     copy: 'Copy the monthly digest',
     saved: 'Month saved. Your State of Me is up to date.',

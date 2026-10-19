@@ -78,6 +78,14 @@ describe('planClose', () => {
     expect(planClose([gym], logs, '2026-10-12').outcomes[0]?.status).toBe('shielded');
   });
 
+  it('respects a counter that says the week has no shield left', () => {
+    const spent = { ...gym, shields: 0, shieldWeek: '2026-W42' };
+    expect(planClose([spent], history, '2026-10-12').outcomes[0]?.status).toBe('missed');
+    // A counter from last week resets.
+    const stale = { ...gym, shields: 0, shieldWeek: '2026-W41' };
+    expect(planClose([stale], history, '2026-10-12').outcomes[0]?.status).toBe('shielded');
+  });
+
   it('is stable on a night that is already closed', () => {
     const logs = [...history, makeLog('gym', '2026-10-12', false, true)];
     const plan = planClose([gym], logs, '2026-10-12');

@@ -66,6 +66,7 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
   const nouns = useKnownNouns();
   // Open the form unless the letter is already in when the screen opens; a paste made here keeps it open.
   const [editing, setEditing] = useState<boolean | null>(null);
+  const [sendError, setSendError] = useState<string>();
   useEffect(() => {
     if (editing === null && log !== undefined) setEditing(!log?.briefMd);
   }, [editing, log]);
@@ -114,12 +115,19 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
               model={ctx.model}
               copyLabel="Send tonight's log"
               onCopied={async () => {
-                await sendNight(date, ctx);
+                setSendError(undefined);
+                try {
+                  await sendNight(date, ctx);
+                } catch (e) {
+                  setSendError(e instanceof Error ? e.message : 'unknown error');
+                }
               }}
               onReply={(md) => acceptReply(date, md, { ...ctx, knownNouns: nouns ?? [] })}
               initialReply={log?.rawDraft ?? ''}
               pastePlaceholder="Paste Claude's reply here."
-            />
+            >
+              {sendError ? <span className="text-red">The night could not be closed ({sendError}). Copy it again to retry.</span> : null}
+            </PromptHandoff>
           ) : null}
         </>
       ) : null}
@@ -130,11 +138,11 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
 
 function LetterIn({ editing, onEdit }: { editing: boolean; onEdit: () => void }) {
   return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 bg-paper-2 px-2.5 py-[3px]" data-testid="letter-in">
+    <div className="flex flex-col gap-1 px-2.5 pb-1" data-testid="letter-in">
       <span>Tonight's letter is in.</span>
-      <span className="flex gap-4">
-        {!editing ? <TextButton onClick={onEdit}>Edit the log</TextButton> : null}
+      <span className="flex gap-6">
         <TextLink to="/">Read it</TextLink>
+        {!editing ? <TextButton onClick={onEdit}>Edit the log</TextButton> : null}
       </span>
     </div>
   );
