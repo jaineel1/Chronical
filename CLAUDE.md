@@ -130,3 +130,18 @@ warnings) · `walnut` #6b3f2a buttons · `bar-muted` / `bar-text` text on ink ba
 
 Work on your own branch in your own worktree. Commit in small steps with clear messages. Do not touch
 `package.json` dependencies without noting it in your final report (prefer no new dependencies).
+
+## Shared building blocks (use these, do not re-implement)
+
+- `src/lib/parse/sections.ts` — `splitSections(md)`, `section(list, 'BRIEF')`, `bullets(body)`, `pairs(body)`,
+  `num(text)`. Headers are normalised (`## Brief`, `**BRIEF**`, `BRIEF:` all → `BRIEF`; aliases like
+  `LETTER` → `BRIEF`, `STATE OF ME` → `STATE_OF_ME`). Every parser is built on this.
+- `src/lib/prompt/shared.ts` — `GAME_MASTER_PREAMBLE`, `VOICE_RULES`, `section(title, body)`, `joinBlocks`,
+  `RULE`, `stripMoney(md)`, `estimateTokens`, `formatTokens`, `MODEL_LABEL`. Every prompt starts with the
+  preamble and voice rules, then its own task and reply format, then `---`, then the data.
+- `src/lib/clipboard.ts` — `copyText`, `readClipboard`, `openClaude`, `downloadText`.
+- `src/ui/PromptHandoff.tsx` — the one hand-off UI: Copy prompt (walnut) · "For Haiku. About 9.2k tokens." ·
+  Open Claude · Show text · dashed paste box · "Use this reply". Give it `promptMd`, `model`, and an
+  `onReply(replyMd) → {ok, error?, message?}` that parses and saves. Nightly, origin, weekly, skill rank
+  and lore all use it, so the loop feels identical everywhere.
+- `DayLog` already has `closedAt`, `routineStats`, `statsAppliedAt` for the night flow (see types.ts comments).

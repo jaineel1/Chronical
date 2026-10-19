@@ -200,8 +200,14 @@ export interface DayLog extends Base {
   /** Exactly what was sent to Claude. */
   compiledMd?: string;
   promptId?: string;
+  /** Set when "Send tonight's log" was pressed: the night is closed, routine deltas computed. */
+  closedAt?: string;
   sentAt?: string;
   repliedAt?: string;
+  /** Deltas the app computed from routines (Σ done − 0.5 × Σ skipped, floor −5 per pillar). */
+  routineStats?: StatDelta[];
+  /** When routineStats + stats were applied to the pillars, so a re-paste can revert and re-apply. */
+  statsAppliedAt?: string;
   /** Parsed sections of the reply. */
   briefMd?: string;
   affirmations: string[];
