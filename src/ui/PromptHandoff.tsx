@@ -18,8 +18,11 @@ export interface PromptHandoffProps {
   model: string;
   /** Called with the pasted reply. Return ok:false with an error to keep the text in the box. */
   onReply: (replyMd: string) => Promise<HandoffResult>;
-  /** Called after a successful copy, e.g. to mark the day's prompt as sent. */
-  onCopied?: () => void | Promise<void>;
+  /**
+   * Called when the player presses the copy button, whether or not the clipboard accepted the text
+   * (when it did not, the text is shown for manual copying). Use it to mark the prompt as sent.
+   */
+  onCopied?: (copyOk: boolean) => void | Promise<void>;
   copyLabel?: string;
   pastePlaceholder?: string;
   /** Pre-fill the paste box (e.g. a kept raw draft). */
@@ -60,7 +63,7 @@ export function PromptHandoff({
     const ok = await copyText(promptMd);
     setCopied(ok ? 'ok' : 'failed');
     if (!ok) setShowRaw(true);
-    if (ok) await onCopied?.();
+    await onCopied?.(ok);
   }
 
   async function pasteFromClipboard() {
