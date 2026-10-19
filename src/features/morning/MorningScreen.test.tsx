@@ -53,6 +53,30 @@ describe('MorningScreen', () => {
   });
 });
 
+describe('MorningScreen with a week review', () => {
+  beforeEach(async () => {
+    await resetAll();
+    await profileRepo.ensure('Asha');
+    await profileRepo.update({ onboardedAt: nowIso() });
+  });
+
+  it('shows the week quests apart from the day quests', async () => {
+    await dayLogRepo.update(addDays(todayKey(), -1), {
+      briefMd: 'Day 2. A short letter.',
+      quests: [
+        { id: 'q1', pillar: 'BODY', text: 'Walk after lunch', reward: 'legs', done: false },
+        { id: 'wk-1', pillar: 'MIND', text: 'Call home twice', reward: 'they hear from you', done: true },
+      ],
+    });
+    renderMorning();
+    expect(await screen.findByText("Today's quests")).toBeInTheDocument();
+    expect(screen.getByText('Quests for the week')).toBeInTheDocument();
+    expect(screen.getByTestId('quests')).toHaveTextContent('Walk after lunch');
+    expect(screen.getByTestId('quests')).not.toHaveTextContent('Call home twice');
+    expect(screen.getByText('0 of 1 open')).toBeInTheDocument();
+  });
+});
+
 describe('letter text', () => {
   it('splits paragraphs and sentences without breaking numbers', () => {
     expect(toParagraphs('# Hi\nline one\nline two\n\n- a list line\n\n---')).toEqual(['Hi line one line two', 'a list line']);

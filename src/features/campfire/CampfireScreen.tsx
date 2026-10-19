@@ -35,8 +35,9 @@ export function CampfireScreen() {
   useShellBar(title, night !== undefined ? `Night ${night}, ${clockTime(now)}` : undefined);
 
   if (!profile || night === undefined) return <Page>{null}</Page>;
-  if (review) return <ReviewPanel kind={review} date={date} onBack={() => setParams({})} />;
-  return <NightLog date={date} night={night} profile={profile} onReview={(kind) => setParams({ view: kind })} />;
+  // Keyed so a new night (4 AM rollover) or a different review starts with fresh state.
+  if (review) return <ReviewPanel key={`${review}-${date}`} kind={review} date={date} onBack={() => setParams({})} />;
+  return <NightLog key={date} date={date} night={night} profile={profile} onReview={(kind) => setParams({ view: kind })} />;
 }
 
 /** Items the fire counts: each scheduled routine, the four numbers, a meal, the felt line, the lesson. */

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { db } from '@/data/db';
 import { MemoryRouter } from 'react-router';
 import { ShellProvider } from '@/app/shellContext';
 import { dayLogRepo, profileRepo, resetAll } from '@/data/repo';
@@ -44,10 +45,41 @@ describe('CampfireScreen', () => {
     expect(screen.queryByText("Tonight's numbers")).not.toBeInTheDocument();
   });
 
-  it('opens the weekly review from the query string', async () => {
+  it('opens the weekly review from the query string and saves a pasted review', async () => {
     renderAt('/campfire?view=weekly');
     expect(await screen.findByTestId('copy-prompt')).toHaveTextContent('Copy the weekly review');
     expect(screen.getByText(/For Sonnet\. About/)).toBeInTheDocument();
+    const reply = [
+      '## DIGEST',
+      'Five of seven nights logged. Sleep averaged 6.8 h.',
+      '## STATE_OF_ME',
+      '# State of Me',
+      'Asha, week two.',
+      '## Where I am',
+      '- Steady.',
+      '## QUESTS',
+      '- [Body] Three runs | reward: the 10 km stays easy',
+      '## WARNINGS',
+      '- Two short nights.',
+      '## INSIGHTS',
+      '- Logged nights were better nights.',
+    ].join('\n');
+    fireEvent.change(screen.getByTestId('reply-text'), { target: { value: reply } });
+    fireEvent.click(screen.getByTestId('use-reply'));
+    expect(await screen.findByText('Week saved. Your State of Me is up to date.')).toBeInTheDocument();
+    expect(await screen.findByText('Last weekly digest')).toBeInTheDocument();
+    expect((await profileRepo.get())?.stateOfMeMd).toContain('Asha, week two.');
+    const prompt = (await db.prompts.toArray())[0];
+    expect(prompt).toMatchObject({ kind: 'weekly', model: 'Sonnet', parsedOk: true });
+    expect((await dayLogRepo.get(todayKey()))?.quests.map((q) => q.text)).toEqual(['Three runs']);
+  });
+
+  it('keeps a reply without a letter as a draft and says why', async () => {
+    renderAt('/campfire');
+    fireEvent.change(await screen.findByTestId('reply-text'), { target: { value: 'Great day, keep going.' } });
+    fireEvent.click(screen.getByTestId('use-reply'));
+    expect(await screen.findByText('No ## BRIEF section. The reply was kept as a draft.')).toBeInTheDocument();
+    expect((await dayLogRepo.get(todayKey()))?.rawDraft).toBe('Great day, keep going.');
   });
 });
 
