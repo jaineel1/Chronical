@@ -108,7 +108,7 @@ export const QUESTIONS: readonly Question[] = [
     id: 'body-15',
     part: 'body',
     type: 'T',
-    text: 'What is in a normal week?',
+    text: 'Which of these are part of a normal week?',
     options: ['Coffee', 'Tea', 'Energy drinks', 'Sugar most days', 'Alcohol', 'Smoking or vaping', 'None of these'],
     allowOther: true,
   },
