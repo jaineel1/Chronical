@@ -8,7 +8,7 @@ import { Button, Check, Field, SectionHeader, TextInput } from '@/ui/primitives'
 import { LogContactForm } from '../lib/LogContactForm';
 import { LoreSection } from '../lib/LoreSection';
 import { Missing } from '../lib/Missing';
-import { daysLabel, daysQuiet } from '../lib/people';
+import { daysQuiet, quietLabel } from '../lib/people';
 import { personRepo } from '../lib/repos';
 import { ChipChoice, ChoiceGroup, ConfirmAction, ErrorText, SaveBar, numberOrUndefined, useGoBack } from '../lib/ui';
 import { useDraft } from '../lib/useDraft';
@@ -92,7 +92,7 @@ function PersonFormView({ row }: { row: Person | null }) {
   return (
     <Page>
       <form onSubmit={save} noValidate className="flex flex-col gap-2" aria-label={row ? `Edit ${row.name}` : 'New person'}>
-        <SectionHeader title={row ? row.name : 'New branch'} note={row ? (quiet === null ? 'never contacted' : `${daysLabel(quiet)} quiet`) : 'on the people tree'} />
+        <SectionHeader title={row ? row.name : 'New branch'} note={row ? (quiet === null ? 'never contacted' : quiet === 0 ? 'spoke today' : `${quietLabel(quiet)} quiet`) : 'on the people tree'} />
         <div className="flex flex-col gap-4 px-2.5 pt-1 pb-3">
           <Field label="Name">
             <TextInput value={draft.name} onChange={(e) => set({ name: e.target.value })} placeholder="Mentor" aria-invalid={!!errors.name} />

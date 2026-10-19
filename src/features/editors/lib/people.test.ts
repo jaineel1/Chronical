@@ -39,6 +39,7 @@ describe('person tone', () => {
   });
   it('writes the second line of a node', () => {
     expect(personMeta(person('Mom', 1, { circle: 'family' }), TODAY)).toBe('1 day, family');
+    expect(personMeta(person('Mentor', 0, { circle: 'other' }), TODAY)).toBe('today, other');
     expect(personMeta(person('Crew', 12, { circle: 'college' }), TODAY)).toBe('12 days, college');
     expect(personMeta(person('Mentor', 21, { circle: 'other' }), TODAY)).toBe('21 days, fading');
     expect(personMeta(person('New', null, { circle: 'gym' }), TODAY)).toBe('never, gym');

@@ -37,11 +37,16 @@ export function daysLabel(days: number): string {
   return days === 1 ? '1 day' : `${days} days`;
 }
 
+/** How long a branch has been quiet: "today", "1 day", "16 days". */
+export function quietLabel(days: number): string {
+  return days === 0 ? 'today' : daysLabel(days);
+}
+
 /** Second line of a tree node: "1 day, family", "16 days, fading", "never, gym". */
 export function personMeta(person: Pick<Person, 'lastContact' | 'circle'>, today: string): string {
   const days = daysQuiet(person, today);
   if (days === null) return `never, ${person.circle}`;
-  return `${daysLabel(days)}, ${personTone(days) === 'red' ? 'fading' : person.circle}`;
+  return `${quietLabel(days)}, ${personTone(days) === 'red' ? 'fading' : person.circle}`;
 }
 
 /** Tree order: most recent contact first, never-contacted last; ties keep the input order. */

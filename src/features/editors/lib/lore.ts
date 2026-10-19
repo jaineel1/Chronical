@@ -11,7 +11,7 @@ import { isDayKey, parseLoreReply, type LoreParse } from '@/lib/parse/lore';
 import { num } from '@/lib/parse/sections';
 import type { LoreSubject, LoreSubjectType } from '@/lib/prompt/lore';
 import type { HandoffResult } from '@/ui/PromptHandoff';
-import { daysLabel, daysQuiet } from './people';
+import { daysLabel, daysQuiet, quietLabel } from './people';
 import { formatAmount, isMetric } from './progress';
 import { clampLevel, formatSkillLevel, skillBand } from './skills';
 
@@ -72,7 +72,7 @@ export async function loreSubject(type: LoreSubjectType, id: string, today: stri
       summaryLines: [
         `Circle: ${p.circle}`,
         `Closeness ${p.closeness} of 5${p.wantCloser ? ', the player wants to be closer' : ''}`,
-        `Wants contact every ${daysLabel(p.contactEveryDays)}; ${days === null ? 'no contact logged yet' : `last contact ${daysLabel(days)} ago`}`,
+        `Wants contact every ${daysLabel(p.contactEveryDays)}; ${days === null ? 'no contact logged yet' : days === 0 ? 'last contact today' : `last contact ${quietLabel(days)} ago`}`,
         ...(p.notes ? [`Notes: ${p.notes}`] : []),
         ...knownLines,
       ],
