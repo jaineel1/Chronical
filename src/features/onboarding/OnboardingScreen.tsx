@@ -1,71 +1,44 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Navigate, Route, Routes, useLocation, useSearchParams } from 'react-router';
 import { useProfile } from '@/data/hooks';
-import { profileRepo } from '@/data/repo';
-import { seedDemo } from '@/data/seed';
-import { nowIso } from '@/lib/dates';
-import { Button, TextInput } from '@/ui/primitives';
-import { PixelSprite } from '@/ui/PixelSprite';
-import { HERO_MAP, HERO_PALETTE, SUN_MAP, SUN_PALETTE } from '@/ui/sprites';
+import { CompileStep } from './CompileStep';
+import { DoneStep } from './DoneStep';
+import { PartStep } from './PartStep';
+import { PromptStep } from './PromptStep';
+import { ReviewStep } from './ReviewStep';
+import { WelcomeStep } from './WelcomeStep';
+import { QuietPaper } from './WizardFrame';
+import { WizardProvider } from './wizard';
 
 /**
- * PLACEHOLDER. Agent Onboarding+Vault replaces this with the 118-question Origin Sheet wizard.
- * Keep two things when you do: the "Try the demo" entry (seedDemo + navigate home) and the
- * redirect-when-already-onboarded behaviour.
+ * The Origin Sheet wizard at /onboarding/*:
+ *   /onboarding                 welcome: name, Begin, "Try the demo first"
+ *   /onboarding/part/:n         parts 1-10 (`?edit=1` from the Vault edits an onboarded profile)
+ *   /onboarding/compile         the compiled sheet
+ *   /onboarding/prompt          the first Claude hand-off (or "Skip Claude for now")
+ *   /onboarding/review          accept skills, routines, goals → "Create my game"
+ *   /onboarding/done            closing page
+ * An onboarded profile is sent home, except in edit mode and on /done.
  */
 export function OnboardingScreen() {
   const profile = useProfile();
-  const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [params] = useSearchParams();
+  const location = useLocation();
+  const editMode = params.get('edit') === '1';
 
-  if (profile?.onboardedAt) {
-    navigate('/', { replace: true });
-    return null;
-  }
-
-  async function begin() {
-    setBusy(true);
-    await profileRepo.ensure(name.trim() || 'Player');
-    await profileRepo.update({ displayName: name.trim() || 'Player', onboardedAt: nowIso() });
-    navigate('/', { replace: true });
-  }
-
-  async function demo() {
-    setBusy(true);
-    await seedDemo();
-    navigate('/', { replace: true });
-  }
+  if (profile === undefined) return <QuietPaper />;
+  if (profile?.onboardedAt && !editMode && !location.pathname.endsWith('/done')) return <Navigate to="/" replace />;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-paper text-ink">
-      <header className="flex items-baseline justify-between bg-ink px-6 py-3.5 text-paper">
-        <span>Chronicle</span>
-        <span className="text-bar-text">Day 0</span>
-      </header>
-      <main className="mx-auto flex w-full max-w-[520px] flex-1 flex-col gap-6 px-6 pt-10 pb-10">
-        <div className="relative h-[120px]">
-          <PixelSprite map={SUN_MAP} palette={SUN_PALETTE} scale={4} className="absolute top-0 right-6" />
-          <PixelSprite map={HERO_MAP} palette={HERO_PALETTE} scale={5} className="absolute top-3 left-2" />
-        </div>
-        <p className="letter">
-          <span className="drop">Y</span>our life, kept like a game. Five pillars, real routines with real costs, and a game master who writes
-          you a letter every morning from what you logged the night before.
-        </p>
-        <label className="flex flex-col gap-1">
-          <span className="text-mid">What should the game call you?</span>
-          <TextInput value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoFocus />
-        </label>
-        <div className="flex flex-col gap-3">
-          <Button size="lg" onClick={begin} disabled={busy}>
-            Begin the Origin Sheet
-          </Button>
-          <Button variant="outline" onClick={demo} disabled={busy}>
-            Try the demo first
-          </Button>
-        </div>
-        <p className="text-mid">Everything stays on this device. Nothing is sent anywhere until you copy it yourself.</p>
-      </main>
-    </div>
+    <WizardProvider profile={profile} editMode={editMode}>
+      <Routes>
+        <Route index element={<WelcomeStep />} />
+        <Route path="part/:n" element={<PartStep />} />
+        <Route path="compile" element={<CompileStep />} />
+        <Route path="prompt" element={<PromptStep />} />
+        <Route path="review" element={<ReviewStep />} />
+        <Route path="done" element={<DoneStep />} />
+        <Route path="*" element={<Navigate to="/onboarding" replace />} />
+      </Routes>
+    </WizardProvider>
   );
 }
