@@ -115,14 +115,16 @@ function fmtDelta(n: number): string {
 }
 
 function PillarsBlock({ view, desktop = false }: { view: MorningView; desktop?: boolean }) {
-  const { source, pillars } = view;
+  const { source, pillars, today, profile, rollover } = view;
   const deltas = source ? pillarTotals([...(source.routineStats ?? []), ...source.stats]) : undefined;
+  const older = source ? source.date < addDays(today, -1) : false;
+  const note = !source ? undefined : older ? `since Night ${dayNoFor(profile.startedAt, source.date, rollover)}` : 'since last night';
   const levels = PILLARS.map((p) => displayLevel(pillars?.[p]?.points ?? 0));
   const max = Math.max(10, Math.ceil(Math.max(...levels) / 10) * 10);
   const wide = deltas ? PILLARS.some((p) => !Number.isInteger(Math.round(deltas[p] * 10) / 10)) : false;
   return (
     <>
-      <SectionHeader title="Pillars" note={source ? 'since last night' : undefined} />
+      <SectionHeader title="Pillars" note={note} />
       <Section>
         <div className={`flex flex-col ${desktop ? 'gap-2' : 'gap-1.5'}`}>
           {PILLARS.map((p, i) => {

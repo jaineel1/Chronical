@@ -44,6 +44,7 @@ describe('MorningScreen', () => {
     });
     renderMorning();
     expect(await screen.findByText('From Night 7')).toBeInTheDocument();
+    expect(screen.getByText('since Night 7')).toBeInTheDocument();
     expect(screen.getByTestId('letter')).toHaveTextContent('ay 7. You slept 8 hours.');
     expect(screen.queryByText("Today's quests")).not.toBeInTheDocument();
     expect(screen.getByText('(generic)')).toBeInTheDocument();
