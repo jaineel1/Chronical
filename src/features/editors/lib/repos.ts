@@ -15,6 +15,21 @@ import { levelAfterHours } from './skills';
 
 export type New<T extends Base> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>;
 
+let lastOrderedStamp = 0;
+
+/**
+ * `stamp` for sibling rows that have no order field (milestones, vision items): each one gets a
+ * later millisecond than the one before, so sorting by createdAt keeps the order they were added.
+ * Waits at most a millisecond per row.
+ */
+function stampInOrder<T extends Base>(draft: New<T>): T {
+  while (Date.now() <= lastOrderedStamp) {
+    /* spin until the clock ticks */
+  }
+  lastOrderedStamp = Date.now();
+  return stamp<T>(draft);
+}
+
 /* ------------------------------------------------------------------ */
 /* Routines: order and archive (create/update live in src/data/repo)   */
 /* ------------------------------------------------------------------ */
@@ -73,7 +88,7 @@ export const goalRepo = {
       const msById = new Map(oldMs.map((m) => [m.id, m]));
       for (const { id: mid, ...rest } of milestones) {
         const cur = mid ? msById.get(mid) : undefined;
-        await db.milestones.put(cur ? { ...cur, ...rest, goalId, updatedAt: now } : stamp<Milestone>({ ...rest, goalId }));
+        await db.milestones.put(cur ? { ...cur, ...rest, goalId, updatedAt: now } : stampInOrder<Milestone>({ ...rest, goalId }));
       }
 
       const oldVision = await db.visionItems.where('goalId').equals(goalId).toArray();
@@ -82,7 +97,7 @@ export const goalRepo = {
       const visionById = new Map(oldVision.map((v) => [v.id, v]));
       for (const { id: vid, ...rest } of vision) {
         const cur = vid ? visionById.get(vid) : undefined;
-        await db.visionItems.put(cur ? { ...cur, ...rest, goalId, updatedAt: now } : stamp<VisionItem>({ ...rest, goalId }));
+        await db.visionItems.put(cur ? { ...cur, ...rest, goalId, updatedAt: now } : stampInOrder<VisionItem>({ ...rest, goalId }));
       }
       return row;
     });

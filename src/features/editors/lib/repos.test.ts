@@ -85,3 +85,20 @@ describe('world repositories', () => {
     expect(await db.achievements.where('skillId').equals(running).count()).toBe(0);
   });
 });
+
+describe('child order', () => {
+  beforeEach(async () => {
+    await resetAll();
+  });
+
+  it('keeps milestones in the order they were added', async () => {
+    const titles = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
+    const g = await goalRepo.save(
+      { pillar: 'BODY', title: 'Order', why: '', status: 'active' },
+      titles.map((title) => ({ title })),
+      [],
+    );
+    const ms = (await db.milestones.where('goalId').equals(g.id).toArray()).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    expect(ms.map((m) => m.title)).toEqual(titles);
+  });
+});
