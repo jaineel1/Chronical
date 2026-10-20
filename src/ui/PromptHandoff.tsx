@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { CLAUDE_NEW_CHAT_URL, copyText, readClipboard } from '@/lib/clipboard';
 import { estimateTokens, formatTokens } from '@/lib/prompt/shared';
 import { Button, TextArea } from './primitives';
@@ -55,9 +55,13 @@ export function PromptHandoff({
   const [result, setResult] = useState<HandoffResult | null>(null);
   const tokens = estimateTokens(promptMd);
 
-  useEffect(() => {
+  // Take a new initialReply (a draft saved by the parent) during render, not in an effect: an effect
+  // runs after the box is on screen, and a paste landing in between would be wiped by the late reset.
+  const [seenInitial, setSeenInitial] = useState(initialReply);
+  if (initialReply !== seenInitial) {
+    setSeenInitial(initialReply);
     setReply(initialReply);
-  }, [initialReply]);
+  }
 
   async function copy() {
     const ok = await copyText(promptMd);

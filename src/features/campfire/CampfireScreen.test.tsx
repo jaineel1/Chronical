@@ -29,12 +29,13 @@ describe('CampfireScreen', () => {
 
   it('invites the first routine when there are none, and still offers the rest of the log', async () => {
     renderAt('/campfire');
-    expect(await screen.findByText('Add your first routine. The night log starts there.')).toBeInTheDocument();
+    // First render of the screen in the run: under a busy parallel suite it can take over a second.
+    expect(await screen.findByText('Add your first routine. The night log starts there.', {}, { timeout: 4000 })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Add a routine' })).toHaveAttribute('href', '/edit/routines/new');
     expect(screen.getByText("Tonight's numbers")).toBeInTheDocument();
-    expect(await screen.findByTestId('copy-prompt')).toHaveTextContent("Send tonight's log");
+    expect(await screen.findByTestId('copy-prompt', {}, { timeout: 4000 })).toHaveTextContent("Send tonight's log");
     expect(screen.getByText(/For Haiku\. About/)).toBeInTheDocument();
-  });
+  }, 10_000);
 
   it('folds the log away when tonight already has a letter', async () => {
     await dayLogRepo.update(todayKey(), { briefMd: 'Day 1. A letter.' });

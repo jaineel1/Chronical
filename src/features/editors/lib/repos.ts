@@ -26,8 +26,10 @@ function stampInOrder<T extends Base>(draft: New<T>): T {
   while (Date.now() <= lastOrderedStamp) {
     /* spin until the clock ticks */
   }
-  lastOrderedStamp = Date.now();
-  return stamp<T>(draft);
+  const row = stamp<T>(draft);
+  // Remember the stamp actually written: the clock can tick between the wait above and stamp().
+  lastOrderedStamp = Date.parse(row.createdAt);
+  return row;
 }
 
 /* ------------------------------------------------------------------ */
