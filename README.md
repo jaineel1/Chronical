@@ -52,6 +52,10 @@ the Origin Sheet compiler, dates), and `src/features/*` one folder per screen.
 
 ## Status
 
-v1 is the web app: all seven screens, the paste loop, demo world, backups and dataset export.
+v1 is the web app: all seven screens (Onboarding, Morning, Campfire, You, Map, People, Vault) plus the editors,
+the paste loop with six prompt kinds (origin, nightly, weekly, monthly, skill rank, lore), the demo world,
+JSON backups and the JSONL dataset export. 330+ unit tests and a Playwright suite that plays Night 1 end to end
+on phone and desktop. Pushing to `main` deploys to GitHub Pages (`.github/workflows/pages.yml`; turn on
+*Settings → Pages → Source: GitHub Actions* once).
 Later phases (see the spec): sync across devices, progress photos, money, health sync, wardrobe, native
 notifications via Capacitor, and a local model fine-tuned on your own prompt/reply pairs.

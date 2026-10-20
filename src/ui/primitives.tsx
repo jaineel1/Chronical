@@ -128,13 +128,16 @@ export function Chip({ children, active = false, onClick }: { children: ReactNod
   return <span className={`border px-2 py-[3px] ${cls}`}>{children}</span>;
 }
 
+/** Label above the control; the hint sits outside the <label> so it never joins the control's accessible name. */
 export function Field({ label, hint, children }: { label: ReactNode; hint?: ReactNode; children: ReactNode }) {
   return (
-    <label className="flex flex-col gap-1">
-      <span className="text-mid">{label}</span>
-      {children}
+    <div className="flex flex-col gap-1">
+      <label className="flex flex-col gap-1">
+        <span className="text-mid">{label}</span>
+        {children}
+      </label>
       {hint ? <span className="text-mid">{hint}</span> : null}
-    </label>
+    </div>
   );
 }
 

@@ -145,3 +145,6 @@ Work on your own branch in your own worktree. Commit in small steps with clear m
   `onReply(replyMd) → {ok, error?, message?}` that parses and saves. Nightly, origin, weekly, skill rank
   and lore all use it, so the loop feels identical everywhere.
 - `DayLog` already has `closedAt`, `routineStats`, `statsAppliedAt` for the night flow (see types.ts comments).
+- Repository writes are read-modify-write inside one Dexie transaction. `profileRepo.*` locks only the `profile`
+  table so it can be nested inside a caller's transaction; the pillar rows are created outside the parent
+  transaction when a profile is first made. When you open a transaction, list every table you touch.
