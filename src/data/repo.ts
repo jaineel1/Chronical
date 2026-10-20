@@ -20,7 +20,8 @@ import {
   type Settings,
   type SubStatState,
 } from './types';
-import type { Food, Meal, MealSlot, StarredAffirmation } from './types';
+import type { Food, Meal, MealSlot, Nutrition, NutritionSource, StarredAffirmation } from './types';
+import { matchEstimates, nutritionOf, scaleNutrition, type MealEstimate } from '@/lib/nutrition';
 
 /* ------------------------------------------------------------------ */
 /* Generic helpers                                                     */
@@ -396,6 +397,24 @@ export const foodRepo = {
     await db.foods.put(row);
     return row;
   },
+  /** The saved meal's usual portion. Numbers the player typed are never replaced by Claude's. */
+  async setNutrition(id: string, nutrition: Nutrition | undefined, from: NutritionSource): Promise<void> {
+    await db.transaction('rw', db.foods, async () => {
+      const food = await db.foods.get(id);
+      if (!food) throw new Error(`No saved meal ${id}`);
+      if (from === 'claude' && food.nutritionFrom === 'you') return;
+      await db.foods.put({ ...food, nutrition, nutritionFrom: nutrition ? from : undefined, updatedAt: nowIso() });
+    });
+  },
+  async rename(id: string, name: string): Promise<void> {
+    const clean = name.trim().replace(/\s+/g, ' ');
+    if (!clean) throw new Error('A saved meal needs a name.');
+    await db.transaction('rw', db.foods, async () => {
+      const food = await db.foods.get(id);
+      if (!food) throw new Error(`No saved meal ${id}`);
+      await db.foods.put({ ...food, name: clean, updatedAt: nowIso() });
+    });
+  },
 };
 
 export const MEAL_SLOTS: readonly MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
@@ -412,6 +431,43 @@ export const mealRepo = {
   },
   async remove(id: string): Promise<void> {
     await db.meals.delete(id);
+  },
+  /** Log a saved meal. Its usual numbers come along, scaled to `grams` when both are known. */
+  async addFood(date: string, food: Food, slot: MealSlot, grams?: number): Promise<Meal> {
+    const nutrition = food.nutrition ? scaleNutrition(food.nutrition, grams) : grams !== undefined ? { grams } : undefined;
+    const row = stamp<Meal>({ date, foodId: food.id, slot, nutrition, nutritionFrom: food.nutrition ? food.nutritionFrom : undefined });
+    await db.meals.put(row);
+    return row;
+  },
+  async setNutrition(id: string, nutrition: Nutrition | undefined, from: NutritionSource): Promise<void> {
+    await db.transaction('rw', db.meals, async () => {
+      const meal = await db.meals.get(id);
+      if (!meal) throw new Error(`No meal ${id}`);
+      await db.meals.put({ ...meal, nutrition, nutritionFrom: nutrition ? from : undefined, updatedAt: nowIso() });
+    });
+  },
+  /**
+   * Claude's ## MEALS for one night: each estimate fills the meal it matches (meals whose numbers the
+   * player typed keep them) and becomes that saved meal's usual portion. Returns the names that
+   * matched no logged meal.
+   */
+  async applyEstimates(date: string, estimates: MealEstimate[]): Promise<string[]> {
+    if (!estimates.length) return [];
+    return db.transaction('rw', db.meals, db.foods, async () => {
+      const meals = await db.meals.where('date').equals(date).toArray();
+      const foods = new Map((await db.foods.bulkGet(meals.map((m) => m.foodId))).filter((f): f is Food => !!f).map((f) => [f.id, f]));
+      const logged = meals.map((m) => ({ id: m.id, slot: m.slot, name: foods.get(m.foodId)?.name ?? '' }));
+      const { pairs, unmatched } = matchEstimates(logged, estimates);
+      const now = nowIso();
+      for (const { mealId, estimate } of pairs) {
+        const meal = meals.find((m) => m.id === mealId)!;
+        const nutrition = nutritionOf(estimate);
+        if (meal.nutritionFrom !== 'you') await db.meals.put({ ...meal, nutrition, nutritionFrom: 'claude', updatedAt: now });
+        const food = foods.get(meal.foodId);
+        if (food && food.nutritionFrom !== 'you') await db.foods.put({ ...food, nutrition, nutritionFrom: 'claude', updatedAt: now });
+      }
+      return unmatched.map((u) => u.name);
+    });
   },
 };
 

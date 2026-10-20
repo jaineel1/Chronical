@@ -49,10 +49,10 @@ export function formatTokens(n: number): string {
 
 /** Human model names shown next to "Copy prompt". */
 export const MODEL_LABEL = {
-  nightly: 'Haiku',
+  nightly: 'Opus',
   weekly: 'Sonnet',
   monthly: 'Sonnet',
-  deep: 'Sonnet',
+  deep: 'Opus',
   origin: 'Sonnet',
   skill_rank: 'Sonnet',
   lore: 'Haiku',

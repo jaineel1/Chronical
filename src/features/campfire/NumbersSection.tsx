@@ -206,7 +206,7 @@ export function NumbersSection({ date, log, yesterday }: Props) {
   );
 }
 
-function Counter({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => unknown }) {
+export function Counter({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => unknown }) {
   return (
     <div className="flex items-center justify-between gap-3">
       <span>{label}</span>

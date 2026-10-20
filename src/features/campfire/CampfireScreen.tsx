@@ -10,6 +10,7 @@ import { clockTime, dayNoFor } from '@/lib/game/calendar';
 import { planClose, summariseNightWarnings } from '@/lib/game/streaks';
 import { MODEL_LABEL } from '@/lib/prompt/shared';
 import { PromptHandoff } from '@/ui/PromptHandoff';
+import { ExtrasSection } from './ExtrasSection';
 import { Section, SectionHeader } from '@/ui/primitives';
 import { FireScene } from './FireScene';
 import { MealsSection } from './MealsSection';
@@ -94,12 +95,13 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
   return (
     <Page>
       <FireScene logged={logged} total={total} />
-      {log?.briefMd ? <LetterIn editing={editing} onEdit={() => setEditing(true)} /> : null}
+      {log?.briefMd ? <LetterIn editing={editing} summary={log.summaryMd} onEdit={() => setEditing(true)} /> : null}
       {editing ? (
         <>
           <RoutinesSection date={date} routines={routines} logs={logs} closed={closed} notes={notes} />
           <NumbersSection date={date} log={log} yesterday={yesterday} />
           <MealsSection date={date} meals={meals} foods={foods} />
+          <ExtrasSection date={date} log={log} meals={meals} />
           <Section>
             <LessonField date={date} log={log} books={books} />
             <div className="flex flex-col gap-1">
@@ -137,10 +139,15 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
   );
 }
 
-function LetterIn({ editing, onEdit }: { editing: boolean; onEdit: () => void }) {
+function LetterIn({ editing, summary, onEdit }: { editing: boolean; summary?: string; onEdit: () => void }) {
   return (
     <div className="flex flex-col gap-1 px-2.5 pb-1" data-testid="letter-in">
       <span>Tonight's letter is in.</span>
+      {summary ? (
+        <p className="m-0 text-mid" data-testid="night-summary">
+          {summary}
+        </p>
+      ) : null}
       <span className="flex gap-6">
         <TextLink to="/">Read it</TextLink>
         {!editing ? <TextButton onClick={onEdit}>Edit the log</TextButton> : null}

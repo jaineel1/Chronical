@@ -8,13 +8,18 @@
  *   ## WARNINGS       - lines
  *   ## INSIGHTS       - lines
  *   ## LESSON         one sentence
+ *   ## MEALS          - Slot | Food | 250 g | 380 kcal | P 12 g | C 60 g | F 8 g   (optional)
+ *   ## SUMMARY        two or three lines recapping the day                      (optional)
+ *   ## ROUTINE        one routine row, or "- None"                              (optional)
  *
  * Forgiving on purpose: lowercase, bold or colon headers, prose before the first header, CRLF, a
  * reply wrapped in a ``` fence, bullets or bold in STATS, unicode arrows and minus signs, and
  * repeated sections are all read. Unknown sections are kept verbatim.
  */
 import { newId } from '@/data/ids';
-import { PILLAR_LABEL, SUBSTATS, pillarFromLabel, type Pillar, type Quest, type StatDelta } from '@/data/types';
+import { PILLAR_LABEL, SUBSTATS, pillarFromLabel, type MealSlot, type Pillar, type Quest, type RoutineDraft, type StatDelta } from '@/data/types';
+import type { MealEstimate } from '@/lib/nutrition';
+import { parseRoutines } from './origin';
 import { bullets, splitSections, type MdSection } from './sections';
 
 export interface ParsedReply {
@@ -29,6 +34,12 @@ export interface ParsedReply {
   warnings: string[];
   insights: string[];
   lessonMd: string;
+  /** ## MEALS: Claude's grams, calories and macros per meal. */
+  meals: MealEstimate[];
+  /** ## SUMMARY: a short recap of the day. */
+  summaryMd: string;
+  /** ## ROUTINE: at most one suggested routine. */
+  routine?: RoutineDraft;
   extraSections: { title: string; body: string }[];
   /** When ok is false, the first entry says why. Otherwise notes about lines that were skipped or adjusted. */
   errors: string[];
@@ -45,7 +56,7 @@ export const EMPTY_BRIEF_ERROR = 'The ## BRIEF section is empty. The reply was k
 /** Pillar adjustments from Claude stay within this range a night (routines are scored separately). */
 export const MAX_REPLY_DELTA = 3;
 
-const KNOWN = ['BRIEF', 'AFFIRMATIONS', 'QUESTS', 'STATS', 'WARNINGS', 'INSIGHTS', 'LESSON'] as const;
+const KNOWN = ['BRIEF', 'AFFIRMATIONS', 'QUESTS', 'STATS', 'WARNINGS', 'INSIGHTS', 'LESSON', 'MEALS', 'SUMMARY', 'ROUTINE'] as const;
 type Known = (typeof KNOWN)[number];
 
 const ALIASES: Record<string, Known> = {
@@ -67,6 +78,20 @@ const ALIASES: Record<string, Known> = {
   INSIGHT: 'INSIGHTS',
   LESSON: 'LESSON',
   LESSONS: 'LESSON',
+  MEALS: 'MEALS',
+  MEAL: 'MEALS',
+  NUTRITION: 'MEALS',
+  FOOD: 'MEALS',
+  CALORIES: 'MEALS',
+  SUMMARY: 'SUMMARY',
+  RECAP: 'SUMMARY',
+  DAY_SUMMARY: 'SUMMARY',
+  NIGHTLY_SUMMARY: 'SUMMARY',
+  ROUTINE: 'ROUTINE',
+  ROUTINES: 'ROUTINE',
+  NEW_ROUTINE: 'ROUTINE',
+  ROUTINE_SUGGESTION: 'ROUTINE',
+  SUGGESTED_ROUTINE: 'ROUTINE',
 };
 
 /* ------------------------------------------------------------------ */
@@ -311,6 +336,70 @@ export function isGenericAffirmation(text: string, knownNouns: readonly string[]
 }
 
 /* ------------------------------------------------------------------ */
+/* MEALS and ROUTINE                                                   */
+/* ------------------------------------------------------------------ */
+
+const SLOT_WORDS: Record<string, MealSlot> = { breakfast: 'breakfast', lunch: 'lunch', dinner: 'dinner', snack: 'snack', snacks: 'snack', supper: 'dinner' };
+
+function firstNumber(cell: string): number | undefined {
+  const m = /(\d[\d,]*(?:\.\d+)?)/.exec(cell);
+  return m ? Number(m[1]!.replace(/,/g, '')) : undefined;
+}
+
+/**
+ * `- Breakfast | Oats with banana | 250 g | 380 kcal | P 12 g | C 60 g | F 8 g`. The slot is optional,
+ * and the numbers are read by their labels in any order. Lines for totals are skipped.
+ */
+export function parseMealLine(line: string): MealEstimate | null {
+  const cells = plain(line.replace(/^\s*(?:[-*+•]|\d{1,2}[.)])\s+/, ''))
+    .split('|')
+    .map((c) => c.trim())
+    .filter(Boolean);
+  if (cells.length < 2) return null;
+  const slot = SLOT_WORDS[cells[0]!.toLowerCase().replace(/[:.]$/, '')];
+  if (slot) cells.shift();
+  const name = cells.shift()?.replace(/[:.]$/, '').trim();
+  if (!name || /^(?:total|day total|totals?)\b/i.test(name)) return null;
+  const out: MealEstimate = { name, ...(slot ? { slot } : {}) };
+  for (const cell of cells) {
+    const v = firstNumber(cell);
+    if (v === undefined) continue;
+    const c = cell.toLowerCase();
+    if (/kcal|calorie|\bcal\b/.test(c)) out.kcal = v;
+    else if (/^(?:p\b|protein)/.test(c) || /\bprotein\b/.test(c)) out.proteinG = v;
+    else if (/^(?:c\b|carb)/.test(c) || /\bcarbs?\b/.test(c)) out.carbsG = v;
+    else if (/^(?:f\b|fat)/.test(c) || /\bfats?\b/.test(c)) out.fatG = v;
+    else if (/\d\s*g\b|grams?/.test(c) && out.grams === undefined) out.grams = v;
+  }
+  return MACRO_KEYS.some((k) => out[k] !== undefined) ? out : null;
+}
+
+const MACRO_KEYS = ['grams', 'kcal', 'proteinG', 'carbsG', 'fatG'] as const;
+
+function parseMeals(body: string): MealEstimate[] {
+  const out: MealEstimate[] = [];
+  for (const line of bullets(body)) {
+    if (NONE_LINE.test(plain(line))) continue;
+    const m = parseMealLine(line);
+    if (m) out.push(m);
+  }
+  return out;
+}
+
+/** The first routine row of ## ROUTINE, or none when Claude wrote "- None". */
+function parseRoutine(body: string, errors: string[]): RoutineDraft | undefined {
+  const rows = bullets(body).filter((l) => !NONE_LINE.test(plain(l)));
+  if (!rows.length) return undefined;
+  const notes: string[] = [];
+  const [first] = parseRoutines(rows.join('\n'), notes);
+  if (!first) {
+    errors.push(`The suggested routine could not be read${notes[0] ? `: ${notes[0]}` : '.'}`);
+    return undefined;
+  }
+  return { name: first.name, pillar: first.pillar, subStat: first.subStat, weight: first.weight, days: [...first.days], window: first.window, upside: first.upside, cost: first.cost };
+}
+
+/* ------------------------------------------------------------------ */
 /* Whole reply                                                         */
 /* ------------------------------------------------------------------ */
 
@@ -357,6 +446,9 @@ export function parseNightlyReply(md: string, opts: ParseOptions = {}): ParsedRe
   const warnings = dedupe(listItems(allBodies('WARNINGS')));
   const insights = dedupe(listItems(allBodies('INSIGHTS')));
   const lessonMd = listItems(lastBody('LESSON')).join(' ');
+  const meals = parseMeals(allBodies('MEALS'));
+  const summaryMd = listItems(lastBody('SUMMARY')).join(' ');
+  const routine = grouped.has('ROUTINE') ? parseRoutine(lastBody('ROUTINE'), errors) : undefined;
 
   if (!grouped.has('BRIEF')) {
     return emptyResult(NO_BRIEF_ERROR, extraSections);
@@ -368,7 +460,7 @@ export function parseNightlyReply(md: string, opts: ParseOptions = {}): ParsedRe
     if (!grouped.has(t)) errors.push(`No ## ${t} section.`);
   }
 
-  return { ok: true, briefMd, affirmations, flaggedAffirmations, quests, stats, warnings, insights, lessonMd, extraSections, errors };
+  return { ok: true, briefMd, affirmations, flaggedAffirmations, quests, stats, warnings, insights, lessonMd, meals, summaryMd, routine, extraSections, errors };
 }
 
 function emptyResult(error: string, extraSections: ParsedReply['extraSections']): ParsedReply {
@@ -382,6 +474,8 @@ function emptyResult(error: string, extraSections: ParsedReply['extraSections'])
     warnings: [],
     insights: [],
     lessonMd: '',
+    meals: [],
+    summaryMd: '',
     extraSections,
     errors: [error],
   };

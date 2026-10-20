@@ -15,6 +15,7 @@ import {
   type Meal,
   type MealSlot,
   type Milestone,
+  type Nutrition,
   type Person,
   type Profile,
   type Routine,
@@ -26,7 +27,8 @@ import { dayNoFor, formatMonth, formatRange, monthBounds } from '@/lib/game/cale
 import { computeRoutineStats, existedOn, isScheduled, pillarTotals } from '@/lib/game/daily';
 import { planClose, streakFromLogs } from '@/lib/game/streaks';
 import { isPeriodQuest, isPeriodWarning } from '@/lib/parse/weekly';
-import { compressDayLog, shortRoutineName, tonightBlock, type TonightInput, type TonightRoutine } from '@/lib/prompt/dayLog';
+import { compressDayLog, shortRoutineName, tonightBlock, type TonightInput, type TonightRoutine, type WeekAverages } from '@/lib/prompt/dayLog';
+import { sumNutrition } from '@/lib/nutrition';
 import { DEEP_DAYS } from '@/lib/prompt/deep';
 import type { NightlyInput, PromptGoal } from '@/lib/prompt/nightly';
 import { MONTHLY_DAYS, type MonthlyInput, type WeeklyInput } from '@/lib/prompt/weekly';
@@ -122,10 +124,33 @@ function dayNo(world: World, date: string): number {
   return dayNoFor(world.startedAt, date, world.rollover);
 }
 
-function mealsOn(world: World, date: string): { slot: MealSlot; name: string; feltAfter?: number }[] {
+function mealsOn(world: World, date: string): { slot: MealSlot; name: string; feltAfter?: number; nutrition?: Nutrition }[] {
   return [...(world.meals.get(date) ?? [])]
     .sort((a, b) => SLOT_ORDER[a.slot] - SLOT_ORDER[b.slot] || a.createdAt.localeCompare(b.createdAt))
-    .map((m) => ({ slot: m.slot, name: world.foods.get(m.foodId)?.name ?? 'something', feltAfter: m.feltAfter }));
+    .map((m) => ({ slot: m.slot, name: world.foods.get(m.foodId)?.name ?? 'something', feltAfter: m.feltAfter, nutrition: m.nutrition }));
+}
+
+function mean(values: (number | undefined)[]): number | undefined {
+  const nums = values.filter((v): v is number => typeof v === 'number');
+  return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : undefined;
+}
+
+/** Averages of the 7 days before `date`, over the days that logged each number. */
+function weekBefore(world: World, date: string): WeekAverages {
+  const days = datesBetween(addDays(date, -7), addDays(date, -1));
+  const logs = days.map((d) => world.dayLogs.get(d));
+  const kcal = days.map((d) => {
+    const { total, counted } = sumNutrition(mealsOn(world, d).map((m) => m.nutrition));
+    return counted ? total.kcal : undefined;
+  });
+  return {
+    sleepHours: mean(logs.map((l) => l?.sleepHours)),
+    weightKg: mean(logs.map((l) => l?.weightKg)),
+    screenMin: mean(logs.map((l) => l?.screenMin)),
+    mood: mean(logs.map((l) => l?.mood)),
+    energy: mean(logs.map((l) => l?.energy)),
+    kcal: mean(kcal),
+  };
 }
 
 /** Done and skipped routine names for a past day, shield-covered skips marked. */
@@ -148,8 +173,15 @@ function compressedLine(world: World, date: string): string | undefined {
   const n = dayNo(world, date);
   if (n < 1) return undefined;
   const { done, skipped } = routineDay(world, date);
-  const meals = mealsOn(world, date).map((m) => m.name);
-  return compressDayLog(world.dayLogs.get(date) ?? { date }, done, skipped, meals, { dayNo: n });
+  const meals = mealsOn(world, date);
+  const { total, counted } = sumNutrition(meals.map((m) => m.nutrition));
+  return compressDayLog(
+    world.dayLogs.get(date) ?? { date },
+    done,
+    skipped,
+    meals.map((m) => m.name),
+    { dayNo: n, intake: counted ? total : undefined },
+  );
 }
 
 /** The quests the most recent letter before `date` set for that day. */
@@ -221,6 +253,7 @@ function tonightFor(world: World, date: string, opts: { heading?: string; past?:
     routines,
     routineScore: score,
     meals: mealsOn(world, date),
+    week: opts.past ? undefined : weekBefore(world, date),
     questions: questionsFor(n).map((q) => ({ text: q.text, answer: log?.answers?.[q.id] })),
     lessonBook: log?.lessonBookId ? world.books.find((b) => b.id === log.lessonBookId)?.title : undefined,
     questsToday: questsFor(world, date),

@@ -6,6 +6,7 @@ import { LettersScreen } from './LettersScreen';
 import { OriginScreen } from './OriginScreen';
 import { SettingsScreen } from './SettingsScreen';
 import { SyncScreen } from './SyncScreen';
+import { MealsLibraryScreen } from './MealsLibraryScreen';
 import { VaultIndex } from './VaultIndex';
 
 /**
@@ -31,6 +32,7 @@ export function VaultScreen() {
       <Route path="data" element={<DataScreen />} />
       <Route path="guide" element={<GuideScreen />} />
       <Route path="sync" element={<SyncScreen />} />
+      <Route path="meals" element={<MealsLibraryScreen />} />
       <Route path="*" element={<Navigate to="/vault" replace />} />
     </Routes>
   );

@@ -18,6 +18,7 @@ import { Letter } from './Letter';
 import { firstSentences, lessonLine, lowerFirst, wordCount } from './letterText';
 import { useActiveRoutines, useKeptAffirmations, usePeriodQuests, type PeriodQuests } from './queries';
 import { QuestList } from './QuestList';
+import { RoutineSuggestion } from './RoutineSuggestion';
 import { WeekGridSection } from './WeekGrid';
 import { XpScene } from './XpScene';
 
@@ -72,6 +73,7 @@ export function MorningScreen() {
             <XpScene summary={summary} />
             <PillarsBlock view={view} desktop />
             <QuestsBlock view={view} desktop />
+            {source ? <RoutineSuggestion log={source} rolloverHour={rollover} /> : null}
             <WeekGridSection grid={grid} today={today} todayClosed={!!tonight?.closedAt} />
             <div className="mt-auto flex items-center justify-between gap-3 pt-2">
               <span className="text-mid">Written by Claude. Nothing left this device except what you pasted.</span>
@@ -89,6 +91,7 @@ export function MorningScreen() {
       <PillarsBlock view={view} />
       <LetterBlock view={view} />
       <QuestsBlock view={view} />
+      {source ? <RoutineSuggestion log={source} rolloverHour={rollover} /> : null}
       {source ? <AffirmationBlock view={view} /> : null}
       <Notes view={view} />
     </Page>
@@ -181,6 +184,11 @@ function LetterBlock({ view, desktop = false }: { view: MorningView; desktop?: b
             <button type="button" className="cursor-pointer self-start border-0 bg-transparent p-0 text-mid" onClick={() => setExpanded(true)}>
               Read the whole letter
             </button>
+          ) : null}
+          {source.summaryMd ? (
+            <p className="m-0 text-mid" data-testid="morning-summary">
+              The day in numbers: {source.summaryMd}
+            </p>
           ) : null}
         </div>
       </Section>

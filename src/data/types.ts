@@ -220,6 +220,35 @@ export interface DayLog extends Base {
   extraSections?: { title: string; body: string }[];
   /** Raw reply kept when parsing failed, so nothing is lost. */
   rawDraft?: string;
+  /* More of today. All optional: days logged before these existed simply have none. */
+  waterL?: number;
+  steps?: number;
+  workoutType?: string;
+  workoutMin?: number;
+  caffeineCups?: number;
+  alcoholDrinks?: number;
+  deepWorkHours?: number;
+  topWin?: string;
+  /** 1-5. */
+  stress?: number;
+  gratitude?: string;
+  /** ## SUMMARY of the reply: a short recap of the day. */
+  summaryMd?: string;
+  /** ## ROUTINE of the reply: at most one suggested routine, until the player adds or dismisses it. */
+  routineSuggestion?: RoutineDraft & { status: 'open' | 'added' | 'dismissed' };
+}
+
+/** A routine proposed by Claude, before it is in the game. */
+export interface RoutineDraft {
+  name: string;
+  pillar: Pillar;
+  subStat: string;
+  weight: number;
+  /** 0 = Sunday. Empty = every day. */
+  days: number[];
+  window?: string;
+  upside: string;
+  cost: string;
 }
 
 export interface StarredAffirmation extends Base {
@@ -229,9 +258,24 @@ export interface StarredAffirmation extends Base {
 
 /* ---------------------------------- food ------------------------------------- */
 
+/** One portion: its weight, energy and macros. Any part can be unknown. */
+export interface Nutrition {
+  grams?: number;
+  kcal?: number;
+  proteinG?: number;
+  carbsG?: number;
+  fatG?: number;
+}
+
+/** Where a portion's numbers came from: Claude's estimate, or typed by the player (never overwritten). */
+export type NutritionSource = 'claude' | 'you';
+
+/** A saved meal. `nutrition` is its usual portion, reused the next time it is logged. */
 export interface Food extends Base {
   name: string;
   tags: string[];
+  nutrition?: Nutrition;
+  nutritionFrom?: NutritionSource;
 }
 
 export type MealSlot = 'breakfast' | 'lunch' | 'dinner' | 'snack';
@@ -242,6 +286,9 @@ export interface Meal extends Base {
   foodId: string;
   /** 1-5, how you felt after. */
   feltAfter?: number;
+  /** This portion. Copied from the saved meal when logged, filled in by Claude's ## MEALS otherwise. */
+  nutrition?: Nutrition;
+  nutritionFrom?: NutritionSource;
 }
 
 /* ---------------------------------- skills ----------------------------------- */

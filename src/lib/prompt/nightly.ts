@@ -8,7 +8,7 @@
 import { PILLARS, PILLAR_LABEL, SUBSTATS, type GoalStatus, type Pillar } from '@/data/types';
 import { formatLongDate } from '@/lib/dates';
 import { DEEP_DAYS, buildDeepBlock } from './deep';
-import { formatRoutineScore, tonightBlock, type TonightInput } from './dayLog';
+import { formatRoutineScore, glanceBlock, tonightBlock, type TonightInput } from './dayLog';
 import { GAME_MASTER_PREAMBLE, RULE, VOICE_RULES, estimateTokens, joinBlocks, section, stripMoney } from './shared';
 
 export const RECENT_DAYS = 14;
@@ -96,7 +96,9 @@ function nightlyTask(input: NightlyInput): string {
     : '';
   return section(
     "Tonight's task",
-    `It is the end of Day ${input.dayNo}, ${formatLongDate(input.date)}. Write ${name}'s letter for tomorrow morning and set up the day: three quests, your stat adjustments, warnings, one pattern and one lesson.
+    `It is the end of Day ${input.dayNo}, ${formatLongDate(input.date)}. Write ${name}'s letter for tomorrow morning and set up the day: three quests, your stat adjustments, warnings, one pattern, one lesson, the numbers for each meal, a short recap, and a routine only if one is clearly missing.
+
+Read "Today at a glance" first: it has tonight against the last 7 days. The full log for tonight is at the end, after the history.
 
 The app has already scored tonight's routines (a done routine earns its weight, a scheduled skip costs half of it, one shield a week covers a miss, and a pillar never loses more than 5 in a night): ${formatRoutineScore(input.tonight.routineScore)}. Do not score the routines again. Your STATS are judgment calls on top of that: effort beyond the routines, honesty in the log, numbers trending the right or the wrong way.${deep}`,
   );
@@ -109,7 +111,7 @@ function replyFormat(input: NightlyInput): string {
     : 'One sentence that applies a lesson to tomorrow, from a book they have read or from their own log, starting "From <source>:".';
   const skills = input.skills.length ? input.skills.map((s) => `${s.name} ${n1(s.level)}`).join(', ') : 'none yet';
   return `## Reply format
-Reply with these seven sections, with these exact headers, in this order. Nothing before the first header and nothing after the last section.
+Reply with these ten sections, with these exact headers, in this order. Nothing before the first header and nothing after the last section.
 
 ## BRIEF
 The morning letter, 150 to 400 words, in plain paragraphs (no lists, no headers). Start with what happened today, use the numbers from tonight's log, say what it builds or what it costs, and end on what tomorrow is for.
@@ -133,6 +135,17 @@ One line per pillar you adjust, from -3 to +3, on top of the routine scores. You
 
 ## LESSON
 ${lesson}
+
+## MEALS
+- Breakfast | Oats with banana | 250 g | 380 kcal | P 12 g | C 60 g | F 8 g
+One line per meal in tonight's log, in that shape, with the meal name exactly as logged. Where a meal says "known", copy those numbers; otherwise estimate a typical portion for that meal. Write "- None" if no meals were logged.
+
+## SUMMARY
+Two or three plain sentences recapping today in numbers: what was done, what slipped, the intake. No advice.
+
+## ROUTINE
+- Name | Pillar | SubStat | weight 1-5 | days | window | upside | cost
+At most one new routine, and only when the last two weeks show a clear need that no current routine covers; otherwise write "- None". SubStat is one of that pillar's sub-stats below. weight: 1 takes two minutes, 3 is a real block of time, 5 is the hardest thing in their week. days: daily, weekdays, or a list such as Mon,Wed,Fri. window: HH:MM-HH:MM in 24-hour time, or none. Start small: something they can keep in a bad week.
 
 Sub-stats you can use in STATS: ${subStatList()}
 Skills you can rank (1 to 100): ${skills}.`;
@@ -178,6 +191,7 @@ interface DataParts {
 
 function dataHalf(input: NightlyInput, parts: DataParts): string {
   return joinBlocks(
+    glanceBlock(input.tonight),
     stateOfMeBlock(input.stateOfMeMd),
     goalsBlock(input.goals),
     peopleBlock(input.quietPeople),

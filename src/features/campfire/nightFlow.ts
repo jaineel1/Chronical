@@ -3,7 +3,7 @@
  * night when a routine is ticked late, and saving a pasted reply. Every flow runs through one
  * queue so a fast double tap can never revert and apply the same night out of order.
  */
-import { dayLogRepo, promptRepo } from '@/data/repo';
+import { dayLogRepo, mealRepo, promptRepo, routineRepo } from '@/data/repo';
 import type { PromptKind } from '@/data/types';
 import { nowIso } from '@/lib/dates';
 import { applyNightStats, revertNightStats } from '@/lib/game/apply';
@@ -76,6 +76,9 @@ export function acceptReply(date: string, replyMd: string, ctx: SendContext & { 
 
     await revertNightStats(date);
     const log = await dayLogRepo.ensure(date);
+    // A routine already in the game (added from an earlier paste of this reply) is not suggested again.
+    const existing = new Set((await routineRepo.listActive()).map((r) => r.name.trim().toLowerCase()));
+    const suggestion = parsed.routine && !existing.has(parsed.routine.name.trim().toLowerCase()) ? { ...parsed.routine, status: 'open' as const } : undefined;
     await dayLogRepo.update(date, {
       briefMd: parsed.briefMd,
       affirmations: parsed.affirmations,
@@ -84,14 +87,18 @@ export function acceptReply(date: string, replyMd: string, ctx: SendContext & { 
       warnings: [...parsed.warnings, ...log.warnings.filter(isPeriodWarning)],
       insights: parsed.insights,
       lessonMd: parsed.lessonMd || undefined,
+      summaryMd: parsed.summaryMd || undefined,
+      routineSuggestion: suggestion,
       extraSections: parsed.extraSections.length ? parsed.extraSections : undefined,
       rawDraft: undefined,
       repliedAt: nowIso(),
     });
     if (log.promptId) await promptRepo.attachReply(log.promptId, replyMd, true);
     const report = await applyNightStats(date);
+    const unmatchedMeals = await mealRepo.applyEstimates(date, parsed.meals);
 
     const notes: string[] = [];
+    if (unmatchedMeals.length) notes.push(`No logged meal called ${unmatchedMeals.join(' or ')}, so ${unmatchedMeals.length === 1 ? 'its numbers were' : 'their numbers were'} skipped.`);
     if (!parsed.quests.length) notes.push('No quests came with it.');
     if (report.unknown.length) notes.push(`No skill called ${report.unknown.join(' or ')}, so ${report.unknown.length === 1 ? 'that line was' : 'those lines were'} skipped.`);
     return { ok: true, message: [SAVED_MESSAGE, ...notes].join(' ') };

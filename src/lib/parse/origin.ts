@@ -451,7 +451,8 @@ function parseSkills(body: string, notes: string[]): OriginSkill[] {
   return out;
 }
 
-function parseRoutines(body: string, notes: string[]): OriginRoutine[] {
+/** Routine rows (`Name | Pillar | SubStat | weight | days | window | upside | cost`). The nightly ## ROUTINE reuses it. */
+export function parseRoutines(body: string, notes: string[]): OriginRoutine[] {
   const out: OriginRoutine[] = [];
   for (let cells of rowsOf(body, 'ROUTINES', notes)) {
     const name = cells[0]!;

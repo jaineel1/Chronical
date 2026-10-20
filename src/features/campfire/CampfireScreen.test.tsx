@@ -34,7 +34,7 @@ describe('CampfireScreen', () => {
     expect(screen.getByRole('link', { name: 'Add a routine' })).toHaveAttribute('href', '/edit/routines/new');
     expect(screen.getByText("Tonight's numbers")).toBeInTheDocument();
     expect(await screen.findByTestId('copy-prompt', {}, { timeout: 4000 })).toHaveTextContent("Send tonight's log");
-    expect(screen.getByText(/For Haiku\. About/)).toBeInTheDocument();
+    expect(screen.getByText(/For Opus\. About/)).toBeInTheDocument();
   }, 10_000);
 
   it('folds the log away when tonight already has a letter', async () => {
