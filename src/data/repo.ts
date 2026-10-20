@@ -1,4 +1,4 @@
-import type { EntityTable, Table } from 'dexie';
+import Dexie, { type EntityTable, type Table } from 'dexie';
 import { db, TABLE_NAMES, type TableName } from './db';
 import { newId } from './ids';
 import { nowIso } from '@/lib/dates';
@@ -59,50 +59,58 @@ export const profileRepo = {
   },
   /** Creates the single profile row on first run. Idempotent. */
   async ensure(displayName = ''): Promise<Profile> {
-    return db.transaction('rw', PROFILE_TABLES(), async () => {
+    const { profile, created } = await db.transaction('rw', db.profile, async () => {
       const existing = await db.profile.get('me');
-      if (existing) return existing;
-      const now = nowIso();
-      const profile: Profile = {
-        id: 'me',
-        displayName,
-        startedAt: now,
-        settings: { ...DEFAULT_SETTINGS },
-        createdAt: now,
-        updatedAt: now,
-      };
+      if (existing) return { profile: existing, created: false };
+      const profile = freshProfile(displayName);
       await db.profile.put(profile);
-      await ensureGameState();
-      return profile;
+      return { profile, created: true };
     });
+    if (created) await ensureGameStateOutside();
+    return profile;
   },
   // Read and write in one transaction: a settings toggle and a debounced name save landing together
-  // must both stick.
+  // must both stick. Only the profile table is locked, so callers inside their own transactions
+  // (weekly apply, createGame) can nest this without including the pillar tables.
   async update(changes: Partial<Omit<Profile, 'id'>>): Promise<Profile> {
-    return db.transaction('rw', PROFILE_TABLES(), async () => {
-      const current = await profileRepo.ensure();
+    const { next, created } = await db.transaction('rw', db.profile, async () => {
+      const existing = await db.profile.get('me');
+      const current = existing ?? freshProfile('');
       const next: Profile = { ...current, ...changes, id: 'me', updatedAt: nowIso() };
       await db.profile.put(next);
-      return next;
+      return { next, created: !existing };
     });
+    if (created) await ensureGameStateOutside();
+    return next;
   },
   async updateSettings(changes: Partial<Settings>): Promise<Profile> {
-    return db.transaction('rw', PROFILE_TABLES(), async () => {
-      const current = await profileRepo.ensure();
-      return profileRepo.update({ settings: { ...current.settings, ...changes } });
-    });
+    return profileRepo.updateSettingsWith(() => changes);
   },
   /** Settings computed from the stored ones inside the same transaction, for nested objects like `models`. */
   async updateSettingsWith(change: (current: Settings) => Partial<Settings>): Promise<Profile> {
-    return db.transaction('rw', PROFILE_TABLES(), async () => {
-      const current = await profileRepo.ensure();
+    return db.transaction('rw', db.profile, async () => {
+      const current = (await db.profile.get('me')) ?? freshProfile('');
       return profileRepo.update({ settings: { ...current.settings, ...change(current.settings) } });
     });
   },
 };
 
-/** Creating the profile also creates the pillars, so every profile write covers those tables. */
-const PROFILE_TABLES = () => [db.profile, db.pillarState, db.subStatState];
+function freshProfile(displayName: string): Profile {
+  const now = nowIso();
+  return { id: 'me', displayName, startedAt: now, settings: { ...DEFAULT_SETTINGS }, createdAt: now, updatedAt: now };
+}
+
+/**
+ * The pillars are created right after the profile. When the caller is inside a transaction that does
+ * not cover the pillar tables, this runs as its own transaction instead of a (forbidden) nested one.
+ */
+async function ensureGameStateOutside(): Promise<void> {
+  if (Dexie.currentTransaction) {
+    await Dexie.ignoreTransaction(() => ensureGameState());
+  } else {
+    await ensureGameState();
+  }
+}
 
 /** Make sure the five pillars and twenty sub-stats exist. Idempotent. */
 export async function ensureGameState(): Promise<void> {
