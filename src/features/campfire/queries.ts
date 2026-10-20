@@ -1,7 +1,7 @@
 /** Read-only live queries for the Campfire (and a few the Morning reuses). */
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/data/db';
-import type { Book, Digest, Food, Meal, RoutineLog } from '@/data/types';
+import type { Book, Digest, Food, Meal, Note, RoutineLog } from '@/data/types';
 import { buildNightlyPrompt } from '@/lib/prompt/nightly';
 import { gatherKnownNouns, gatherNightlyInput } from './gather';
 
@@ -16,6 +16,11 @@ export function useMeals(date: string): MealView[] | undefined {
     const foods = await db.foods.bulkGet(meals.map((m) => m.foodId));
     return meals.map((meal, i) => ({ meal, name: foods[i]?.name ?? 'Something' }));
   }, [date]);
+}
+
+/** The day's notes of one kind, oldest first. */
+export function useNotes(date: string, kind: Note['kind']): Note[] | undefined {
+  return useLiveQuery(async () => (await db.notes.where('date').equals(date).sortBy('at')).filter((n) => n.kind === kind), [date, kind]);
 }
 
 export function useFoods(): Food[] | undefined {
