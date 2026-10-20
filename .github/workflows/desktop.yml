@@ -30,6 +30,17 @@ jobs:
       # Every build gets a higher version, which is what tells installed apps there is an update.
       - run: npm version "0.1.${{ github.run_number }}" --no-git-tag-version
       - run: npm run desktop:build
+      # Publish all-or-nothing: the files go into a draft, which becomes the Latest release only once
+      # every one is there, so installed apps never see a release without latest.yml. Creating the
+      # release here also stops electron-builder's parallel uploads from racing to create it.
+      - name: Create draft release
+        run: gh release create "v0.1.${{ github.run_number }}" --draft --title "0.1.${{ github.run_number }}" --notes "Windows app built from ${{ github.sha }}." --target "${{ github.sha }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish release
+        run: gh release edit "v0.1.${{ github.run_number }}" --draft=false --latest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
