@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '@/data/db';
-import { dayLogRepo, profileRepo, resetAll } from '@/data/repo';
+import { dayLogRepo, profileRepo, resetAll, routineRepo } from '@/data/repo';
+import type { Routine } from '@/data/types';
 import { NO_DIGEST_ERROR, applyWeeklyReply, isPeriodQuest, isPeriodWarning, parseWeeklyReply } from './weekly';
 
 const REPLY = `## DIGEST
@@ -77,6 +78,73 @@ describe('parseWeeklyReply', () => {
   });
 });
 
+const ROUTINE: Omit<Routine, 'id' | 'createdAt' | 'updatedAt'> = {
+  name: 'x',
+  pillar: 'BODY',
+  subStat: 'Strength',
+  weight: 3,
+  days: [],
+  upside: '',
+  cost: '',
+  streak: 0,
+  shields: 1,
+  archived: false,
+  sortOrder: 0,
+};
+
+const BOSS = `## BOSS
+Name: The Late-Night Scroll
+Pillar: Dopamine
+HP: 20
+Weak to: Phone-free evening, Evening walk
+Reward: a new paperback on Sunday
+Taunt: One more video. Then another.`;
+
+describe('parseWeeklyReply ## BOSS', () => {
+  it('leaves a reply without ## BOSS exactly as before', () => {
+    const r = parseWeeklyReply(REPLY);
+    expect('boss' in r).toBe(false);
+    expect(r.errors).toEqual([]);
+  });
+
+  it('reads the boss and leaves the other sections alone', () => {
+    const r = parseWeeklyReply(`${REPLY}\n\n${BOSS}`);
+    const before = parseWeeklyReply(REPLY);
+    expect(r.boss).toEqual({
+      name: 'The Late-Night Scroll',
+      pillar: 'DOPAMINE',
+      hp: 20,
+      weakTo: ['Phone-free evening', 'Evening walk'],
+      reward: 'a new paperback on Sunday',
+      taunt: 'One more video. Then another.',
+    });
+    expect(r.errors).toEqual([]);
+    const noIds = (p: typeof r) => ({ ...p, boss: undefined, quests: p.quests.map((q) => ({ ...q, id: '' })) });
+    expect(noIds(r)).toEqual(noIds(before));
+  });
+
+  it('accepts bold headers and fields, bullets, a list under "Weak to:" and an HP with words', () => {
+    const r = parseWeeklyReply(
+      '**DIGEST**\nA week.\n\n**Boss:**\n- **Name:** "The Snooze"\n- **Pillar:** [Body]\n- **HP:** 14 hp (70% of 20)\n- **Weak to:**\n- Gym (weight 4)\n- Evening walk\n- **Reward:** new shoes',
+    );
+    expect(r.boss).toEqual({ name: 'The Snooze', pillar: 'BODY', hp: 14, weakTo: ['Gym', 'Evening walk'], reward: 'new shoes', taunt: '' });
+  });
+
+  it('"- None" sets no boss and no error', () => {
+    const r = parseWeeklyReply('## DIGEST\nA week.\n\n## BOSS\n- None');
+    expect(r.ok).toBe(true);
+    expect(r.boss).toBeUndefined();
+    expect(r.errors.some((e) => e.includes('BOSS'))).toBe(false);
+  });
+
+  it('notes missing fields without failing the reply', () => {
+    const r = parseWeeklyReply('## DIGEST\nA week.\n\n## BOSS\nName: The Snooze\nPillar: Sleep\nReward: x');
+    expect(r.ok).toBe(true);
+    expect(r.boss).toBeUndefined();
+    expect(r.errors).toContain('The ## BOSS section has no usable Pillar, HP or Weak to, so no boss was set this week.');
+  });
+});
+
 describe('applyWeeklyReply', () => {
   beforeEach(async () => {
     await resetAll();
@@ -115,6 +183,22 @@ describe('applyWeeklyReply', () => {
     await applyWeeklyReply(parseWeeklyReply(REPLY), 'monthly', '2026-10-01', today, undefined, today);
     expect(await db.digests.count()).toBe(2);
     expect((await dayLogRepo.get(today))?.quests).toHaveLength(7);
+  });
+
+  it('saves the boss on the weekly digest for the next seven days, matching routines, and a re-paste without one clears it', async () => {
+    const today = '2026-10-18';
+    await routineRepo.create({ ...ROUTINE, name: 'Phone-free evening', pillar: 'DOPAMINE', subStat: 'Restraint' });
+    const digest = await applyWeeklyReply(parseWeeklyReply(`${REPLY}\n\n${BOSS}`), 'weekly', '2026-10-12', today, undefined, today);
+    const routines = await db.routines.toArray();
+    expect(digest.boss).toMatchObject({ name: 'The Late-Night Scroll', hp: 20, start: '2026-10-19', end: '2026-10-25' });
+    expect(digest.boss?.weakTo).toEqual([{ name: 'Phone-free evening', routineId: routines[0]!.id }, { name: 'Evening walk' }]);
+    expect((await db.digests.get(digest.id))?.boss?.name).toBe('The Late-Night Scroll');
+
+    await applyWeeklyReply(parseWeeklyReply(REPLY), 'weekly', '2026-10-12', today, undefined, today);
+    expect((await db.digests.get(digest.id))?.boss).toBeUndefined();
+
+    const monthly = await applyWeeklyReply(parseWeeklyReply(`${REPLY}\n\n${BOSS}`), 'monthly', '2026-10-01', today, undefined, today);
+    expect(monthly.boss).toBeUndefined();
   });
 
   it('refuses a reply that did not parse', async () => {

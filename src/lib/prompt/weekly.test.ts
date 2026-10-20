@@ -39,6 +39,54 @@ describe('buildWeeklyPrompt', () => {
   });
 });
 
+describe('buildWeeklyPrompt with a boss', () => {
+  const base = {
+    periodStart: '2026-10-12',
+    periodEnd: '2026-10-18',
+    dayNoStart: 17,
+    dayNoEnd: 23,
+    displayName: 'Jaineel',
+    goals,
+    warnings: [],
+    days: ['## Tonight, Day 23\nfull detail 23'],
+    excludeMoney: false,
+  };
+  const boss = {
+    start: '2026-10-19',
+    end: '2026-10-25',
+    routines: [
+      { name: 'Phone-free evening', pillar: 'DOPAMINE' as const, weight: 3, scheduledDays: 7 },
+      { name: 'Evening walk', pillar: 'BODY' as const, weight: 2, scheduledDays: 1 },
+    ],
+    pillarLevels: [
+      { pillar: 'BODY' as const, level: 7.4 },
+      { pillar: 'DOPAMINE' as const, level: 3.1 },
+    ],
+  };
+
+  it('asks for a ## BOSS with the HP rule and lists the routines with weights and full-week damage', () => {
+    const md = buildWeeklyPrompt({ ...base, boss });
+    const [instructions, data] = md.split('\n---\n') as [string, string];
+    expect(instructions).toContain('Reply with these six sections');
+    expect(instructions).toContain('set three quests and one boss for the coming week');
+    for (const f of ['\n## BOSS\n', '\nName: ', '\nPillar: ', '\nHP: ', '\nWeak to: ', '\nReward: ', '\nTaunt: ']) expect(instructions).toContain(f);
+    expect(instructions).toContain('their weakest pillar or a pattern from this week');
+    expect(instructions).toContain('about 70% of the full-week damage');
+    expect(data).toContain("## The boss's week, Monday, 19 October to Sunday, 25 October");
+    expect(data).toContain('- Dopamine level 3.1 (weakest)\n- Body level 7.4');
+    expect(data).toContain('- Phone-free evening (Dopamine): weight 3, scheduled 7 days, full-week damage 21');
+    expect(data).toContain('- Evening walk (Body): weight 2, scheduled 1 day, full-week damage 2');
+  });
+
+  it('leaves the boss out without routines, as before', () => {
+    for (const md of [buildWeeklyPrompt(base), buildWeeklyPrompt({ ...base, boss: { ...boss, routines: [] } })]) {
+      expect(md).toContain('Reply with these five sections');
+      expect(md).not.toContain('## BOSS');
+      expect(md).not.toContain('Routines that can hit the boss');
+    }
+  });
+});
+
 describe('buildMonthlyPrompt', () => {
   it('uses the weekly digests and at most 30 compressed days', () => {
     const md = buildMonthlyPrompt({
