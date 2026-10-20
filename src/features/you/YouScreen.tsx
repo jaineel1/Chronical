@@ -12,6 +12,7 @@ import { PixelSprite } from '@/ui/PixelSprite';
 import { Button, Empty, SectionHeader, StatRow } from '@/ui/primitives';
 import { HERO_MAP, HERO_PALETTE, SUN_MAP, SUN_PALETTE } from '@/ui/sprites';
 import { ProgressTeaser } from '@/features/progress/ProgressTeaser';
+import { Achievements } from './Achievements';
 import { RankPanel } from './RankPanel';
 import { useSkills } from './queries';
 
@@ -42,6 +43,7 @@ export function YouScreen() {
         <div className="flex min-w-0 flex-col gap-2 lg:pt-1">
           <Skills skills={skills} ranking={ranking} onRank={() => setRanking((v) => !v)} />
           {ranking ? <RankPanel onClose={() => setRanking(false)} /> : null}
+          <Achievements />
         </div>
       </div>
       <p className="mt-3 border-t border-faint px-2.5 pt-2 text-mid">Wardrobe opens in chapter 3, with your real clothes.</p>
