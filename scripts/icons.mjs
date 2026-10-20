@@ -1,27 +1,49 @@
 // Generates public/icons/{icon.svg, icon-192.png, icon-512.png, icon-512-maskable.png}
-// from the pixel sun on an ink square. Run: npm run icons
+// from the pixel campfire under a night sky on an ink square. Run: npm run icons
 import { mkdir, writeFile } from 'node:fs/promises';
 import sharp from 'sharp';
 
 const INK = '#3a1219';
 const RED = '#b8323b';
 const PAPER = '#ebe3d4';
+const MID = '#8a4a52';
+const WALNUT = '#6b3f2a';
 
-const SUN = ['..xxx..', '.xxxxx.', 'xxxxxxx', 'xxxxxxx', 'xxxxxxx', '.xxxxx.', '..xxx..'];
-const HILL = ['.......', '.......', '.......', '.......', '.......', '.......', 'xxxxxxx'];
+// r flame, p flame core, w logs, m stars and moon.
+const PALETTE = { r: RED, p: PAPER, w: WALNUT, m: MID };
+const ART = [
+  '.m.........mm.',
+  '..........m...',
+  '......r...m...',
+  '......rr...mm.',
+  '.....rrr......',
+  '.....rrrr..m..',
+  '...r.rrprr....',
+  '...rrrrpprr...',
+  '..rrrrpppprr..',
+  '..rrrppppprr..',
+  '..rrpppppppr..',
+  '...rrpppppr...',
+  '....rrrrrr....',
+  'ww..........ww',
+  '.wwww....wwww.',
+  '....wwwwww....',
+  '.wwww....wwww.',
+  'ww..........ww',
+];
 
 function svg({ size, pad, maskable }) {
-  const grid = 11; // 7 sprite + 2 padding each side
+  const w = ART[0].length;
+  const h = ART.length;
+  const grid = Math.max(w, h) + 2; // one cell of breathing room each side
   const cell = (size - pad * 2) / grid;
+  const ox = (grid - w) / 2;
+  const oy = (grid - h) / 2;
   const rects = [];
-  SUN.forEach((row, r) =>
+  ART.forEach((row, r) =>
     [...row].forEach((ch, c) => {
-      if (ch === 'x') rects.push(`<rect x="${pad + (c + 2) * cell}" y="${pad + (r + 1) * cell}" width="${cell}" height="${cell}" fill="${RED}"/>`);
-    }),
-  );
-  HILL.forEach((row, r) =>
-    [...row].forEach((ch, c) => {
-      if (ch === 'x') rects.push(`<rect x="${pad + (c + 2) * cell}" y="${pad + (r + 3) * cell}" width="${cell}" height="${cell}" fill="${PAPER}"/>`);
+      const fill = PALETTE[ch];
+      if (fill) rects.push(`<rect x="${pad + (c + ox) * cell}" y="${pad + (r + oy) * cell}" width="${cell}" height="${cell}" fill="${fill}"/>`);
     }),
   );
   const bg = maskable ? `<rect width="${size}" height="${size}" fill="${INK}"/>` : `<rect width="${size}" height="${size}" rx="${size * 0.18}" fill="${INK}"/>`;
