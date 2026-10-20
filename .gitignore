@@ -12,3 +12,4 @@ playwright-report
 .env
 .env.*
 dist-artifact
+.claude/worktrees

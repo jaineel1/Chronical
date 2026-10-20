@@ -21,6 +21,7 @@ import { AffirmationRow } from './AffirmationRow';
 import { Letter } from './Letter';
 import { firstSentences, lessonLine, lowerFirst, wordCount } from './letterText';
 import { useActiveRoutines, useKeptAffirmations, usePeriodQuests, type PeriodQuests } from './queries';
+import { BossCard } from './BossCard';
 import { QuestList } from './QuestList';
 import { RoutineSuggestion } from './RoutineSuggestion';
 import { WeekGridSection } from './WeekGrid';
@@ -77,6 +78,7 @@ export function MorningScreen() {
             <XpScene summary={summary} />
             <PillarsBlock view={view} desktop />
             <QuestsBlock view={view} desktop />
+            <BossCard />
             {source ? <RoutineSuggestion log={source} rolloverHour={rollover} /> : null}
             <WeekGridSection grid={grid} today={today} todayClosed={!!tonight?.closedAt} />
             <div className="mt-auto flex items-center justify-between gap-3 pt-2">
@@ -95,6 +97,7 @@ export function MorningScreen() {
       <PillarsBlock view={view} />
       <LetterBlock view={view} />
       <QuestsBlock view={view} />
+      <BossCard />
       {source ? <RoutineSuggestion log={source} rolloverHour={rollover} /> : null}
       {source ? <AffirmationBlock view={view} /> : null}
       <Notes view={view} />
