@@ -147,6 +147,23 @@ describe('parseLoreReply', () => {
     expect(r.errors[0]).toMatch(/without text/);
   });
 
+  it('skips the header and rule rows of an achievements table', () => {
+    const r = parseLoreReply('## FACTS\n- x\n## ACHIEVEMENTS\n| Date | Achievement | Value |\n|------|-------------|-------|\n| 2026-10-12 | Long run 22 km | 22 km |');
+    expect(r.achievements).toEqual([{ date: '2026-10-12', text: 'Long run 22 km', value: 22, unit: 'km' }]);
+    expect(r.errors).toEqual([]);
+  });
+
+  it('reads updates written as a table or with bold labels', () => {
+    const r = parseLoreReply('## FACTS\n- x\n## UPDATES\n| Field | Value |\n|---|---|\n| level | 64 |\n| goal | Sub-4 marathon |\n- **closeness:** 4');
+    expect(r.updates).toEqual({ level: '64', goal: 'Sub-4 marathon', closeness: '4' });
+  });
+
+  it('drops a lead-in line above a list of facts or lessons', () => {
+    const r = parseLoreReply("## FACTS\nHere is what I will remember:\n- Started in March.\n- Runs before 7 AM.\n## LESSONS\nFrom the book:\n- Never miss twice.\n## REPLY\nKept.");
+    expect(r.facts).toEqual(['Started in March.', 'Runs before 7 AM.']);
+    expect(r.lessons).toEqual(['Never miss twice.']);
+  });
+
   it('reads a markdown table of achievements', () => {
     const r = parseLoreReply('## FACTS\n- x\n## ACHIEVEMENTS\n| 2026-10-12 | Long run 22 km | 22 km |');
     expect(r.achievements).toEqual([{ date: '2026-10-12', text: 'Long run 22 km', value: 22, unit: 'km' }]);

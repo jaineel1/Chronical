@@ -52,6 +52,24 @@ Running | 64 -> 70: a half marathon under 1:55`;
     expect((await db.prompts.get(prompt.id))?.parsedOk).toBe(false);
   });
 
+  it('keeps one assessment per skill when a corrected reply is pasted for the same prompt', async () => {
+    const prompt = await promptRepo.create('skill_rank', 'Sonnet', 'prompt');
+    await applySkillRankReply('## ASSESSMENT\nRunning | 66 | 92 | 55 | first try\nFrontend | 72 | 97 | 70 | ok', prompt.id);
+    const r = await applySkillRankReply('## ASSESSMENT\nRunning | 64 | 92 | 55 | corrected', prompt.id);
+    expect(r.ok).toBe(true);
+    expect(r.message).toMatch(/^Rankings updated: Running 66 → 64\./);
+    const skills = await db.skills.toArray();
+    const running = skills.find((s) => s.name === 'Running')!;
+    const frontend = skills.find((s) => s.name === 'Frontend')!;
+    expect(running.level).toBe(64);
+    expect(frontend.level).toBe(72);
+    const forPrompt = (await db.assessments.filter((a) => a.promptId === prompt.id).toArray()).sort((a, b) => b.level - a.level);
+    expect(forPrompt.map((a) => [a.skillId, a.level, a.reasoning])).toEqual([
+      [frontend.id, 72, 'ok'],
+      [running.id, 64, 'corrected'],
+    ]);
+  });
+
   it('writes the message in the arrow format', () => {
     expect(rankMessage([{ skillId: 'a', name: 'Running', from: 62.4, to: 64 }])).toBe('Rankings updated: Running 62 → 64.');
   });

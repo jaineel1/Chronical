@@ -128,6 +128,20 @@ export function normalizeMilestoneText(raw: string): { text: string; from?: numb
   return { text: what ? `${from} to ${to}: ${what}` : `${from} to ${to}`, from, to };
 }
 
+const ARROW = String.raw`(?:->|-->|→|⟶|➝|=>|–>|—>|\bto\b)`;
+
+/** "64", "64/100", "45 (Solid)", "62 -> 64", "62 → 64", "from 62 to 64" → the level the reply gives now. */
+export function newLevel(cell: string | undefined): number | undefined {
+  if (!cell) return undefined;
+  const changed = new RegExp(`\\d\\s*${ARROW}\\s*([-+]?\\d+(?:\\.\\d+)?)`, 'i').exec(cell);
+  return changed ? Number(changed[1]) : num(cell);
+}
+
+/** A table header row ("Skill | Level | …", "Name | from -> to: …"), not a skill. */
+function isHeaderName(raw: string): boolean {
+  return /^(name|skill|skills)$/i.test(cleanName(raw));
+}
+
 function lines(body: string): string[] {
   return body
     .split('\n')
@@ -168,19 +182,24 @@ export function parseSkillRankReply(md: string, knownSkillNames: readonly string
       if (line.includes('|')) {
         const c = cells(line);
         nameRaw = c[0] ?? '';
+        if (isHeaderName(nameRaw)) continue;
         levelRaw = c[1];
         rest = c.slice(2);
       } else {
-        const m = /^(.+?)\s*(?::|—|–|=|\s-\s)\s*(\d+(?:\.\d+)?)(?:\s*\/\s*100)?\b[\s,.;:—–-]*(.*)$/.exec(line);
+        // "Running: 64, reasoning", "**Running:** 62 -> 64 — reasoning", "Public speaking - 32"
+        const m = new RegExp(
+          String.raw`^(.+?)\s*(?::|—|–|=|\s-\s)\s*(?:from\s+)?(\d+(?:\.\d+)?)(?:\s*${ARROW}\s*(\d+(?:\.\d+)?))?(?:\s*\/\s*100)?\b[\s,.;:—–-]*(.*)$`,
+          'i',
+        ).exec(line.replace(/\*\*|__/g, ''));
         if (!m) {
           errors.push(`Could not read: "${line.slice(0, 60)}"`);
           continue;
         }
         nameRaw = m[1]!;
-        levelRaw = m[2];
-        rest = m[3] ? [m[3]] : [];
+        levelRaw = m[3] ?? m[2];
+        rest = m[4] ? [m[4]] : [];
       }
-      const level = num(levelRaw);
+      const level = newLevel(levelRaw);
       if (level === undefined) {
         // An echoed header row ("Name | level | ...") is not an error.
         if (!/level/i.test(levelRaw ?? '')) errors.push(`No level for "${cleanName(nameRaw)}".`);
@@ -214,7 +233,10 @@ export function parseSkillRankReply(md: string, knownSkillNames: readonly string
       if (bar >= 0) {
         const c = cells(line);
         nameRaw = c[0] ?? '';
-        rest = c.slice(1).join(' | ');
+        if (isHeaderName(nameRaw)) continue;
+        // "Running | 64 | 70 | a half marathon": from and to in their own columns.
+        const twoNumbers = c.length >= 3 && /^\d+(?:\.\d+)?$/.test(c[1] ?? '') && /^\d+(?:\.\d+)?$/.test(c[2] ?? '');
+        rest = twoNumbers ? `${c[1]} -> ${c[2]}: ${c.slice(3).join(' | ')}` : c.slice(1).join(' | ');
       } else {
         const m = /^(.+?)\s*[:—–]\s*(\d.*)$/.exec(line);
         if (!m) {

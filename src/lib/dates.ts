@@ -17,10 +17,14 @@ export function fromDayKey(key: string): Date {
   return new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1, 12, 0, 0, 0);
 }
 
-/** The game day that `now` belongs to. */
+/**
+ * The game day that `now` belongs to. Compares the wall-clock hour, not elapsed time, so the
+ * rollover stays at 4:00 on the days the clocks change.
+ */
 export function todayKey(rolloverHour = DEFAULT_ROLLOVER_HOUR, now: Date = new Date()): string {
-  const shifted = new Date(now.getTime() - rolloverHour * 60 * 60 * 1000);
-  return toDayKey(shifted);
+  const day = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0, 0);
+  if (now.getHours() < rolloverHour) day.setDate(day.getDate() - 1);
+  return toDayKey(day);
 }
 
 export function addDays(key: string, n: number): string {

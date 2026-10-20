@@ -78,6 +78,41 @@ describe('parseSkillRankReply', () => {
     expect(r.assessments.map((a) => a.level)).toEqual([64.4, 45]);
   });
 
+  it('reads the new level when the level cell shows the change', () => {
+    const r = parseSkillRankReply('## ASSESSMENT\nRunning | 62 -> 64 | 92 | 55 | long run\nCooking | 44 → 46 (Solid) | 70 | 30 | dinners\nLifting | from 48 to 50 | 75 | 40 | squat', KNOWN);
+    expect(r.assessments.map((a) => [a.name, a.level])).toEqual([
+      ['Running', 64],
+      ['Cooking', 46],
+      ['Lifting', 50],
+    ]);
+  });
+
+  it('skips a table header and bold labels without noise', () => {
+    const md = `## ASSESSMENT
+| Skill | Rank | Everyone | Practitioners | Why |
+|---|---|---|---|---|
+| Running | 63 | 91 | 52 | steady |
+- **Cooking:** 45 — five dinners a week`;
+    const r = parseSkillRankReply(md, ['Running', 'Cooking']);
+    expect(r.assessments.map((a) => [a.name, a.level, a.reasoning])).toEqual([
+      ['Running', 63, 'steady'],
+      ['Cooking', 45, 'five dinners a week'],
+    ]);
+    expect(r.errors).toEqual([]);
+  });
+
+  it('reads milestones written as separate from and to columns', () => {
+    const md = `## ASSESSMENT
+Running | 64 | 92 | 55 | ok
+## NEXT_MILESTONES
+| Skill | From | To | What would prove it |
+|---|---|---|---|
+| Running | 64 | 70 | a half marathon under 1:55 |`;
+    const r = parseSkillRankReply(md, ['Running']);
+    expect(r.milestones).toEqual([{ name: 'Running', text: '64 to 70: a half marathon under 1:55', from: 64, to: 70 }]);
+    expect(r.errors).toEqual([]);
+  });
+
   it('reads "top N%" and ordinal percentiles', () => {
     expect(parsePercentile('top 8%')).toBe(92);
     expect(parsePercentile('92nd')).toBe(92);

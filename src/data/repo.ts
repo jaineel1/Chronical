@@ -1,4 +1,4 @@
-import type { EntityTable } from 'dexie';
+import type { EntityTable, Table } from 'dexie';
 import { db, TABLE_NAMES, type TableName } from './db';
 import { newId } from './ids';
 import { nowIso } from '@/lib/dates';
@@ -33,15 +33,20 @@ export function stamp<T extends Base>(draft: Draft<T>): T {
   return { ...(draft as object), id: draft.id ?? newId(), createdAt: now, updatedAt: now } as T;
 }
 
-/** Apply a partial update and bump updatedAt. Returns the stored row or undefined if missing. */
+/**
+ * Apply a partial update and bump updatedAt. Returns the stored row or undefined if missing.
+ * The read and the write share one transaction, so two patches of the same row never lose a change.
+ */
 export async function patch<T extends Base>(table: EntityTable<T, 'id'>, id: string, changes: Partial<T>): Promise<T | undefined> {
   // Dexie's generic key types do not narrow through a generic T; the casts are local to this helper.
-  const anyTable = table as unknown as { get(id: string): Promise<T | undefined>; put(row: T): Promise<unknown> };
-  const row = await anyTable.get(id);
-  if (!row) return undefined;
-  const next = { ...row, ...changes, updatedAt: nowIso() } as T;
-  await anyTable.put(next);
-  return next;
+  const anyTable = table as unknown as Table & { get(id: string): Promise<T | undefined>; put(row: T): Promise<unknown> };
+  return db.transaction('rw', anyTable, async () => {
+    const row = await anyTable.get(id);
+    if (!row) return undefined;
+    const next = { ...row, ...changes, updatedAt: nowIso() } as T;
+    await anyTable.put(next);
+    return next;
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -54,32 +59,50 @@ export const profileRepo = {
   },
   /** Creates the single profile row on first run. Idempotent. */
   async ensure(displayName = ''): Promise<Profile> {
-    const existing = await db.profile.get('me');
-    if (existing) return existing;
-    const now = nowIso();
-    const profile: Profile = {
-      id: 'me',
-      displayName,
-      startedAt: now,
-      settings: { ...DEFAULT_SETTINGS },
-      createdAt: now,
-      updatedAt: now,
-    };
-    await db.profile.put(profile);
-    await ensureGameState();
-    return profile;
+    return db.transaction('rw', PROFILE_TABLES(), async () => {
+      const existing = await db.profile.get('me');
+      if (existing) return existing;
+      const now = nowIso();
+      const profile: Profile = {
+        id: 'me',
+        displayName,
+        startedAt: now,
+        settings: { ...DEFAULT_SETTINGS },
+        createdAt: now,
+        updatedAt: now,
+      };
+      await db.profile.put(profile);
+      await ensureGameState();
+      return profile;
+    });
   },
+  // Read and write in one transaction: a settings toggle and a debounced name save landing together
+  // must both stick.
   async update(changes: Partial<Omit<Profile, 'id'>>): Promise<Profile> {
-    const current = await profileRepo.ensure();
-    const next: Profile = { ...current, ...changes, id: 'me', updatedAt: nowIso() };
-    await db.profile.put(next);
-    return next;
+    return db.transaction('rw', PROFILE_TABLES(), async () => {
+      const current = await profileRepo.ensure();
+      const next: Profile = { ...current, ...changes, id: 'me', updatedAt: nowIso() };
+      await db.profile.put(next);
+      return next;
+    });
   },
   async updateSettings(changes: Partial<Settings>): Promise<Profile> {
-    const current = await profileRepo.ensure();
-    return profileRepo.update({ settings: { ...current.settings, ...changes } });
+    return db.transaction('rw', PROFILE_TABLES(), async () => {
+      const current = await profileRepo.ensure();
+      return profileRepo.update({ settings: { ...current.settings, ...changes } });
+    });
+  },
+  /** Settings computed from the stored ones inside the same transaction, for nested objects like `models`. */
+  async updateSettingsWith(change: (current: Settings) => Partial<Settings>): Promise<Profile> {
+    return db.transaction('rw', PROFILE_TABLES(), async () => {
+      const current = await profileRepo.ensure();
+      return profileRepo.update({ settings: { ...current.settings, ...change(current.settings) } });
+    });
   },
 };
+
+/** Creating the profile also creates the pillars, so every profile write covers those tables. */
+const PROFILE_TABLES = () => [db.profile, db.pillarState, db.subStatState];
 
 /** Make sure the five pillars and twenty sub-stats exist. Idempotent. */
 export async function ensureGameState(): Promise<void> {
@@ -125,17 +148,19 @@ export const routineLogRepo = {
   async get(routineId: string, date: string): Promise<RoutineLog | undefined> {
     return db.routineLogs.where('[routineId+date]').equals([routineId, date]).first();
   },
-  /** Upsert the done flag for one routine on one day. */
+  /** Upsert the done flag for one routine on one day. One transaction, so a double tap writes one row. */
   async set(routineId: string, date: string, done: boolean, extra: Partial<RoutineLog> = {}): Promise<RoutineLog> {
-    const existing = await routineLogRepo.get(routineId, date);
-    if (existing) {
-      const next = { ...existing, ...extra, done, updatedAt: nowIso() };
-      await db.routineLogs.put(next);
-      return next;
-    }
-    const row = stamp<RoutineLog>({ routineId, date, done, shielded: false, ...extra });
-    await db.routineLogs.put(row);
-    return row;
+    return db.transaction('rw', db.routineLogs, async () => {
+      const existing = await routineLogRepo.get(routineId, date);
+      if (existing) {
+        const next = { ...existing, ...extra, done, updatedAt: nowIso() };
+        await db.routineLogs.put(next);
+        return next;
+      }
+      const row = stamp<RoutineLog>({ routineId, date, done, shielded: false, ...extra });
+      await db.routineLogs.put(row);
+      return row;
+    });
   },
   async recent(routineId: string, limit = 60): Promise<RoutineLog[]> {
     return db.routineLogs.where('routineId').equals(routineId).reverse().sortBy('date').then((rows) => rows.slice(0, limit));
@@ -163,18 +188,24 @@ export const dayLogRepo = {
   get(date: string): Promise<DayLog | undefined> {
     return db.dayLogs.where('date').equals(date).first();
   },
+  // `date` is unique: two first touches of a day at once must not both insert, and two field saves
+  // must not overwrite each other, so the read and the write share one transaction.
   async ensure(date: string): Promise<DayLog> {
-    const existing = await dayLogRepo.get(date);
-    if (existing) return existing;
-    const row = emptyDayLog(date);
-    await db.dayLogs.put(row);
-    return row;
+    return db.transaction('rw', db.dayLogs, async () => {
+      const existing = await dayLogRepo.get(date);
+      if (existing) return existing;
+      const row = emptyDayLog(date);
+      await db.dayLogs.put(row);
+      return row;
+    });
   },
   async update(date: string, changes: Partial<DayLog>): Promise<DayLog> {
-    const current = await dayLogRepo.ensure(date);
-    const next: DayLog = { ...current, ...changes, updatedAt: nowIso() };
-    await db.dayLogs.put(next);
-    return next;
+    return db.transaction('rw', db.dayLogs, async () => {
+      const current = await dayLogRepo.ensure(date);
+      const next: DayLog = { ...current, ...changes, updatedAt: nowIso() };
+      await db.dayLogs.put(next);
+      return next;
+    });
   },
   /** Most recent `n` logs, newest first. */
   async recent(n: number, beforeOrOn?: string): Promise<DayLog[]> {
@@ -283,8 +314,35 @@ export async function exportBackup(): Promise<BackupFile> {
   return { app: 'chronicle', version: 1, exportedAt: nowIso(), tables };
 }
 
+/**
+ * Refuse a backup that would not restore cleanly, before anything is cleared: a table that is not a
+ * list (it would be wiped and left empty), a row without an id, two day logs for one date, or, when
+ * replacing, no profile (it would leave an empty game).
+ */
+function checkBackup(file: BackupFile, mode: 'replace' | 'merge'): void {
+  if (!file || file.app !== 'chronicle' || file.version !== 1) throw new Error('Not a Chronicle backup file');
+  if (!file.tables || typeof file.tables !== 'object') throw new Error('This backup has no tables. Nothing was changed.');
+  for (const name of TABLE_NAMES) {
+    const rows = file.tables[name];
+    if (rows === undefined) continue;
+    if (!Array.isArray(rows)) throw new Error(`This backup is damaged: ${name} is not a list of rows. Nothing was changed.`);
+    for (const row of rows) {
+      const id = (row as { id?: unknown } | null)?.id;
+      if (typeof id !== 'string' || !id) throw new Error(`This backup is damaged: a row in ${name} has no id. Nothing was changed.`);
+    }
+  }
+  const dates = new Set<unknown>();
+  for (const log of (file.tables.dayLogs ?? []) as { date?: unknown }[]) {
+    if (dates.has(log.date)) throw new Error(`This backup has two day logs for ${String(log.date)}. Nothing was changed.`);
+    dates.add(log.date);
+  }
+  if (mode === 'replace' && !(file.tables.profile ?? []).some((p) => (p as { id?: unknown }).id === 'me')) {
+    throw new Error('This backup has no profile, so it would leave an empty game. Nothing was changed.');
+  }
+}
+
 export async function importBackup(file: BackupFile, mode: 'replace' | 'merge' = 'replace'): Promise<void> {
-  if (file.app !== 'chronicle' || file.version !== 1) throw new Error('Not a Chronicle backup file');
+  checkBackup(file, mode);
   await db.transaction('rw', TABLE_NAMES.map((n) => db.table(n)), async () => {
     for (const name of TABLE_NAMES) {
       const rows = file.tables[name] ?? [];

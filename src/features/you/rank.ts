@@ -33,13 +33,16 @@ export async function applySkillRankReply(
     if (promptId) await promptRepo.attachReply(promptId, replyMd, false);
     return { ok: false, error: `${parsed.errors[0] ?? 'Could not read that reply.'} Nothing was changed.`, parsed, changes: [] };
   }
-  const byName = new Map(skills.map((s) => [s.name, s]));
   const changes: RankChange[] = [];
   await db.transaction('rw', db.skills, db.assessments, async () => {
     const now = nowIso();
+    // Read the rows again inside the transaction: hours logged meanwhile must not be overwritten.
+    const byName = new Map((await db.skills.toArray()).map((s) => [s.name, s]));
     for (const a of parsed.assessments) {
       const skill = byName.get(a.name);
       if (!skill) continue;
+      // A corrected reply pasted for the same prompt replaces that prompt's ranking of the skill.
+      if (promptId) await db.assessments.where('skillId').equals(skill.id).filter((x) => x.promptId === promptId).delete();
       const milestones = parsed.milestones.filter((m) => m.name === a.name).map((m) => m.text);
       const next: Skill = {
         ...skill,
