@@ -98,7 +98,7 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
   return (
     <Page>
       <FireScene logged={logged} total={total} />
-      {log?.briefMd ? <LetterIn editing={editing} summary={log.summaryMd} onEdit={() => setEditing(true)} /> : null}
+      {log?.briefMd ? <LetterIn editing={editing} summary={log.summaryMd} rantReply={editing ? undefined : log.rantReplyMd} onEdit={() => setEditing(true)} /> : null}
       {editing ? (
         <>
           <RoutinesSection date={date} routines={routines} logs={logs} closed={closed} notes={notes} />
@@ -145,10 +145,16 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
   );
 }
 
-function LetterIn({ editing, summary, onEdit }: { editing: boolean; summary?: string; onEdit: () => void }) {
+function LetterIn({ editing, summary, rantReply, onEdit }: { editing: boolean; summary?: string; rantReply?: string; onEdit: () => void }) {
   return (
     <div className="flex flex-col gap-1 px-2.5 pb-1" data-testid="letter-in">
       <span>Tonight's letter is in.</span>
+      {rantReply ? (
+        <p className="m-0 text-mid">
+          <span className="text-ink">On your rant: </span>
+          {rantReply}
+        </p>
+      ) : null}
       {summary ? (
         <p className="m-0 text-mid" data-testid="night-summary">
           {summary}

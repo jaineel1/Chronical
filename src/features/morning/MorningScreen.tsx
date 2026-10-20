@@ -22,6 +22,8 @@ import { Letter } from './Letter';
 import { firstSentences, lessonLine, lowerFirst, wordCount } from './letterText';
 import { useActiveRoutines, useKeptAffirmations, usePeriodQuests, type PeriodQuests } from './queries';
 import { BossCard } from './BossCard';
+import { NowStrip } from '@/features/now/NowStrip';
+import { QuickCapture } from '@/features/campfire/QuickCapture';
 import { QuestList } from './QuestList';
 import { ReviewBlock } from './ReviewBlock';
 import { RoutineSuggestion } from './RoutineSuggestion';
@@ -69,6 +71,7 @@ export function MorningScreen() {
     const grid = weekGrid(routines, logs, mondayOf(today), rollover);
     return (
       <Page wide>
+        <NowStrip />
         <div className="grid grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-10">
           <div className="flex min-w-0 flex-col gap-3.5">
             <LetterBlock view={view} desktop />
@@ -82,6 +85,7 @@ export function MorningScreen() {
             <QuestsBlock view={view} desktop />
             <BossCard />
             {source ? <RoutineSuggestion log={source} rolloverHour={rollover} /> : null}
+            <QuickCapture />
             <WeekGridSection grid={grid} today={today} todayClosed={!!tonight?.closedAt} />
             <div className="mt-auto flex items-center justify-between gap-3 pt-2">
               <span className="text-mid">Written by Claude. Nothing left this device except what you pasted.</span>
@@ -95,6 +99,7 @@ export function MorningScreen() {
 
   return (
     <Page>
+      <NowStrip />
       <XpScene summary={summary} />
       <PillarsBlock view={view} />
       <LetterBlock view={view} />
@@ -102,6 +107,7 @@ export function MorningScreen() {
       <QuestsBlock view={view} />
       <BossCard />
       {source ? <RoutineSuggestion log={source} rolloverHour={rollover} /> : null}
+      <QuickCapture />
       {source ? <AffirmationBlock view={view} /> : null}
       <Notes view={view} />
     </Page>
