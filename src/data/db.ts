@@ -13,9 +13,13 @@ import type {
   Lore,
   Meal,
   Milestone,
+  Note,
   Person,
   Photo,
   PhotoBlob,
+  TimetableEntry,
+  WebEdge,
+  WebNode,
   PillarState,
   Profile,
   Prompt,
@@ -55,6 +59,10 @@ export class ChronicleDB extends Dexie {
   prompts!: EntityTable<Prompt, 'id'>;
   digests!: EntityTable<Digest, 'id'>;
   photos!: EntityTable<Photo, 'id'>;
+  notes!: EntityTable<Note, 'id'>;
+  timetable!: EntityTable<TimetableEntry, 'id'>;
+  webNodes!: EntityTable<WebNode, 'id'>;
+  webEdges!: EntityTable<WebEdge, 'id'>;
   /** Images for `photos`, on this device only: not in TABLE_NAMES, so never in backups or the JSON sync. */
   photoBlobs!: EntityTable<PhotoBlob, 'id'>;
 
@@ -134,6 +142,10 @@ export const TABLE_NAMES = [
   'prompts',
   'digests',
   'photos',
+  'notes',
+  'timetable',
+  'webNodes',
+  'webEdges',
 ] as const;
 
 export type TableName = (typeof TABLE_NAMES)[number];

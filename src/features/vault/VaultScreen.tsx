@@ -7,6 +7,7 @@ import { OriginScreen } from './OriginScreen';
 import { SettingsScreen } from './SettingsScreen';
 import { SyncScreen } from './SyncScreen';
 import { MealsLibraryScreen } from './MealsLibraryScreen';
+import { TimetableScreen } from './TimetableScreen';
 import { VaultIndex } from './VaultIndex';
 
 /**
@@ -33,6 +34,7 @@ export function VaultScreen() {
       <Route path="guide" element={<GuideScreen />} />
       <Route path="sync" element={<SyncScreen />} />
       <Route path="meals" element={<MealsLibraryScreen />} />
+      <Route path="timetable" element={<TimetableScreen />} />
       <Route path="*" element={<Navigate to="/vault" replace />} />
     </Routes>
   );

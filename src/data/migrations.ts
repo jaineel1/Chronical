@@ -33,9 +33,11 @@ export interface Migration {
 export const MIGRATIONS: readonly Migration[] = [
   // 2: progress photos. `photos` syncs with the game; `photoBlobs` holds the images on this device only.
   { version: 2, stores: { photos: 'id, date', photoBlobs: 'id' } },
+  // 3: notes (rant box, midday life feed), the weekly timetable, and the mind web (nodes + edges).
+  { version: 3, stores: { notes: 'id, date, kind', timetable: 'id, day', webNodes: 'id, type, label, refId, lastSeen', webEdges: 'id, from, to, [from+to]' } },
   // Append new migrations here. Example:
   // {
-  //   version: 3,
+  //   version: 4,
   //   stores: { habits: 'id, pillar' },
   //   upgrade: (t) => ({ ...t, profile: (t.profile ?? []).map((p) => ({ ...p, settings: { ...DEFAULT_SETTINGS, ...(p.settings as object) } })) }),
   // },

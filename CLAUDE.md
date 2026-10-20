@@ -173,3 +173,14 @@ Work on your own branch in your own worktree. Commit in small steps with clear m
 - Repository writes are read-modify-write inside one Dexie transaction. `profileRepo.*` locks only the `profile`
   table so it can be nested inside a caller's transaction; the pillar rows are created outside the parent
   transaction when a profile is first made. When you open a transaction, list every table you touch.
+
+## v2 areas (see docs/architecture-v2.md)
+
+```
+src/features/now/        Now strip + /now day timeline (timetable, routine windows, plan blocks)
+src/features/web/        /web mind-web explorer (reads webNodes/webEdges)
+src/data/webRepo.ts      the only writer of webNodes/webEdges/people-from-journal (## WEB, ## PEOPLE)
+src/lib/schedule/        pure "what is on now / next" logic
+src/lib/intake/          pure intake-vs-targets logic
+src/data/timetablePresets.ts  built-in timetables (one tap to load)
+```

@@ -20,7 +20,7 @@ import {
   type Settings,
   type SubStatState,
 } from './types';
-import type { Food, Meal, MealSlot, Nutrition, NutritionSource, Photo, PhotoAngle, StarredAffirmation } from './types';
+import type { Food, Meal, MealSlot, Note, Nutrition, NutritionSource, Photo, PhotoAngle, StarredAffirmation, TimetableEntry } from './types';
 import { photoPath } from '@/lib/photos';
 import { matchEstimates, nutritionOf, scaleNutrition, type MealEstimate } from '@/lib/nutrition';
 
@@ -455,6 +455,63 @@ export const photoRepo = {
     await db.transaction('rw', db.photos, db.photoBlobs, async () => {
       await db.photos.delete(id);
       await db.photoBlobs.delete(id);
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Notes (rant box, midday life feed) and the timetable                */
+/* ------------------------------------------------------------------ */
+
+export const noteRepo = {
+  /** Notes written on a day, oldest first. */
+  forDate(date: string): Promise<Note[]> {
+    return db.notes.where('date').equals(date).sortBy('at');
+  },
+  async add(date: string, kind: Note['kind'], text: string): Promise<Note> {
+    const clean = text.trim();
+    if (!clean) throw new Error('Write something first.');
+    const row = stamp<Note>({ date, kind, text: clean, at: nowIso() });
+    await db.notes.put(row);
+    return row;
+  },
+  async update(id: string, text: string): Promise<void> {
+    await db.transaction('rw', db.notes, async () => {
+      const note = await db.notes.get(id);
+      if (!note) throw new Error(`No note ${id}`);
+      await db.notes.put({ ...note, text: text.trim(), updatedAt: nowIso() });
+    });
+  },
+  async remove(id: string): Promise<void> {
+    await db.notes.delete(id);
+  },
+};
+
+export const timetableRepo = {
+  /** Every entry, by day then start. */
+  async list(): Promise<TimetableEntry[]> {
+    return (await db.timetable.toArray()).sort((a, b) => a.day - b.day || a.start.localeCompare(b.start));
+  },
+  async add(entry: Omit<TimetableEntry, keyof Base>): Promise<TimetableEntry> {
+    const row = stamp<TimetableEntry>(entry);
+    await db.timetable.put(row);
+    return row;
+  },
+  async update(id: string, changes: Partial<Omit<TimetableEntry, keyof Base>>): Promise<void> {
+    await db.transaction('rw', db.timetable, async () => {
+      const row = await db.timetable.get(id);
+      if (!row) throw new Error(`No timetable entry ${id}`);
+      await db.timetable.put({ ...row, ...changes, updatedAt: nowIso() });
+    });
+  },
+  async remove(id: string): Promise<void> {
+    await db.timetable.delete(id);
+  },
+  /** Replace the whole timetable with a preset's entries. */
+  async replaceAll(entries: Omit<TimetableEntry, keyof Base>[]): Promise<void> {
+    await db.transaction('rw', db.timetable, async () => {
+      await db.timetable.clear();
+      await db.timetable.bulkPut(entries.map((e) => stamp<TimetableEntry>(e)));
     });
   },
 };

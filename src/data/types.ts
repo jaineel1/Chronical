@@ -50,6 +50,8 @@ export interface Settings {
   reminders: { morning: string; night: string };
   /** Show seeded demo content. Cleared by "Start my own game". */
   demo: boolean;
+  /** Daily targets the intake view and Claude measure the day against. All optional. */
+  targets?: { kcal?: number; proteinG?: number; waterL?: number; steps?: number; sleepHours?: number; screenMin?: number };
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -236,6 +238,93 @@ export interface DayLog extends Base {
   summaryMd?: string;
   /** ## ROUTINE of the reply: at most one suggested routine, until the player adds or dismisses it. */
   routineSuggestion?: RoutineDraft & { status: 'open' | 'added' | 'dismissed' };
+  /** ## RIGHT and ## BETTER of the reply: what the day did well and what to change. Shown first thing in the morning. */
+  review?: { right: string[]; better: string[] };
+  /** ## FOOD of the reply: intake notes for the day. */
+  foodNotes?: { good: string[]; better: string[] };
+  /** ## RANT of the reply: Claude's answer to that night's rant note(s). */
+  rantReplyMd?: string;
+  /** ## PLAN of the reply, stored on the day it is for: Claude's time blocks for that day. */
+  plan?: PlanBlock[];
+}
+
+/** One block of a day Claude planned (or the player edited). Times are 'HH:MM', 24-hour. */
+export interface PlanBlock {
+  id: string;
+  start: string;
+  end: string;
+  text: string;
+  pillar?: Pillar;
+  done?: boolean;
+}
+
+/* ---------------------------------- notes ------------------------------------ */
+
+/**
+ * Free text the player drops in during the day. `rant` is the rant box (Claude answers it at night);
+ * `life` is the midday feed ("what is going on"). Both go into the nightly prompt for that day.
+ */
+export interface Note extends Base {
+  date: string;
+  /** ISO time it was written. */
+  at: string;
+  kind: 'rant' | 'life';
+  text: string;
+}
+
+/* ---------------------------------- timetable -------------------------------- */
+
+export type TimetableKind = 'class' | 'lab' | 'break' | 'minor';
+
+/** A fixed weekly slot (classes, labs, breaks). day: 0 = Sunday. Times 'HH:MM'. */
+export interface TimetableEntry extends Base {
+  day: number;
+  start: string;
+  end: string;
+  title: string;
+  kind: TimetableKind;
+  room?: string;
+  teacher?: string;
+  code?: string;
+  /** First and last day keys the entry is in force; open-ended when missing. */
+  from?: string;
+  to?: string;
+}
+
+/* ---------------------------------- mind web --------------------------------- */
+
+export type WebNodeType = 'person' | 'goal' | 'routine' | 'book' | 'skill' | 'place' | 'topic' | 'event' | 'habit';
+
+/**
+ * A node of the mind web: everything the game master has learned about one thing in the player's
+ * life, written by Claude from the logs and kept across nights. `refId` links a node to the row it
+ * mirrors (a Person, Goal, Routine, Book or Skill) so the two never drift apart.
+ */
+export interface WebNode extends Base {
+  type: WebNodeType;
+  label: string;
+  refId?: string;
+  /** Claude's running summary, rewritten as it learns more. */
+  summaryMd: string;
+  /** Dated facts, newest last: { date, text }. */
+  facts: { date: string; text: string }[];
+  firstSeen: string;
+  lastSeen: string;
+  mentions: number;
+  /** 1-5, how much this shapes the player's life right now. */
+  importance: number;
+}
+
+/** A relation between two nodes, in Claude's words ("mentor of", "blocks", "helps with"). */
+export interface WebEdge extends Base {
+  from: string;
+  to: string;
+  relation: string;
+  note?: string;
+  /** 1-5. */
+  weight: number;
+  firstSeen: string;
+  lastSeen: string;
 }
 
 /** A routine proposed by Claude, before it is in the game. */

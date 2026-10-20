@@ -3,7 +3,7 @@ import { useShellContext } from './shellContext';
 import { useProfile } from '@/data/hooks';
 import { useSyncState } from '@/data/syncState';
 import { dayNumber, formatLongDate, todayKey } from '@/lib/dates';
-import { ChestIcon, FireIcon, MapIcon, PeopleIcon, PersonIcon, SunIcon } from '@/ui/icons';
+import { BarsIcon, ChestIcon, FireIcon, MapIcon, PeopleIcon, PersonIcon, SunIcon } from '@/ui/icons';
 import { PixelSprite } from '@/ui/PixelSprite';
 import { CAMPFIRE_LOGO_MAP, CAMPFIRE_LOGO_PALETTE } from '@/ui/sprites';
 
@@ -21,6 +21,7 @@ const RAIL = [
   { to: '/campfire', label: 'Campfire', Icon: FireIcon },
   { to: '/you', label: 'You', Icon: PersonIcon },
   { to: '/people', label: 'People', Icon: PeopleIcon },
+  { to: '/now', label: 'Now', Icon: BarsIcon },
   { to: '/vault', label: 'Vault', Icon: ChestIcon },
 ] as const;
 
@@ -31,6 +32,8 @@ const ROUTE_TITLES: Record<string, string> = {
   '/map': 'Map',
   '/people': 'People',
   '/progress': 'Progress',
+  '/now': 'Now',
+  '/web': 'Mind web',
   '/vault': 'Vault',
 };
 

@@ -22,6 +22,7 @@ const SECTIONS = [
   { to: 'letters', title: 'Letters', sub: 'Every morning letter and the affirmations you kept' },
   { to: 'origin', title: 'Origin Sheet', sub: 'Your answers, the State of Me, the origin prompt' },
   { to: 'settings', title: 'Settings', sub: 'Name, day rollover, deep mode, money, models, API key' },
+  { to: 'timetable', title: 'Timetable', sub: 'Your weekly classes, so Now and the plans fit around them' },
   { to: 'meals', title: 'Meals', sub: 'Saved meals with grams, calories and macros' },
   { to: 'data', title: 'Data', sub: 'Backup, import, exports, start over' },
   { to: 'sync', title: 'Sync', sub: 'Same game on the laptop and the iPhone, through GitHub' },
