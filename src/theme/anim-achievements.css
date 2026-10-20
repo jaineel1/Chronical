@@ -1,0 +1,43 @@
+/*
+  Badge unlock: the sprite is revealed bottom to top in six hard steps (two pixel rows each at
+  scale 3), then the date line blinks on. Clip-path only, never a scale transform, so pixels stay crisp.
+  Stagger with --badge-delay on the element.
+*/
+@keyframes badge-reveal {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes badge-blink {
+  0% {
+    opacity: 0;
+  }
+  33% {
+    opacity: 1;
+  }
+  66% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.badge-reveal {
+  animation: badge-reveal 720ms steps(6, end) var(--badge-delay, 0ms) both;
+}
+
+.badge-reveal-note {
+  animation: badge-blink 600ms steps(1, end) calc(var(--badge-delay, 0ms) + 720ms) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-reveal,
+  .badge-reveal-note {
+    animation: none;
+  }
+}
