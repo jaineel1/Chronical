@@ -1,0 +1,84 @@
+/*
+  Campfire and morning sun motion. Pixel art is never scaled: the fire flickers by swapping
+  stacked sprite frames (visibility), sparks and the sun only move (translate / top) in steps.
+  Hidden tabs throttle CSS animations, so nothing here runs a JS loop.
+*/
+
+/* Stacked frames: frame 0 shows by default; with animation off (reduced motion) it is the static fire. */
+.fire-frame {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  visibility: hidden;
+}
+.fire-frame-first {
+  visibility: visible;
+}
+
+/* Each frame is visible for one slot of the cycle; frames are offset by negative delays. */
+.fire-flicker-3 {
+  animation: fire-slot-3 0.72s steps(1, end) infinite;
+}
+.fire-flicker-2 {
+  animation: fire-slot-2 1.6s steps(1, end) infinite;
+}
+@keyframes fire-slot-3 {
+  0% {
+    visibility: visible;
+  }
+  33.333% {
+    visibility: hidden;
+  }
+  100% {
+    visibility: hidden;
+  }
+}
+@keyframes fire-slot-2 {
+  0% {
+    visibility: visible;
+  }
+  50% {
+    visibility: hidden;
+  }
+  100% {
+    visibility: hidden;
+  }
+}
+
+/* A short burst of sparks each time something new is logged. */
+.fire-spark {
+  position: absolute;
+  opacity: 0;
+  animation: fire-spark 0.9s steps(6, end) both;
+}
+@keyframes fire-spark {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--spark-dx), var(--spark-dy));
+  }
+}
+
+/* The morning sun climbs with today's quests. */
+.sun-move {
+  transition: top 1.6s steps(8, end);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fire-flicker-3,
+  .fire-flicker-2 {
+    animation: none;
+  }
+  .fire-spark {
+    display: none;
+  }
+  .sun-move {
+    transition: none;
+  }
+}
