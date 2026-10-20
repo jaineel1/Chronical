@@ -291,6 +291,35 @@ export interface Meal extends Base {
   nutritionFrom?: NutritionSource;
 }
 
+/* ------------------------------- progress photos ----------------------------- */
+
+export type PhotoAngle = 'front' | 'side' | 'back';
+
+/**
+ * A progress photo. This row syncs with the game; the image itself lives in `photoBlobs` on each
+ * device and as its own file at `path` in the sync repo (data/photoSync.ts).
+ */
+export interface Photo extends Base {
+  date: string;
+  angle: PhotoAngle;
+  /** The weight logged that day, kept with the photo. */
+  weightKg?: number;
+  width: number;
+  height: number;
+  /** Where the image sits in the sync repo, e.g. photos/2026-10-20-front-k3x9.jpg. */
+  path: string;
+}
+
+/**
+ * The image of a Photo on this device, as raw JPEG bytes (an ArrayBuffer stores reliably in every
+ * IndexedDB, unlike a Blob on older iOS). Never in backups or the JSON sync.
+ */
+export interface PhotoBlob {
+  id: string;
+  bytes: ArrayBuffer;
+  type: string;
+}
+
 /* ---------------------------------- skills ----------------------------------- */
 
 export interface Skill extends Base {

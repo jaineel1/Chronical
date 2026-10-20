@@ -15,6 +15,7 @@ const PeopleScreen = lazy(() => import('@/features/people/PeopleScreen').then((m
 const VaultScreen = lazy(() => import('@/features/vault/VaultScreen').then((m) => ({ default: m.VaultScreen })));
 const OnboardingScreen = lazy(() => import('@/features/onboarding/OnboardingScreen').then((m) => ({ default: m.OnboardingScreen })));
 const EditorsRoutes = lazy(() => import('@/features/editors/EditorsRoutes').then((m) => ({ default: m.EditorsRoutes })));
+const ProgressScreen = lazy(() => import('@/features/progress/ProgressScreen').then((m) => ({ default: m.ProgressScreen })));
 const SyncScreen = lazy(() => import('@/features/vault/SyncScreen').then((m) => ({ default: m.SyncScreen })));
 
 /** Quiet paper while a chunk loads; never a spinner. */
@@ -46,6 +47,7 @@ export function App() {
                 <Route path="you" element={<YouScreen />} />
                 <Route path="map" element={<MapScreen />} />
                 <Route path="people" element={<PeopleScreen />} />
+                <Route path="progress" element={<ProgressScreen />} />
                 <Route path="vault/*" element={<VaultScreen />} />
                 <Route path="edit/*" element={<EditorsRoutes />} />
               </Route>

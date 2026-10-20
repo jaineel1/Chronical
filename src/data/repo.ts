@@ -20,7 +20,8 @@ import {
   type Settings,
   type SubStatState,
 } from './types';
-import type { Food, Meal, MealSlot, Nutrition, NutritionSource, StarredAffirmation } from './types';
+import type { Food, Meal, MealSlot, Nutrition, NutritionSource, Photo, PhotoAngle, StarredAffirmation } from './types';
+import { photoPath } from '@/lib/photos';
 import { matchEstimates, nutritionOf, scaleNutrition, type MealEstimate } from '@/lib/nutrition';
 
 /* ------------------------------------------------------------------ */
@@ -370,8 +371,9 @@ export async function importBackup(input: BackupFile, mode: 'replace' | 'merge' 
 }
 
 export async function resetAll(): Promise<void> {
-  await db.transaction('rw', TABLE_NAMES.map((n) => db.table(n)), async () => {
+  await db.transaction('rw', [...TABLE_NAMES.map((n) => db.table(n)), db.photoBlobs], async () => {
     for (const name of TABLE_NAMES) await db.table(name).clear();
+    await db.photoBlobs.clear();
   });
 }
 
@@ -413,6 +415,46 @@ export const foodRepo = {
       const food = await db.foods.get(id);
       if (!food) throw new Error(`No saved meal ${id}`);
       await db.foods.put({ ...food, name: clean, updatedAt: nowIso() });
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Progress photos                                                     */
+/* ------------------------------------------------------------------ */
+
+/** A Blob's bytes; FileReader as the fallback for engines without Blob.arrayBuffer. */
+function blobBytes(blob: Blob): Promise<ArrayBuffer> {
+  if (typeof blob.arrayBuffer === 'function') return blob.arrayBuffer();
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result as ArrayBuffer);
+    r.onerror = () => reject(r.error ?? new Error('The photo could not be read.'));
+    r.readAsArrayBuffer(blob);
+  });
+}
+
+export const photoRepo = {
+  /** Newest first. */
+  list(): Promise<Photo[]> {
+    return db.photos.orderBy('date').reverse().toArray();
+  },
+  /** Store a (already shrunk) JPEG for a day. The row syncs; the image uploads on the next sync. */
+  async add(input: { date: string; angle: PhotoAngle; blob: Blob; width: number; height: number; weightKg?: number }): Promise<Photo> {
+    const id = newId();
+    const bytes = await blobBytes(input.blob);
+    const row = stamp<Photo>({ id, date: input.date, angle: input.angle, weightKg: input.weightKg, width: input.width, height: input.height, path: photoPath(input.date, input.angle, id) });
+    await db.transaction('rw', db.photos, db.photoBlobs, async () => {
+      await db.photos.put(row);
+      await db.photoBlobs.put({ id, bytes, type: input.blob.type || 'image/jpeg' });
+    });
+    return row;
+  },
+  /** Removes the photo here; the next sync removes its file from GitHub and from other devices. */
+  async remove(id: string): Promise<void> {
+    await db.transaction('rw', db.photos, db.photoBlobs, async () => {
+      await db.photos.delete(id);
+      await db.photoBlobs.delete(id);
     });
   },
 };

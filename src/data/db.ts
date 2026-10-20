@@ -14,6 +14,8 @@ import type {
   Meal,
   Milestone,
   Person,
+  Photo,
+  PhotoBlob,
   PillarState,
   Profile,
   Prompt,
@@ -52,6 +54,9 @@ export class ChronicleDB extends Dexie {
   lore!: EntityTable<Lore, 'id'>;
   prompts!: EntityTable<Prompt, 'id'>;
   digests!: EntityTable<Digest, 'id'>;
+  photos!: EntityTable<Photo, 'id'>;
+  /** Images for `photos`, on this device only: not in TABLE_NAMES, so never in backups or the JSON sync. */
+  photoBlobs!: EntityTable<PhotoBlob, 'id'>;
 
   constructor(name = 'chronicle', migrations: readonly Migration[] = MIGRATIONS) {
     super(name);
@@ -128,6 +133,7 @@ export const TABLE_NAMES = [
   'lore',
   'prompts',
   'digests',
+  'photos',
 ] as const;
 
 export type TableName = (typeof TABLE_NAMES)[number];

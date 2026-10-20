@@ -48,7 +48,10 @@ async function failure(res: Response, repo: string): Promise<Error> {
 }
 
 export function encodeBase64(text: string): string {
-  const bytes = new TextEncoder().encode(text);
+  return bytesToBase64(new TextEncoder().encode(text));
+}
+
+export function bytesToBase64(bytes: Uint8Array): string {
   let bin = '';
   for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
   return btoa(bin);
@@ -80,11 +83,55 @@ export async function getFile({ repo, token }: GitHubRepo, path: string): Promis
 }
 
 /** Writes the file and returns its new sha. `sha` is the version being replaced (none for a new file). */
-export async function putFile({ repo, token }: GitHubRepo, path: string, text: string, sha: string | undefined, message: string): Promise<string> {
+export async function putFile(ref: GitHubRepo, path: string, text: string, sha: string | undefined, message: string): Promise<string> {
+  return putBase64(ref, path, encodeBase64(text), sha, message);
+}
+
+/** Writes raw bytes (an image) and returns the new sha. */
+export async function putBytes(ref: GitHubRepo, path: string, bytes: Uint8Array, sha: string | undefined, message: string): Promise<string> {
+  return putBase64(ref, path, bytesToBase64(bytes), sha, message);
+}
+
+export interface RemoteEntry {
+  name: string;
+  path: string;
+  sha: string;
+}
+
+/** The files in a folder of the repo; an empty list when the folder does not exist yet. */
+export async function listDir({ repo, token }: GitHubRepo, path: string): Promise<RemoteEntry[]> {
+  const res = await call(contentsUrl(repo, path), { headers: headers(token), cache: 'no-store' });
+  if (res.status === 404) return [];
+  if (!res.ok) throw await failure(res, repo);
+  const body = (await res.json()) as unknown;
+  if (!Array.isArray(body)) throw new Error(`${path} in ${repo} is a file, not a folder.`);
+  return (body as { type: string; name: string; path: string; sha: string }[]).filter((e) => e.type === 'file').map(({ name, path: p, sha }) => ({ name, path: p, sha }));
+}
+
+/** A file's raw bytes. */
+export async function getBytes({ repo, token }: GitHubRepo, path: string): Promise<Uint8Array<ArrayBuffer>> {
+  const res = await call(contentsUrl(repo, path), { headers: headers(token, 'application/vnd.github.raw+json'), cache: 'no-store' });
+  if (!res.ok) throw await failure(res, repo);
+  return new Uint8Array(await res.arrayBuffer());
+}
+
+export async function deleteFile({ repo, token }: GitHubRepo, path: string, sha: string, message: string): Promise<void> {
+  const res = await call(contentsUrl(repo, path), {
+    method: 'DELETE',
+    headers: { ...headers(token), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, sha }),
+  });
+  // Already gone is the outcome we wanted.
+  if (res.status === 404) return;
+  if (res.status === 409) throw new GitHubConflict('The data on GitHub changed while syncing.');
+  if (!res.ok) throw await failure(res, repo);
+}
+
+async function putBase64({ repo, token }: GitHubRepo, path: string, content: string, sha: string | undefined, message: string): Promise<string> {
   const res = await call(contentsUrl(repo, path), {
     method: 'PUT',
     headers: { ...headers(token), 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, content: encodeBase64(text), ...(sha ? { sha } : {}) }),
+    body: JSON.stringify({ message, content, ...(sha ? { sha } : {}) }),
   });
   if (res.status === 409) throw new GitHubConflict('The data on GitHub changed while syncing.');
   if (res.status === 422) {

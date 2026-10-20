@@ -27,6 +27,8 @@ export interface WeeklyInput {
   /** One full block per night, oldest first. */
   days: string[];
   excludeMoney: boolean;
+  /** Newest progress photos against the previous ones (lib/photos.ts photoProgressLine). */
+  photosLine?: string;
 }
 
 export interface MonthlyInput {
@@ -91,6 +93,7 @@ export function buildWeeklyPrompt(input: WeeklyInput): string {
     stateOfMeBlock(input.stateOfMeMd),
     goalsBlock(input.goals),
     warningsBlock("This week's warnings", input.warnings),
+    input.photosLine ? section('Progress photos', input.photosLine) : undefined,
     section('The week, night by night', input.days.length ? input.days.join('\n\n') : 'Nothing was logged this week.'),
   );
   return joinBlocks(instructions, RULE, input.excludeMoney ? stripMoney(data) : data);

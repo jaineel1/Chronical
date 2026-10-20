@@ -24,6 +24,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Chronicle uses the camera only when you take a progress photo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Chronicle opens your photos only when you pick a progress photo.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

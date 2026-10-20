@@ -11,6 +11,7 @@ import { TextLink } from '@/features/editors/lib/ui';
 import { PixelSprite } from '@/ui/PixelSprite';
 import { Button, Empty, SectionHeader, StatRow } from '@/ui/primitives';
 import { HERO_MAP, HERO_PALETTE, SUN_MAP, SUN_PALETTE } from '@/ui/sprites';
+import { ProgressTeaser } from '@/features/progress/ProgressTeaser';
 import { RankPanel } from './RankPanel';
 import { useSkills } from './queries';
 
@@ -36,6 +37,7 @@ export function YouScreen() {
         <div className="flex min-w-0 flex-col gap-2">
           <Scene />
           <Pillars pillars={pillars} subs={subs} />
+          <ProgressTeaser />
         </div>
         <div className="flex min-w-0 flex-col gap-2 lg:pt-1">
           <Skills skills={skills} ranking={ranking} onRank={() => setRanking((v) => !v)} />

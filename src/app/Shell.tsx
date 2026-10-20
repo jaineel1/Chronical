@@ -30,6 +30,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/you': 'You',
   '/map': 'Map',
   '/people': 'People',
+  '/progress': 'Progress',
   '/vault': 'Vault',
 };
 

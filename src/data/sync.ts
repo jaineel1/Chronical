@@ -5,6 +5,7 @@ import { baseFrom, mergeTables, type SyncRow, type SyncTables } from '@/lib/sync
 import { db, TABLE_NAMES } from './db';
 import { SCHEMA_VERSION } from './migrations';
 import { backupTables, exportBackup, importBackup, profileRepo } from './repo';
+import { syncPhotos, type PhotoSyncReport } from './photoSync';
 import { getSyncBase, getSyncState, recordSyncResult, setSyncBase, setSyncRunning } from './syncState';
 import type { BackupFile } from './types';
 
@@ -22,6 +23,8 @@ export interface SyncReport {
   removed: number;
   /** Whether the file on GitHub was updated. */
   pushed: boolean;
+  /** Progress photo images moved (see photoSync.ts). */
+  photos: PhotoSyncReport;
 }
 
 export interface RemoteSummary {
@@ -151,7 +154,7 @@ async function applyLocally(snapshot: SyncTables, merged: SyncTables): Promise<{
   return { received, removed };
 }
 
-async function syncOnce(): Promise<SyncReport> {
+async function syncOnce(): Promise<Omit<SyncReport, 'photos'>> {
   const config = requireConfig();
   const base = getSyncBase();
   if (!base) throw new Error('This device is not linked yet. Choose which data to keep on the Sync page.');
@@ -205,7 +208,10 @@ function exclusive<T>(job: () => Promise<T>): Promise<T> {
 }
 
 export function syncNow(): Promise<SyncReport> {
-  return exclusive(syncOnce);
+  return exclusive(async () => {
+    const report = await syncOnce();
+    return { ...report, photos: await syncPhotos(requireConfig()) };
+  });
 }
 
 /** What is on GitHub right now, so the player can choose which side to keep when linking. */
@@ -229,6 +235,7 @@ export function replaceThisDeviceWithGitHub(): Promise<void> {
     await importBackup(file, 'replace');
     if (keptKey) await profileRepo.updateSettings({ apiKey: keptKey });
     setSyncBase(baseFrom(tables, at));
+    await syncPhotos(requireConfig());
   });
 }
 
@@ -242,5 +249,6 @@ export function replaceGitHubWithThisDevice(): Promise<void> {
     const remote = await getFile(config, SYNC_PATH);
     await putFile(config, SYNC_PATH, serialize(local), remote?.sha, commitMessage());
     setSyncBase(baseFrom(local, at));
+    await syncPhotos(config);
   });
 }

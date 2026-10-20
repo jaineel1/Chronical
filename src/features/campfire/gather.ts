@@ -29,6 +29,7 @@ import { planClose, streakFromLogs } from '@/lib/game/streaks';
 import { isPeriodQuest, isPeriodWarning } from '@/lib/parse/weekly';
 import { compressDayLog, shortRoutineName, tonightBlock, type TonightInput, type TonightRoutine, type WeekAverages } from '@/lib/prompt/dayLog';
 import { sumNutrition } from '@/lib/nutrition';
+import { photoProgressLine } from '@/lib/photos';
 import { DEEP_DAYS } from '@/lib/prompt/deep';
 import type { NightlyInput, PromptGoal } from '@/lib/prompt/nightly';
 import { MONTHLY_DAYS, type MonthlyInput, type WeeklyInput } from '@/lib/prompt/weekly';
@@ -355,6 +356,7 @@ export async function gatherWeeklyInput(endDate: string): Promise<WeeklyInput> {
       tonightBlock(tonightFor(world, d, { heading: `### Day ${dayNo(world, d)}, ${formatLongDate(d)}`, past: d < endDate || !!world.dayLogs.get(d)?.closedAt })),
     ),
     excludeMoney: (world.profile?.settings ?? DEFAULT_SETTINGS).excludeMoney,
+    photosLine: photoProgressLine(await db.photos.where('date').belowOrEqual(endDate).toArray()),
   };
 }
 

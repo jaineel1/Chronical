@@ -1,0 +1,3103 @@
+{
+  "app": "chronicle",
+  "version": 1,
+  "exportedAt": "2026-10-20T12:24:31.104Z",
+  "schema": 2,
+  "tables": {
+    "profile": [
+      {
+        "id": "me",
+        "displayName": "Jaineel",
+        "startedAt": "2026-09-28T00:30:00.000Z",
+        "settings": {
+          "deepMode": false,
+          "excludeMoney": false,
+          "rolloverHour": 4,
+          "models": {
+            "nightly": "claude-haiku-4-5",
+            "weekly": "claude-sonnet-4-5",
+            "deep": "claude-sonnet-4-5"
+          },
+          "reminders": {
+            "morning": "06:30",
+            "night": "22:00"
+          },
+          "demo": true
+        },
+        "createdAt": "2026-10-20T12:24:30.403Z",
+        "updatedAt": "2026-10-20T12:24:30.487Z",
+        "onboardedAt": "2026-09-28T00:30:00.000Z",
+        "stateOfMeMd": "# State of Me\n\n**Jaineel**, 20, Ahmedabad. Final-year CS student who runs a two-person web agency on the side. Started Chronicle 22 days ago.\n\n## Where I am\n- Body: training for a sub-4 marathon (week 11 of 22, long run 22 km). Gym Mon-Sat, squat 70 kg. Weight 72.4 kg, down from 73.1.\n- Skin: evening routine held for a week for the first time. Dermatologist follow-up next month.\n- Mind: 7 of 12 books this year. Journal every night since Day 1. Weekly friend call, 8 weeks running.\n- Work: invoicing module due Friday. CGPA 7.9, target 8.5.\n- Dopamine: screen time 100-190 minutes a day, target under 120. Three phone-free evenings in a row.\n\n## Patterns the game master has noticed\n- Sleep under 6.5 h is followed by an energy rating of 3 every time.\n- Deep work happens when the block is scheduled the night before, almost never otherwise.\n- Gym streak survives travel only when the bag is packed the night before.\n\n## People\n- Family daily. Co-founder daily. Aarav every few days. Mentor fading: 3 weeks quiet.\n\n## Voice\n- Direct, warm, no exclamation marks. Numbers over adjectives. One lesson a day, never a lecture.\n",
+        "stateOfMeAt": "2026-10-18T00:30:00.000Z",
+        "originSheetMd": "## Part 1\n**Q** What should the game call you?\n**A** Jaineel\n\n_(Demo origin sheet. Yours is written during onboarding.)_\n"
+      }
+    ],
+    "pillarState": [
+      {
+        "pillar": "BODY",
+        "points": 31.063784224185657,
+        "id": "mvgnnylcyypgi6xu",
+        "createdAt": "2026-10-20T12:24:30.432Z",
+        "updatedAt": "2026-10-20T12:24:30.521Z"
+      },
+      {
+        "pillar": "SKIN",
+        "points": 23.243857266866524,
+        "id": "mvgnnymdah6tdgwj",
+        "createdAt": "2026-10-20T12:24:30.469Z",
+        "updatedAt": "2026-10-20T12:24:30.567Z"
+      },
+      {
+        "pillar": "MIND",
+        "points": 26.89443527828364,
+        "id": "mvgnnymkdg5cbth5",
+        "createdAt": "2026-10-20T12:24:30.476Z",
+        "updatedAt": "2026-10-20T12:24:30.797Z"
+      },
+      {
+        "pillar": "WORK",
+        "points": 37.079042844505175,
+        "id": "mvgnnymqefviv3qf",
+        "createdAt": "2026-10-20T12:24:30.482Z",
+        "updatedAt": "2026-10-20T12:24:30.825Z"
+      },
+      {
+        "pillar": "DOPAMINE",
+        "points": 18.31929950839593,
+        "id": "mvgnnymrkk6l5llt",
+        "createdAt": "2026-10-20T12:24:30.483Z",
+        "updatedAt": "2026-10-20T12:24:30.960Z"
+      }
+    ],
+    "subStatState": [
+      {
+        "pillar": "BODY",
+        "name": "Strength",
+        "points": 30.1069877589622,
+        "id": "mvgnnylo1y0178o3",
+        "createdAt": "2026-10-20T12:24:30.444Z",
+        "updatedAt": "2026-10-20T12:24:30.491Z"
+      },
+      {
+        "pillar": "BODY",
+        "name": "Endurance",
+        "points": 37.66057213160351,
+        "id": "mvgnnym6j1gnw4vc",
+        "createdAt": "2026-10-20T12:24:30.462Z",
+        "updatedAt": "2026-10-20T12:24:30.496Z"
+      },
+      {
+        "pillar": "BODY",
+        "name": "Recovery",
+        "points": 25.262337370553368,
+        "id": "mvgnnymano1blj9p",
+        "createdAt": "2026-10-20T12:24:30.466Z",
+        "updatedAt": "2026-10-20T12:24:30.509Z"
+      },
+      {
+        "pillar": "BODY",
+        "name": "Nutrition",
+        "points": 31.22523963562355,
+        "id": "mvgnnymbzkpj2v3k",
+        "createdAt": "2026-10-20T12:24:30.467Z",
+        "updatedAt": "2026-10-20T12:24:30.520Z"
+      },
+      {
+        "pillar": "SKIN",
+        "name": "Routine",
+        "points": 26.312960448027955,
+        "id": "mvgnnyme068w22su",
+        "createdAt": "2026-10-20T12:24:30.470Z",
+        "updatedAt": "2026-10-20T12:24:30.533Z"
+      },
+      {
+        "pillar": "SKIN",
+        "name": "Protection",
+        "points": 21.697762400791365,
+        "id": "mvgnnymfx1uq53bt",
+        "createdAt": "2026-10-20T12:24:30.471Z",
+        "updatedAt": "2026-10-20T12:24:30.536Z"
+      },
+      {
+        "pillar": "SKIN",
+        "name": "Progress",
+        "points": 20.222243786899863,
+        "id": "mvgnnymgor35fhkk",
+        "createdAt": "2026-10-20T12:24:30.472Z",
+        "updatedAt": "2026-10-20T12:24:30.541Z"
+      },
+      {
+        "pillar": "SKIN",
+        "name": "Grooming",
+        "points": 24.742462431746915,
+        "id": "mvgnnymib9m7x1ip",
+        "createdAt": "2026-10-20T12:24:30.474Z",
+        "updatedAt": "2026-10-20T12:24:30.565Z"
+      },
+      {
+        "pillar": "MIND",
+        "name": "Calm",
+        "points": 25.262337370553368,
+        "id": "mvgnnyml35xnqqp6",
+        "createdAt": "2026-10-20T12:24:30.477Z",
+        "updatedAt": "2026-10-20T12:24:30.642Z"
+      },
+      {
+        "pillar": "MIND",
+        "name": "Connection",
+        "points": 29.004131186337712,
+        "id": "mvgnnymotn77yhbn",
+        "createdAt": "2026-10-20T12:24:30.480Z",
+        "updatedAt": "2026-10-20T12:24:30.724Z"
+      },
+      {
+        "pillar": "MIND",
+        "name": "Learning",
+        "points": 30.1069877589622,
+        "id": "mvgnnymp1xfd3s8n",
+        "createdAt": "2026-10-20T12:24:30.481Z",
+        "updatedAt": "2026-10-20T12:24:30.760Z"
+      },
+      {
+        "pillar": "MIND",
+        "name": "Reflection",
+        "points": 23.20428479728127,
+        "id": "mvgnnympxkgmk8hv",
+        "createdAt": "2026-10-20T12:24:30.481Z",
+        "updatedAt": "2026-10-20T12:24:30.794Z"
+      },
+      {
+        "pillar": "WORK",
+        "name": "Focus",
+        "points": 39.502507092797245,
+        "id": "mvgnnymq5c5w0f2v",
+        "createdAt": "2026-10-20T12:24:30.482Z",
+        "updatedAt": "2026-10-20T12:24:30.803Z"
+      },
+      {
+        "pillar": "WORK",
+        "name": "Output",
+        "points": 36.45372313078652,
+        "id": "mvgnnymqxthqen5r",
+        "createdAt": "2026-10-20T12:24:30.482Z",
+        "updatedAt": "2026-10-20T12:24:30.811Z"
+      },
+      {
+        "pillar": "WORK",
+        "name": "Academics",
+        "points": 34.08964152537145,
+        "id": "mvgnnymr94yjtudb",
+        "createdAt": "2026-10-20T12:24:30.483Z",
+        "updatedAt": "2026-10-20T12:24:30.824Z"
+      },
+      {
+        "pillar": "WORK",
+        "name": "Craft",
+        "points": 38.270299629065484,
+        "id": "mvgnnymr9eajmmes",
+        "createdAt": "2026-10-20T12:24:30.483Z",
+        "updatedAt": "2026-10-20T12:24:30.817Z"
+      },
+      {
+        "pillar": "DOPAMINE",
+        "name": "Presence",
+        "points": 20.71067811865476,
+        "id": "mvgnnymsh32glbd1",
+        "createdAt": "2026-10-20T12:24:30.484Z",
+        "updatedAt": "2026-10-20T12:24:30.848Z"
+      },
+      {
+        "pillar": "DOPAMINE",
+        "name": "Attention",
+        "points": 16.43429070482558,
+        "id": "mvgnnymsqs19ap1n",
+        "createdAt": "2026-10-20T12:24:30.484Z",
+        "updatedAt": "2026-10-20T12:24:30.829Z"
+      },
+      {
+        "pillar": "DOPAMINE",
+        "name": "Restraint",
+        "points": 17.8302163723836,
+        "id": "mvgnnymsr5oy204d",
+        "createdAt": "2026-10-20T12:24:30.484Z",
+        "updatedAt": "2026-10-20T12:24:30.839Z"
+      },
+      {
+        "pillar": "DOPAMINE",
+        "name": "Joy",
+        "points": 18.302012837719772,
+        "id": "mvgnnymtogdm2tl0",
+        "createdAt": "2026-10-20T12:24:30.485Z",
+        "updatedAt": "2026-10-20T12:24:30.959Z"
+      }
+    ],
+    "routines": [
+      {
+        "name": "Gym",
+        "pillar": "BODY",
+        "subStat": "Strength",
+        "weight": 3,
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "window": "06:00-07:30",
+        "upside": "Squat 80 kg arrives on schedule",
+        "cost": "Each miss adds about 4 days to the 80 kg date",
+        "goalId": "mvgnnz04k2151tsa",
+        "streak": 14,
+        "shields": 1,
+        "lastDoneDate": "2026-10-19",
+        "archived": false,
+        "sortOrder": 0,
+        "id": "mvgnnz0d3g33qknq",
+        "createdAt": "2026-10-20T12:24:30.973Z",
+        "updatedAt": "2026-10-20T12:24:30.973Z"
+      },
+      {
+        "name": "Run, 8 km at 5:52",
+        "pillar": "BODY",
+        "subStat": "Endurance",
+        "weight": 3,
+        "days": [
+          0,
+          1,
+          3,
+          5
+        ],
+        "window": "05:45-07:00",
+        "upside": "Keeps the sub-4 plan on track",
+        "cost": "A missed week costs about 10 seconds a kilometre",
+        "goalId": "mvgnnz010fil91qq",
+        "streak": 6,
+        "shields": 1,
+        "lastDoneDate": "2026-10-19",
+        "archived": false,
+        "sortOrder": 1,
+        "id": "mvgnnz0fsrvqvejv",
+        "createdAt": "2026-10-20T12:24:30.975Z",
+        "updatedAt": "2026-10-20T12:24:30.975Z"
+      },
+      {
+        "name": "Evening skincare",
+        "pillar": "SKIN",
+        "subStat": "Routine",
+        "weight": 2,
+        "days": [],
+        "window": "22:00-22:30",
+        "upside": "Clear skin by January stays possible",
+        "cost": "Two misses a week push January to March",
+        "goalId": "mvgnnz08v1s55f0z",
+        "streak": 7,
+        "shields": 1,
+        "lastDoneDate": "2026-10-19",
+        "archived": false,
+        "sortOrder": 2,
+        "id": "mvgnnz0g2oitj3c1",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "name": "Sunscreen before leaving",
+        "pillar": "SKIN",
+        "subStat": "Protection",
+        "weight": 1,
+        "days": [],
+        "upside": "Protects every other skin routine",
+        "cost": "One skipped day undoes a week of progress photos",
+        "goalId": "mvgnnz08v1s55f0z",
+        "streak": 4,
+        "shields": 0,
+        "lastDoneDate": "2026-10-19",
+        "archived": false,
+        "sortOrder": 3,
+        "id": "mvgnnz0iav04xd7c",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "name": "Deep work, two hours",
+        "pillar": "WORK",
+        "subStat": "Focus",
+        "weight": 3,
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "window": "09:00-11:00",
+        "upside": "Invoicing ships Friday",
+        "cost": "Three misses and it slips a week",
+        "goalId": "mvgnnz05ks2msouw",
+        "streak": 2,
+        "shields": 1,
+        "lastDoneDate": "2026-10-19",
+        "archived": false,
+        "sortOrder": 4,
+        "id": "mvgnnz0juiogu3q8",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "name": "One line in the journal",
+        "pillar": "MIND",
+        "subStat": "Reflection",
+        "weight": 1,
+        "days": [],
+        "window": "22:00-23:00",
+        "upside": "The letter gets sharper every week",
+        "cost": "A blank night is a blind spot for the game master",
+        "streak": 23,
+        "shields": 1,
+        "lastDoneDate": "2026-10-19",
+        "archived": false,
+        "sortOrder": 5,
+        "id": "mvgnnz0k8jy9tosr",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "name": "Read 20 pages",
+        "pillar": "MIND",
+        "subStat": "Learning",
+        "weight": 1,
+        "days": [],
+        "upside": "Twelve books by December",
+        "cost": "A week off is a book lost",
+        "goalId": "mvgnnz07gboi8iw9",
+        "streak": 5,
+        "shields": 1,
+        "lastDoneDate": "2026-10-19",
+        "archived": false,
+        "sortOrder": 6,
+        "id": "mvgnnz0lcljz4da8",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "name": "Phone-free evening",
+        "pillar": "DOPAMINE",
+        "subStat": "Restraint",
+        "weight": 2,
+        "days": [],
+        "window": "20:00-23:00",
+        "upside": "Sleep 7 h and wake up wanting to run",
+        "cost": "Every scroll night is followed by energy 3",
+        "goalId": "mvgnnz0advmn91to",
+        "streak": 3,
+        "shields": 1,
+        "lastDoneDate": "2026-10-19",
+        "archived": false,
+        "sortOrder": 7,
+        "id": "mvgnnz0lrctg0z2p",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      }
+    ],
+    "routineLogs": [
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-16",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0e1kp81k48",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-14",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0e5mc5y3d6",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-12",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0e7m0duz77",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-06",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0e7oaclnyw",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-07",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0e88ldkrwv",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-09",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0eda7c2c1t",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-19",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0eebcxan6z",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-13",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0eeo5ucm3n",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-08",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ei813v1ra",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-10",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0eibdsu7kn",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-15",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ey5wf9ekb",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-17",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0eyks71udi",
+        "createdAt": "2026-10-20T12:24:30.974Z",
+        "updatedAt": "2026-10-20T12:24:30.974Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-03",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0f0ztzi7w4",
+        "createdAt": "2026-10-20T12:24:30.975Z",
+        "updatedAt": "2026-10-20T12:24:30.975Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-05",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0f4n4m0tms",
+        "createdAt": "2026-10-20T12:24:30.975Z",
+        "updatedAt": "2026-10-20T12:24:30.975Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-01",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0fhyniajfh",
+        "createdAt": "2026-10-20T12:24:30.975Z",
+        "updatedAt": "2026-10-20T12:24:30.975Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-10-02",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0fk9tkm838",
+        "createdAt": "2026-10-20T12:24:30.975Z",
+        "updatedAt": "2026-10-20T12:24:30.975Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-09-29",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0fmhkxkhpg",
+        "createdAt": "2026-10-20T12:24:30.975Z",
+        "updatedAt": "2026-10-20T12:24:30.975Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-09-28",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0fxpc6q6qt",
+        "createdAt": "2026-10-20T12:24:30.975Z",
+        "updatedAt": "2026-10-20T12:24:30.975Z"
+      },
+      {
+        "routineId": "mvgnnz0d3g33qknq",
+        "date": "2026-09-30",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0fywbzp5sp",
+        "createdAt": "2026-10-20T12:24:30.975Z",
+        "updatedAt": "2026-10-20T12:24:30.975Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-09-28",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0g0dtj9yq4",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-10-16",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0g37opj9xe",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-10-04",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0g3j8w3y9e",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-10-02",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0g79jyezkx",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-10-12",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0gaocv2ilp",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-10-14",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0gaqi6z4e3",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-10-07",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0gb5kvp30a",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-10-09",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0gcys2x9t7",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-10-05",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ggpturwgf",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-10-18",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0gjvjwn7ib",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-10-11",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0glgzuejqh",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-09-30",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0gthdzf7ku",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0fsrvqvejv",
+        "date": "2026-10-19",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0gxwf6w4t0",
+        "createdAt": "2026-10-20T12:24:30.976Z",
+        "updatedAt": "2026-10-20T12:24:30.976Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-11",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0h0iuhouzk",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-09",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0h2s3au854",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-07",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0h4agbyp10",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-04",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0h5z8qi6cw",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-10",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0h7q4h70bp",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-02",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0hbj4mm111",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-05",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0hcl2rls46",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-01",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0hhpulhhzt",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-09-30",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0hiuw0oc41",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-15",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0hmo58qera",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-06",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0hnek4p4qa",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-18",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0hqdqzmcrd",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-03",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0hqkmxauaq",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-13",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0hunv2xpbe",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-12",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0hvhtg84ji",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-17",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0hx4sz27va",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-16",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0hx53w6t5b",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-14",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0hxm255025",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-08",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0hzm608sl0",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-10-19",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0hzq78vk3h",
+        "createdAt": "2026-10-20T12:24:30.977Z",
+        "updatedAt": "2026-10-20T12:24:30.977Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-09",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0i1jt2ndsi",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-02",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0i31r7bn75",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-17",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0i3mm5vetz",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-12",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0i3nmv5iu5",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-14",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0i4otjpkva",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-09-29",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0i6d0sqw7x",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-01",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ibgi8l9p4",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-10",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ibqxyw5an",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-11",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0ictbxoyjk",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-07",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0idk39pv59",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-06",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ie4a7n4fi",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-13",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0iei3bmwo4",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-04",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0if728ud5g",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0g2oitj3c1",
+        "date": "2026-09-28",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ifk132x0w",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-03",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ihigjwn6s",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-18",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ikni24wqv",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-08",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0imllv7tqc",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-15",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0imzh39iob",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-16",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0inrylhmgr",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-19",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0iquup9qij",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-10-05",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0izxzno79r",
+        "createdAt": "2026-10-20T12:24:30.978Z",
+        "updatedAt": "2026-10-20T12:24:30.978Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-09-30",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0j0kdiie1s",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-15",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0j25nomx5q",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-14",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0j8hfoyxan",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-06",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0jc4sj4c9u",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-08",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0jfob1k2vq",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-05",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0jhjybojm5",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-09",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0jlb50mlx3",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-09-29",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0jm8zxj62c",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0iav04xd7c",
+        "date": "2026-09-28",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0jmzjgqfkb",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-10",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0jns3m8jym",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-17",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0jr5nza7eh",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-19",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0jtqu5jl2j",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-12",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0juahassbl",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-07",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0juw456bp7",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-16",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0jyo88y52u",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-13",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0jz65k695e",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-03",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0k09z6ybq1",
+        "createdAt": "2026-10-20T12:24:30.979Z",
+        "updatedAt": "2026-10-20T12:24:30.979Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-15",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0k1vs9ympt",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-14",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0k2jusffb4",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-18",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0k2sta03rv",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-10",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0k337eh04w",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-07",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0k3j4ea19e",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-16",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0k5f43lsog",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-19",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0k71ve7gyn",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-05",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0k95kglq3k",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-09-28",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0kctimgflz",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-02",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0kf9v71wpk",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-10-01",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0khyda13d5",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-11",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0kigcnfsa4",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-09",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0kmwp5wcp8",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-08",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0kod5pcz58",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-09-30",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0kpk49jask",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-12",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0kpz3bdwjd",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-17",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0kr8iulphg",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-06",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ksm9dav8x",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0juiogu3q8",
+        "date": "2026-09-29",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0kv4f9wjmc",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-04",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0kw4kpbhak",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-13",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0kzug3te1a",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-10",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0l01t0t1rp",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-06",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0l0gnhuijz",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-07",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0l0mxqzijw",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-08",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0l1p2dg8lw",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-18",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0l1rp3snz2",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-05",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0l20wi6vco",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-16",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0l2y8kijls",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-02",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0l5rotvtts",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-14",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0l6gyw5gs9",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-02",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0l7jkj9for",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-12",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0l9gg4agm6",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-09-30",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0lbq96hge8",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-09-28",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lc0rtsjgh",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-13",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ldyqmwidv",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-04",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0ligj7r3eh",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-09-28",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0lke5gy97k",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-09-29",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lm9ubxmt9",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-09-29",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lot0hjz56",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-01",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lp5ma2shv",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-03",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lq36p3u8j",
+        "createdAt": "2026-10-20T12:24:30.980Z",
+        "updatedAt": "2026-10-20T12:24:30.980Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-15",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lrb9tqruv",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-09-30",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lrnk437s4",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-11",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lt2d0dyy7",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-19",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lt4u12h0a",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-03",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0ltkmbmcka",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-17",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lvtfcx377",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0k8jy9tosr",
+        "date": "2026-10-01",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lxpcupprs",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lcljz4da8",
+        "date": "2026-10-09",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0lxq6w0gnu",
+        "createdAt": "2026-10-20T12:24:30.981Z",
+        "updatedAt": "2026-10-20T12:24:30.981Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-10",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0m0xetz3k1",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-19",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0m3bt8hmw2",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-03",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0m6iu2e4fm",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-11",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0ma64l7k2j",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-16",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0marj5iak5",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-06",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0mbeukj2m6",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-08",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0mbl60s57r",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-15",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0mbq2a63g8",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-17",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0mcsf4ikcl",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-09-29",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0md6jggo0d",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-09-30",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0mgogt343e",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-09-28",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0mhc8b1lqy",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-18",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0mm0p9oz4s",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-13",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0mn4d5ypbz",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-02",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0mq08qjtax",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-12",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0mr8iu1yj6",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-09",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0mtcj6ztny",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-14",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0mugrg75gv",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-01",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0mv81tqy8k",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-07",
+        "done": false,
+        "shielded": false,
+        "id": "mvgnnz0mwwsfbk9q",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-04",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0mx3gz3ino",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      },
+      {
+        "routineId": "mvgnnz0lrctg0z2p",
+        "date": "2026-10-05",
+        "done": true,
+        "shielded": false,
+        "id": "mvgnnz0myc0eatdn",
+        "createdAt": "2026-10-20T12:24:30.982Z",
+        "updatedAt": "2026-10-20T12:24:30.982Z"
+      }
+    ],
+    "goals": [
+      {
+        "pillar": "BODY",
+        "title": "Sub-4 marathon",
+        "why": "Proof that I can hold a hard thing for 22 weeks.",
+        "targetDate": "2027-01-05",
+        "status": "active",
+        "id": "mvgnnz010fil91qq",
+        "createdAt": "2026-10-20T12:24:30.961Z",
+        "updatedAt": "2026-10-20T12:24:30.961Z"
+      },
+      {
+        "pillar": "BODY",
+        "title": "Squat 80 kg × 5",
+        "why": "Legs that carry the marathon and everything after.",
+        "status": "active",
+        "id": "mvgnnz04k2151tsa",
+        "createdAt": "2026-10-20T12:24:30.964Z",
+        "updatedAt": "2026-10-20T12:24:30.964Z"
+      },
+      {
+        "pillar": "WORK",
+        "title": "Invoicing module",
+        "why": "The agency bills on time without me chasing.",
+        "targetDate": "2026-10-25",
+        "status": "active",
+        "id": "mvgnnz05ks2msouw",
+        "createdAt": "2026-10-20T12:24:30.965Z",
+        "updatedAt": "2026-10-20T12:24:30.965Z"
+      },
+      {
+        "pillar": "WORK",
+        "title": "CGPA 8.5",
+        "why": "Options open at graduation.",
+        "status": "active",
+        "id": "mvgnnz067ls9lmnu",
+        "createdAt": "2026-10-20T12:24:30.966Z",
+        "updatedAt": "2026-10-20T12:24:30.966Z"
+      },
+      {
+        "pillar": "MIND",
+        "title": "Twelve books",
+        "why": "Twelve lenses I did not have in January.",
+        "status": "active",
+        "id": "mvgnnz07gboi8iw9",
+        "createdAt": "2026-10-20T12:24:30.967Z",
+        "updatedAt": "2026-10-20T12:24:30.967Z"
+      },
+      {
+        "pillar": "MIND",
+        "title": "Weekly friend call",
+        "why": "The tree stays alive because I water it.",
+        "status": "active",
+        "id": "mvgnnz081tavh36j",
+        "createdAt": "2026-10-20T12:24:30.968Z",
+        "updatedAt": "2026-10-20T12:24:30.968Z"
+      },
+      {
+        "pillar": "SKIN",
+        "title": "Clear skin by January",
+        "why": "Walk into a room without thinking about my face.",
+        "targetDate": "2027-01-02",
+        "status": "active",
+        "id": "mvgnnz08v1s55f0z",
+        "createdAt": "2026-10-20T12:24:30.968Z",
+        "updatedAt": "2026-10-20T12:24:30.968Z"
+      },
+      {
+        "pillar": "DOPAMINE",
+        "title": "Under 2 h of screen a day",
+        "why": "Evenings that belong to me.",
+        "status": "active",
+        "id": "mvgnnz0advmn91to",
+        "createdAt": "2026-10-20T12:24:30.970Z",
+        "updatedAt": "2026-10-20T12:24:30.970Z"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Half marathon under 1:55",
+        "metricName": "half time",
+        "target": 115,
+        "current": 121,
+        "unit": "min",
+        "goalId": "mvgnnz010fil91qq",
+        "id": "mvgnnz0253rhq9b9",
+        "createdAt": "2026-10-20T12:24:30.962Z",
+        "updatedAt": "2026-10-20T12:24:30.962Z"
+      },
+      {
+        "title": "Long run 30 km",
+        "metricName": "long run",
+        "target": 30,
+        "current": 22,
+        "unit": "km",
+        "goalId": "mvgnnz010fil91qq",
+        "id": "mvgnnz032ge0ggbr",
+        "createdAt": "2026-10-20T12:24:30.963Z",
+        "updatedAt": "2026-10-20T12:24:30.963Z"
+      },
+      {
+        "title": "Week 11 of 22",
+        "metricName": "plan weeks",
+        "target": 22,
+        "current": 11,
+        "unit": "weeks",
+        "goalId": "mvgnnz010fil91qq",
+        "id": "mvgnnz03vq0z905c",
+        "createdAt": "2026-10-20T12:24:30.963Z",
+        "updatedAt": "2026-10-20T12:24:30.963Z"
+      },
+      {
+        "title": "Squat 80 kg for five",
+        "metricName": "squat",
+        "target": 80,
+        "current": 70,
+        "unit": "kg",
+        "goalId": "mvgnnz04k2151tsa",
+        "id": "mvgnnz04ixb0d20j",
+        "createdAt": "2026-10-20T12:24:30.964Z",
+        "updatedAt": "2026-10-20T12:24:30.964Z"
+      },
+      {
+        "title": "Data model and migrations",
+        "doneAt": "2026-10-11T00:30:00.000Z",
+        "goalId": "mvgnnz05ks2msouw",
+        "id": "mvgnnz05xq19a0m2",
+        "createdAt": "2026-10-20T12:24:30.965Z",
+        "updatedAt": "2026-10-20T12:24:30.965Z"
+      },
+      {
+        "title": "Send and track",
+        "metricName": "tasks",
+        "target": 10,
+        "current": 6,
+        "unit": "tasks",
+        "goalId": "mvgnnz05ks2msouw",
+        "id": "mvgnnz06hxcbyyfd",
+        "createdAt": "2026-10-20T12:24:30.966Z",
+        "updatedAt": "2026-10-20T12:24:30.966Z"
+      },
+      {
+        "title": "PDF generation",
+        "doneAt": "2026-10-16T00:30:00.000Z",
+        "goalId": "mvgnnz05ks2msouw",
+        "id": "mvgnnz06q1o7yjyp",
+        "createdAt": "2026-10-20T12:24:30.966Z",
+        "updatedAt": "2026-10-20T12:24:30.966Z"
+      },
+      {
+        "title": "Semester 5 at 8.5+",
+        "metricName": "cgpa",
+        "target": 8.5,
+        "current": 7.9,
+        "goalId": "mvgnnz067ls9lmnu",
+        "id": "mvgnnz07iyvn2h64",
+        "createdAt": "2026-10-20T12:24:30.967Z",
+        "updatedAt": "2026-10-20T12:24:30.967Z"
+      },
+      {
+        "title": "Twelve books this year",
+        "metricName": "books",
+        "target": 12,
+        "current": 7,
+        "unit": "books",
+        "goalId": "mvgnnz07gboi8iw9",
+        "id": "mvgnnz07k0lnpbw2",
+        "createdAt": "2026-10-20T12:24:30.967Z",
+        "updatedAt": "2026-10-20T12:24:30.967Z"
+      },
+      {
+        "title": "Ten weeks in a row",
+        "metricName": "weeks",
+        "target": 10,
+        "current": 8,
+        "unit": "weeks",
+        "goalId": "mvgnnz081tavh36j",
+        "id": "mvgnnz08nv7f28mb",
+        "createdAt": "2026-10-20T12:24:30.968Z",
+        "updatedAt": "2026-10-20T12:24:30.968Z"
+      },
+      {
+        "title": "30 evening routines",
+        "metricName": "routines",
+        "target": 30,
+        "current": 7,
+        "unit": "nights",
+        "goalId": "mvgnnz08v1s55f0z",
+        "id": "mvgnnz09g40o7e70",
+        "createdAt": "2026-10-20T12:24:30.969Z",
+        "updatedAt": "2026-10-20T12:24:30.969Z"
+      },
+      {
+        "title": "Dermatologist follow-up",
+        "dueDate": "2026-11-09",
+        "goalId": "mvgnnz08v1s55f0z",
+        "id": "mvgnnz09u4pfbyjv",
+        "createdAt": "2026-10-20T12:24:30.969Z",
+        "updatedAt": "2026-10-20T12:24:30.969Z"
+      },
+      {
+        "title": "7 phone-free evenings",
+        "metricName": "evenings",
+        "target": 7,
+        "current": 1,
+        "unit": "evenings",
+        "goalId": "mvgnnz0advmn91to",
+        "id": "mvgnnz0a0eudxlla",
+        "createdAt": "2026-10-20T12:24:30.970Z",
+        "updatedAt": "2026-10-20T12:24:30.970Z"
+      },
+      {
+        "title": "A week under 2 h",
+        "metricName": "days",
+        "target": 7,
+        "current": 2,
+        "unit": "days",
+        "goalId": "mvgnnz0advmn91to",
+        "id": "mvgnnz0bbmfg4euk",
+        "createdAt": "2026-10-20T12:24:30.971Z",
+        "updatedAt": "2026-10-20T12:24:30.971Z"
+      }
+    ],
+    "visionItems": [
+      {
+        "title": "Finisher medal, under four hours",
+        "gives": "Proof I can hold a 22-week plan",
+        "habitCost": "Run 4 mornings a week",
+        "goalId": "mvgnnz010fil91qq",
+        "id": "mvgnnz0bgw4wj6w1",
+        "createdAt": "2026-10-20T12:24:30.971Z",
+        "updatedAt": "2026-10-20T12:24:30.971Z"
+      },
+      {
+        "title": "Agency billing itself",
+        "gives": "Evenings back, cash on time",
+        "habitCost": "Two deep-work hours a day",
+        "goalId": "mvgnnz05ks2msouw",
+        "id": "mvgnnz0bh15l7ks5",
+        "createdAt": "2026-10-20T12:24:30.971Z",
+        "updatedAt": "2026-10-20T12:24:30.971Z"
+      },
+      {
+        "title": "Skin I do not think about",
+        "gives": "Walk in without checking the mirror",
+        "habitCost": "Evening routine, sunscreen daily",
+        "goalId": "mvgnnz08v1s55f0z",
+        "id": "mvgnnz0cor0bmgzg",
+        "createdAt": "2026-10-20T12:24:30.972Z",
+        "updatedAt": "2026-10-20T12:24:30.972Z"
+      }
+    ],
+    "dayLogs": [
+      {
+        "date": "2026-10-18",
+        "weightKg": 72.4,
+        "sleepHours": 6.5,
+        "mood": 3,
+        "energy": 3,
+        "screenMin": 162,
+        "urgesResisted": 0,
+        "scrollSessions": 1,
+        "phoneFreeEvening": true,
+        "feltLine": "Good run, bad focus.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2j5j54b0ak",
+        "createdAt": "2026-10-20T12:24:31.051Z",
+        "updatedAt": "2026-10-20T12:24:31.051Z"
+      },
+      {
+        "date": "2026-10-15",
+        "weightKg": 72.4,
+        "sleepHours": 7.5,
+        "mood": 5,
+        "energy": 4,
+        "screenMin": 123,
+        "urgesResisted": 0,
+        "scrollSessions": 3,
+        "phoneFreeEvening": false,
+        "feltLine": "Tired by four, pushed through the block anyway.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2jhinzuine",
+        "createdAt": "2026-10-20T12:24:31.051Z",
+        "updatedAt": "2026-10-20T12:24:31.051Z"
+      },
+      {
+        "date": "2026-10-16",
+        "weightKg": 72.6,
+        "sleepHours": 7.5,
+        "mood": 4,
+        "energy": 4,
+        "screenMin": 153,
+        "urgesResisted": 0,
+        "scrollSessions": 2,
+        "phoneFreeEvening": false,
+        "feltLine": "Felt light all day.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2ji3m3d39h",
+        "createdAt": "2026-10-20T12:24:31.051Z",
+        "updatedAt": "2026-10-20T12:24:31.051Z"
+      },
+      {
+        "date": "2026-10-17",
+        "weightKg": 72.3,
+        "sleepHours": 7.5,
+        "mood": 4,
+        "energy": 4,
+        "screenMin": 185,
+        "urgesResisted": 2,
+        "scrollSessions": 0,
+        "phoneFreeEvening": true,
+        "feltLine": "Scrolled more than I wanted to.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2jq6s70on8",
+        "createdAt": "2026-10-20T12:24:31.051Z",
+        "updatedAt": "2026-10-20T12:24:31.051Z"
+      },
+      {
+        "date": "2026-10-19",
+        "weightKg": 72.4,
+        "sleepHours": 6.5,
+        "mood": 4,
+        "energy": 3,
+        "screenMin": 130,
+        "urgesResisted": 1,
+        "scrollSessions": 3,
+        "phoneFreeEvening": true,
+        "feltLine": "Tired but steady. The run was the best part of the day.",
+        "affirmations": [
+          "Twenty-three nights in a row. You are already the person you said you wanted to become.",
+          "Your Body pillar has climbed 2.1 levels since Day 1, mostly on 6 AM starts nobody saw."
+        ],
+        "quests": [
+          {
+            "id": "mvgnnz30e372q2no",
+            "pillar": "WORK",
+            "text": "Two hours of deep work on the invoicing module",
+            "reward": "ships Friday",
+            "done": false
+          },
+          {
+            "id": "mvgnnz300fxjptzh",
+            "pillar": "BODY",
+            "text": "Easy 5 km at 6:00 pace",
+            "reward": "week 11 of 22 stays on plan",
+            "done": false
+          },
+          {
+            "id": "mvgnnz30to1jkxk3",
+            "pillar": "MIND",
+            "text": "Message Mentor, one line is enough",
+            "reward": "Mind goes up by 2",
+            "done": false
+          }
+        ],
+        "stats": [
+          {
+            "target": "Body",
+            "delta": 2
+          },
+          {
+            "target": "Skin",
+            "delta": 0
+          },
+          {
+            "target": "Mind",
+            "delta": -1
+          },
+          {
+            "target": "Work",
+            "delta": 3
+          },
+          {
+            "target": "Dopamine",
+            "delta": 1
+          },
+          {
+            "target": "Running",
+            "from": 62,
+            "to": 62
+          }
+        ],
+        "warnings": [
+          "Gym streak at risk: one shield left this week."
+        ],
+        "insights": [
+          "Late nights are followed by energy 3. Three of three this week."
+        ],
+        "id": "mvgnnz2jvbtdvs8t",
+        "createdAt": "2026-10-20T12:24:31.051Z",
+        "updatedAt": "2026-10-20T12:24:31.096Z",
+        "lessonApplied": "Scheduled the 9 to 11 block the night before instead of deciding in the morning.",
+        "compiledMd": "You are the game master of Chronicle, a real-life RPG. The player logs each night; you write the next morning.\n\nReply ONLY in this format, with these exact headers:\n\n## BRIEF\nA letter to the player for tomorrow morning, 150-400 words, second person, direct and warm. Use the numbers.\n\n## AFFIRMATIONS\n- Two lines. Each must contain a specific number or noun from the player's own log.\n\n## QUESTS\n- [Pillar] quest text | reward: real-life reward\n\n## STATS\nPillar +N (or -N), one per line, from the day's routines and numbers. Skills as Name A -> B when you change a ranking.\n\n## WARNINGS\n- Streaks at risk, patterns heading the wrong way.\n\n## INSIGHTS\n- One pattern you noticed across the last two weeks.\n\n## LESSON\nOne sentence: a lesson from a book the player is reading, applied to tomorrow.\n\n---\n\n# State of Me\n\n**Jaineel**, 20, Ahmedabad. Final-year CS student who runs a two-person web agency on the side. Started Chronicle 22 days ago.\n\n## Where I am\n- Body: training for a sub-4 marathon (week 11 of 22, long run 22 km). Gym Mon-Sat, squat 70 kg. Weight 72.4 kg, down from 73.1.\n- Skin: evening routine held for a week for the first time. Dermatologist follow-up next month.\n- Mind: 7 of 12 books this year. Journal every night since Day 1. Weekly friend call, 8 weeks running.\n- Work: invoicing module due Friday. CGPA 7.9, target 8.5.\n- Dopamine: screen time 100-190 minutes a day, target under 120. Three phone-free evenings in a row.\n\n## Patterns the game master has noticed\n- Sleep under 6.5 h is followed by an energy rating of 3 every time.\n- Deep work happens when the block is scheduled the night before, almost never otherwise.\n- Gym streak survives travel only when the bag is packed the night before.\n\n## People\n- Family daily. Co-founder daily. Aarav every few days. Mentor fading: 3 weeks quiet.\n\n## Voice\n- Direct, warm, no exclamation marks. Numbers over adjectives. One lesson a day, never a lecture.\n\n\n---\n\n# Last 14 days\n(14 compressed day logs)\n\n# Tonight, Day 23\n- Routines done: Gym, Run 8 km at 5:52, Evening skincare, Sunscreen, One line in the journal, Read 20 pages, Phone-free evening\n- Routines skipped: Deep work, two hours\n- Weight 72.4 kg · Sleep 6.5 h · Mood 4/5 · Energy 3/5 · Screen 2:10\n- Meals: Oats, banana · Dal rice · Paneer wrap · Protein shake\n- Felt: Tired but steady. The run was the best part of the day.\n- Lesson applied (Deep Work): Scheduled the 9 to 11 block the night before.\n",
+        "sentAt": "2026-10-19T16:30:00.000Z",
+        "repliedAt": "2026-10-19T16:30:00.000Z",
+        "briefMd": "Day 23. Yesterday you ran 8 km at 5:52 and closed your first full week of evening skincare, which is the longest you have held that routine. Sleep was 6.5 hours again; three short nights in a row is where your energy ratings start to drop, and the log shows it, a 3 after every one of them.\n\nWork took a hit. Two days without a deep-work block, and the invoicing module slips to next week if that becomes three. Today is a focus day: protect the 9 to 11 block before anything else, then an easy 5 km to keep the legs loose for Sunday's long run. You are 11 weeks out from the marathon and 20 seconds a kilometre faster than in September.\n\nThe Mentor branch has gone quiet for three weeks; one message today costs you nothing and keeps a door open.",
+        "lessonMd": "From Deep Work: schedule the block, don't decide in the moment.",
+        "promptId": "mvgnnz302k9g4ft5",
+        "lessonBookId": "mvgnnz3pogtraziv"
+      },
+      {
+        "date": "2026-10-12",
+        "weightKg": 72.5,
+        "sleepHours": 7.5,
+        "mood": 3,
+        "energy": 4,
+        "screenMin": 115,
+        "urgesResisted": 1,
+        "scrollSessions": 0,
+        "phoneFreeEvening": false,
+        "feltLine": "Short night, long day. Still showed up.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2k3bvvl031",
+        "createdAt": "2026-10-20T12:24:31.052Z",
+        "updatedAt": "2026-10-20T12:24:31.052Z"
+      },
+      {
+        "date": "2026-10-07",
+        "weightKg": 72.8,
+        "sleepHours": 7.5,
+        "mood": 5,
+        "energy": 4,
+        "screenMin": 176,
+        "urgesResisted": 2,
+        "scrollSessions": 0,
+        "phoneFreeEvening": false,
+        "feltLine": "Best day this week.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2k3dbix643",
+        "createdAt": "2026-10-20T12:24:31.052Z",
+        "updatedAt": "2026-10-20T12:24:31.052Z"
+      },
+      {
+        "date": "2026-10-14",
+        "weightKg": 72.6,
+        "sleepHours": 7,
+        "mood": 4,
+        "energy": 4,
+        "screenMin": 105,
+        "urgesResisted": 2,
+        "scrollSessions": 1,
+        "phoneFreeEvening": false,
+        "feltLine": "Best day this week.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2k3rdiwvft",
+        "createdAt": "2026-10-20T12:24:31.051Z",
+        "updatedAt": "2026-10-20T12:24:31.051Z"
+      },
+      {
+        "date": "2026-10-09",
+        "weightKg": 72.8,
+        "sleepHours": 7,
+        "mood": 3,
+        "energy": 4,
+        "screenMin": 174,
+        "urgesResisted": 0,
+        "scrollSessions": 2,
+        "phoneFreeEvening": false,
+        "feltLine": "Felt light all day.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2kbpfwaf08",
+        "createdAt": "2026-10-20T12:24:31.052Z",
+        "updatedAt": "2026-10-20T12:24:31.052Z"
+      },
+      {
+        "date": "2026-10-06",
+        "weightKg": 72.9,
+        "sleepHours": 6.5,
+        "mood": 3,
+        "energy": 3,
+        "screenMin": 104,
+        "urgesResisted": 0,
+        "scrollSessions": 0,
+        "phoneFreeEvening": false,
+        "feltLine": "Steady. Nothing dramatic, which is the point.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2kmlsop2nh",
+        "createdAt": "2026-10-20T12:24:31.052Z",
+        "updatedAt": "2026-10-20T12:24:31.052Z"
+      },
+      {
+        "date": "2026-10-13",
+        "weightKg": 72.6,
+        "sleepHours": 7.5,
+        "mood": 4,
+        "energy": 4,
+        "screenMin": 160,
+        "urgesResisted": 2,
+        "scrollSessions": 3,
+        "phoneFreeEvening": false,
+        "feltLine": "Steady. Nothing dramatic, which is the point.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2kpvssrn47",
+        "createdAt": "2026-10-20T12:24:31.052Z",
+        "updatedAt": "2026-10-20T12:24:31.052Z"
+      },
+      {
+        "date": "2026-10-10",
+        "weightKg": 72.8,
+        "sleepHours": 7,
+        "mood": 3,
+        "energy": 4,
+        "screenMin": 150,
+        "urgesResisted": 0,
+        "scrollSessions": 3,
+        "phoneFreeEvening": false,
+        "feltLine": "Scrolled more than I wanted to.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2ksa9xq0ey",
+        "createdAt": "2026-10-20T12:24:31.052Z",
+        "updatedAt": "2026-10-20T12:24:31.052Z"
+      },
+      {
+        "date": "2026-10-11",
+        "weightKg": 72.5,
+        "sleepHours": 7.5,
+        "mood": 4,
+        "energy": 4,
+        "screenMin": 109,
+        "urgesResisted": 3,
+        "scrollSessions": 0,
+        "phoneFreeEvening": false,
+        "feltLine": "Good run, bad focus.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2ktexwayq5",
+        "createdAt": "2026-10-20T12:24:31.052Z",
+        "updatedAt": "2026-10-20T12:24:31.052Z"
+      },
+      {
+        "date": "2026-10-08",
+        "weightKg": 72.9,
+        "sleepHours": 6.5,
+        "mood": 3,
+        "energy": 3,
+        "screenMin": 121,
+        "urgesResisted": 2,
+        "scrollSessions": 0,
+        "phoneFreeEvening": false,
+        "feltLine": "Tired by four, pushed through the block anyway.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2ktlj3kmol",
+        "createdAt": "2026-10-20T12:24:31.052Z",
+        "updatedAt": "2026-10-20T12:24:31.052Z"
+      },
+      {
+        "date": "2026-10-05",
+        "weightKg": 72.9,
+        "sleepHours": 6.5,
+        "mood": 3,
+        "energy": 3,
+        "screenMin": 101,
+        "urgesResisted": 0,
+        "scrollSessions": 1,
+        "phoneFreeEvening": false,
+        "feltLine": "Short night, long day. Still showed up.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz2zhvnqjfh3",
+        "createdAt": "2026-10-20T12:24:31.067Z",
+        "updatedAt": "2026-10-20T12:24:31.067Z"
+      },
+      {
+        "date": "2026-09-30",
+        "weightKg": 73.1,
+        "sleepHours": 6.5,
+        "mood": 3,
+        "energy": 3,
+        "screenMin": 104,
+        "urgesResisted": 2,
+        "scrollSessions": 1,
+        "phoneFreeEvening": false,
+        "feltLine": "Best day this week.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz301117ttj1",
+        "createdAt": "2026-10-20T12:24:31.068Z",
+        "updatedAt": "2026-10-20T12:24:31.068Z"
+      },
+      {
+        "date": "2026-10-02",
+        "weightKg": 72.9,
+        "sleepHours": 6.5,
+        "mood": 3,
+        "energy": 3,
+        "screenMin": 102,
+        "urgesResisted": 2,
+        "scrollSessions": 3,
+        "phoneFreeEvening": false,
+        "feltLine": "Felt light all day.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz302awiv68h",
+        "createdAt": "2026-10-20T12:24:31.068Z",
+        "updatedAt": "2026-10-20T12:24:31.068Z"
+      },
+      {
+        "date": "2026-10-03",
+        "weightKg": 72.9,
+        "sleepHours": 7.5,
+        "mood": 3,
+        "energy": 4,
+        "screenMin": 155,
+        "urgesResisted": 1,
+        "scrollSessions": 1,
+        "phoneFreeEvening": false,
+        "feltLine": "Scrolled more than I wanted to.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz3044p4zob8",
+        "createdAt": "2026-10-20T12:24:31.068Z",
+        "updatedAt": "2026-10-20T12:24:31.068Z"
+      },
+      {
+        "date": "2026-10-01",
+        "weightKg": 72.8,
+        "sleepHours": 7.5,
+        "mood": 4,
+        "energy": 4,
+        "screenMin": 102,
+        "urgesResisted": 1,
+        "scrollSessions": 1,
+        "phoneFreeEvening": false,
+        "feltLine": "Tired by four, pushed through the block anyway.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz30dciao3s3",
+        "createdAt": "2026-10-20T12:24:31.068Z",
+        "updatedAt": "2026-10-20T12:24:31.068Z"
+      },
+      {
+        "date": "2026-09-29",
+        "weightKg": 72.9,
+        "sleepHours": 6.5,
+        "mood": 3,
+        "energy": 3,
+        "screenMin": 124,
+        "urgesResisted": 1,
+        "scrollSessions": 2,
+        "phoneFreeEvening": false,
+        "feltLine": "Steady. Nothing dramatic, which is the point.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz30i13rjwg7",
+        "createdAt": "2026-10-20T12:24:31.068Z",
+        "updatedAt": "2026-10-20T12:24:31.068Z"
+      },
+      {
+        "date": "2026-09-28",
+        "weightKg": 72.9,
+        "sleepHours": 7.5,
+        "mood": 3,
+        "energy": 4,
+        "screenMin": 174,
+        "urgesResisted": 1,
+        "scrollSessions": 1,
+        "phoneFreeEvening": false,
+        "feltLine": "Short night, long day. Still showed up.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz30mi12yghq",
+        "createdAt": "2026-10-20T12:24:31.068Z",
+        "updatedAt": "2026-10-20T12:24:31.068Z"
+      },
+      {
+        "date": "2026-10-04",
+        "weightKg": 73,
+        "sleepHours": 7,
+        "mood": 3,
+        "energy": 4,
+        "screenMin": 167,
+        "urgesResisted": 0,
+        "scrollSessions": 3,
+        "phoneFreeEvening": false,
+        "feltLine": "Good run, bad focus.",
+        "affirmations": [],
+        "quests": [],
+        "stats": [],
+        "warnings": [],
+        "insights": [],
+        "id": "mvgnnz30ndtx3pub",
+        "createdAt": "2026-10-20T12:24:31.068Z",
+        "updatedAt": "2026-10-20T12:24:31.068Z"
+      }
+    ],
+    "affirmations": [],
+    "foods": [
+      {
+        "name": "Dal rice",
+        "tags": [],
+        "id": "mvgnnz3t6qc90um9",
+        "createdAt": "2026-10-20T12:24:31.097Z",
+        "updatedAt": "2026-10-20T12:24:31.097Z"
+      },
+      {
+        "name": "Oats, banana",
+        "tags": [],
+        "id": "mvgnnz3terg14cn5",
+        "createdAt": "2026-10-20T12:24:31.097Z",
+        "updatedAt": "2026-10-20T12:24:31.097Z"
+      },
+      {
+        "name": "Paneer wrap",
+        "tags": [],
+        "id": "mvgnnz3unms4egvh",
+        "createdAt": "2026-10-20T12:24:31.098Z",
+        "updatedAt": "2026-10-20T12:24:31.098Z"
+      },
+      {
+        "name": "Protein shake",
+        "tags": [],
+        "id": "mvgnnz3uoj9of072",
+        "createdAt": "2026-10-20T12:24:31.098Z",
+        "updatedAt": "2026-10-20T12:24:31.098Z"
+      },
+      {
+        "name": "Eggs, toast",
+        "tags": [],
+        "id": "mvgnnz3usms29i6a",
+        "createdAt": "2026-10-20T12:24:31.098Z",
+        "updatedAt": "2026-10-20T12:24:31.098Z"
+      },
+      {
+        "name": "Curd rice",
+        "tags": [],
+        "id": "mvgnnz3v2db602o6",
+        "createdAt": "2026-10-20T12:24:31.099Z",
+        "updatedAt": "2026-10-20T12:24:31.099Z"
+      },
+      {
+        "name": "Chicken bowl",
+        "tags": [],
+        "id": "mvgnnz3vgwqtcuby",
+        "createdAt": "2026-10-20T12:24:31.099Z",
+        "updatedAt": "2026-10-20T12:24:31.099Z"
+      }
+    ],
+    "meals": [],
+    "skills": [
+      {
+        "name": "Running",
+        "pillar": "BODY",
+        "level": 62,
+        "hours": 212,
+        "goal": "Sub-4 marathon",
+        "milestones": [
+          "62 to 70: a half marathon under 1:55",
+          "70 to 78: a 30 km long run at 5:40"
+        ],
+        "lastAssessedAt": "2026-10-14T00:30:00.000Z",
+        "sortOrder": 0,
+        "id": "mvgnnz334nuxuvl6",
+        "createdAt": "2026-10-20T12:24:31.071Z",
+        "updatedAt": "2026-10-20T12:24:31.071Z"
+      },
+      {
+        "name": "Frontend",
+        "pillar": "WORK",
+        "level": 71,
+        "hours": 1400,
+        "goal": "Ship products people pay for",
+        "milestones": [
+          "71 to 78: a production app with paying users",
+          "78 to 85: a design system other developers adopt"
+        ],
+        "lastAssessedAt": "2026-10-14T00:30:00.000Z",
+        "sortOrder": 1,
+        "id": "mvgnnz34ia79ks45",
+        "createdAt": "2026-10-20T12:24:31.072Z",
+        "updatedAt": "2026-10-20T12:24:31.072Z"
+      },
+      {
+        "name": "UI design",
+        "pillar": "WORK",
+        "level": 66,
+        "hours": 600,
+        "goal": "Designs people screenshot",
+        "milestones": [
+          "66 to 72: a full app redesign shipped end to end"
+        ],
+        "lastAssessedAt": "2026-10-14T00:30:00.000Z",
+        "sortOrder": 3,
+        "id": "mvgnnz356icyqqj6",
+        "createdAt": "2026-10-20T12:24:31.073Z",
+        "updatedAt": "2026-10-20T12:24:31.073Z"
+      },
+      {
+        "name": "Lifting",
+        "pillar": "BODY",
+        "level": 48,
+        "hours": 160,
+        "goal": "Squat 80 kg × 5",
+        "milestones": [
+          "48 to 55: squat 80 kg for five",
+          "55 to 62: a bodyweight bench press"
+        ],
+        "lastAssessedAt": "2026-10-14T00:30:00.000Z",
+        "sortOrder": 2,
+        "id": "mvgnnz35tattum6r",
+        "createdAt": "2026-10-20T12:24:31.073Z",
+        "updatedAt": "2026-10-20T12:24:31.073Z"
+      },
+      {
+        "name": "Cooking",
+        "pillar": "BODY",
+        "level": 44,
+        "hours": 90,
+        "goal": "Cook my own protein every day",
+        "milestones": [
+          "44 to 50: five dinners in a row without ordering"
+        ],
+        "lastAssessedAt": "2026-10-07T00:30:00.000Z",
+        "sortOrder": 5,
+        "id": "mvgnnz366kvia4sd",
+        "createdAt": "2026-10-20T12:24:31.074Z",
+        "updatedAt": "2026-10-20T12:24:31.074Z"
+      },
+      {
+        "name": "Public speaking",
+        "pillar": "MIND",
+        "level": 31,
+        "hours": 20,
+        "goal": "Pitch without notes",
+        "milestones": [
+          "31 to 40: a ten-minute talk to strangers"
+        ],
+        "lastAssessedAt": "2026-10-07T00:30:00.000Z",
+        "sortOrder": 4,
+        "id": "mvgnnz36yypxupu3",
+        "createdAt": "2026-10-20T12:24:31.074Z",
+        "updatedAt": "2026-10-20T12:24:31.074Z"
+      }
+    ],
+    "achievements": [
+      {
+        "skillId": "mvgnnz334nuxuvl6",
+        "date": "2026-10-19",
+        "text": "8 km at 5:52 pace",
+        "value": 8,
+        "unit": "km",
+        "id": "mvgnnz36wqimg662",
+        "createdAt": "2026-10-20T12:24:31.074Z",
+        "updatedAt": "2026-10-20T12:24:31.074Z"
+      },
+      {
+        "skillId": "mvgnnz334nuxuvl6",
+        "date": "2026-10-12",
+        "text": "Long run 22 km",
+        "value": 22,
+        "unit": "km",
+        "id": "mvgnnz371s3je9lj",
+        "createdAt": "2026-10-20T12:24:31.075Z",
+        "updatedAt": "2026-10-20T12:24:31.075Z"
+      },
+      {
+        "skillId": "mvgnnz34ia79ks45",
+        "date": "2026-10-16",
+        "text": "Invoice PDF generation shipped",
+        "id": "mvgnnz37hnzqvjp6",
+        "createdAt": "2026-10-20T12:24:31.075Z",
+        "updatedAt": "2026-10-20T12:24:31.075Z"
+      },
+      {
+        "skillId": "mvgnnz35tattum6r",
+        "date": "2026-10-17",
+        "text": "Squat 70 kg × 5",
+        "value": 70,
+        "unit": "kg",
+        "id": "mvgnnz37u684fwss",
+        "createdAt": "2026-10-20T12:24:31.075Z",
+        "updatedAt": "2026-10-20T12:24:31.075Z"
+      },
+      {
+        "skillId": "mvgnnz356icyqqj6",
+        "date": "2026-10-08",
+        "text": "Client approved the dashboard redesign in one round",
+        "id": "mvgnnz393w3tug1h",
+        "createdAt": "2026-10-20T12:24:31.077Z",
+        "updatedAt": "2026-10-20T12:24:31.077Z"
+      }
+    ],
+    "assessments": [],
+    "people": [
+      {
+        "name": "Mom",
+        "circle": "family",
+        "closeness": 5,
+        "wantCloser": false,
+        "contactEveryDays": 2,
+        "lastContact": "2026-10-19",
+        "id": "mvgnnz3a64i2hey1",
+        "createdAt": "2026-10-20T12:24:31.078Z",
+        "updatedAt": "2026-10-20T12:24:31.078Z"
+      },
+      {
+        "name": "Dad",
+        "circle": "family",
+        "closeness": 5,
+        "wantCloser": false,
+        "contactEveryDays": 3,
+        "lastContact": "2026-10-18",
+        "id": "mvgnnz3bzmbntd8t",
+        "createdAt": "2026-10-20T12:24:31.079Z",
+        "updatedAt": "2026-10-20T12:24:31.079Z"
+      },
+      {
+        "name": "Co-founder",
+        "circle": "partner",
+        "closeness": 4,
+        "wantCloser": false,
+        "contactEveryDays": 1,
+        "lastContact": "2026-10-19",
+        "id": "mvgnnz3cel77rk7k",
+        "createdAt": "2026-10-20T12:24:31.080Z",
+        "updatedAt": "2026-10-20T12:24:31.080Z"
+      },
+      {
+        "name": "Aarav",
+        "circle": "close",
+        "closeness": 4,
+        "wantCloser": true,
+        "contactEveryDays": 5,
+        "lastContact": "2026-10-16",
+        "id": "mvgnnz3db34zv1mv",
+        "createdAt": "2026-10-20T12:24:31.081Z",
+        "updatedAt": "2026-10-20T12:24:31.081Z"
+      },
+      {
+        "name": "Gym buddy",
+        "circle": "gym",
+        "closeness": 3,
+        "wantCloser": false,
+        "contactEveryDays": 7,
+        "lastContact": "2026-10-11",
+        "id": "mvgnnz3e46b2nbrk",
+        "createdAt": "2026-10-20T12:24:31.082Z",
+        "updatedAt": "2026-10-20T12:24:31.082Z"
+      },
+      {
+        "name": "College crew",
+        "circle": "college",
+        "closeness": 3,
+        "wantCloser": true,
+        "contactEveryDays": 10,
+        "lastContact": "2026-10-08",
+        "id": "mvgnnz3mo3uk47i5",
+        "createdAt": "2026-10-20T12:24:31.090Z",
+        "updatedAt": "2026-10-20T12:24:31.090Z"
+      },
+      {
+        "name": "Retail client",
+        "circle": "client",
+        "closeness": 2,
+        "wantCloser": false,
+        "contactEveryDays": 10,
+        "lastContact": "2026-10-04",
+        "id": "mvgnnz3nx27gffti",
+        "createdAt": "2026-10-20T12:24:31.091Z",
+        "updatedAt": "2026-10-20T12:24:31.091Z"
+      },
+      {
+        "name": "Mentor",
+        "circle": "other",
+        "closeness": 3,
+        "wantCloser": true,
+        "contactEveryDays": 14,
+        "notes": "Last time: coffee. They asked about the agency.",
+        "lastContact": "2026-09-29",
+        "id": "mvgnnz3o5ghuvaxh",
+        "createdAt": "2026-10-20T12:24:31.092Z",
+        "updatedAt": "2026-10-20T12:24:31.092Z"
+      }
+    ],
+    "contacts": [
+      {
+        "personId": "mvgnnz3a64i2hey1",
+        "date": "2026-10-19",
+        "kind": "meet",
+        "id": "mvgnnz3amrj8y35v",
+        "createdAt": "2026-10-20T12:24:31.078Z",
+        "updatedAt": "2026-10-20T12:24:31.078Z"
+      },
+      {
+        "personId": "mvgnnz3a64i2hey1",
+        "date": "2026-10-13",
+        "kind": "text",
+        "id": "mvgnnz3bs1zjkipp",
+        "createdAt": "2026-10-20T12:24:31.079Z",
+        "updatedAt": "2026-10-20T12:24:31.079Z"
+      },
+      {
+        "personId": "mvgnnz3bzmbntd8t",
+        "date": "2026-10-18",
+        "kind": "text",
+        "id": "mvgnnz3bzbvbgpv5",
+        "createdAt": "2026-10-20T12:24:31.079Z",
+        "updatedAt": "2026-10-20T12:24:31.079Z"
+      },
+      {
+        "personId": "mvgnnz3bzmbntd8t",
+        "date": "2026-10-12",
+        "kind": "text",
+        "id": "mvgnnz3cocliogn4",
+        "createdAt": "2026-10-20T12:24:31.080Z",
+        "updatedAt": "2026-10-20T12:24:31.080Z"
+      },
+      {
+        "personId": "mvgnnz3cel77rk7k",
+        "date": "2026-10-13",
+        "kind": "text",
+        "id": "mvgnnz3dl21v7iuh",
+        "createdAt": "2026-10-20T12:24:31.081Z",
+        "updatedAt": "2026-10-20T12:24:31.081Z"
+      },
+      {
+        "personId": "mvgnnz3cel77rk7k",
+        "date": "2026-10-19",
+        "kind": "meet",
+        "id": "mvgnnz3dxccvqto7",
+        "createdAt": "2026-10-20T12:24:31.081Z",
+        "updatedAt": "2026-10-20T12:24:31.081Z"
+      },
+      {
+        "personId": "mvgnnz3db34zv1mv",
+        "date": "2026-10-16",
+        "kind": "meet",
+        "id": "mvgnnz3e98025bnd",
+        "createdAt": "2026-10-20T12:24:31.082Z",
+        "updatedAt": "2026-10-20T12:24:31.082Z"
+      },
+      {
+        "personId": "mvgnnz3db34zv1mv",
+        "date": "2026-10-10",
+        "kind": "text",
+        "id": "mvgnnz3edhbfjtdg",
+        "createdAt": "2026-10-20T12:24:31.082Z",
+        "updatedAt": "2026-10-20T12:24:31.082Z"
+      },
+      {
+        "personId": "mvgnnz3e46b2nbrk",
+        "date": "2026-10-11",
+        "kind": "call",
+        "id": "mvgnnz3fhtr98b9b",
+        "createdAt": "2026-10-20T12:24:31.083Z",
+        "updatedAt": "2026-10-20T12:24:31.083Z"
+      },
+      {
+        "personId": "mvgnnz3e46b2nbrk",
+        "date": "2026-10-05",
+        "kind": "text",
+        "id": "mvgnnz3fq1vmavnn",
+        "createdAt": "2026-10-20T12:24:31.083Z",
+        "updatedAt": "2026-10-20T12:24:31.083Z"
+      },
+      {
+        "personId": "mvgnnz3nx27gffti",
+        "date": "2026-10-04",
+        "kind": "meet",
+        "id": "mvgnnz3n9dlntseq",
+        "createdAt": "2026-10-20T12:24:31.091Z",
+        "updatedAt": "2026-10-20T12:24:31.091Z"
+      },
+      {
+        "personId": "mvgnnz3mo3uk47i5",
+        "date": "2026-10-08",
+        "kind": "call",
+        "id": "mvgnnz3nw6b9c5lz",
+        "createdAt": "2026-10-20T12:24:31.091Z",
+        "updatedAt": "2026-10-20T12:24:31.091Z"
+      },
+      {
+        "personId": "mvgnnz3o5ghuvaxh",
+        "date": "2026-09-29",
+        "kind": "call",
+        "note": "Coffee. They asked about the agency.",
+        "id": "mvgnnz3oyz3llrg2",
+        "createdAt": "2026-10-20T12:24:31.092Z",
+        "updatedAt": "2026-10-20T12:24:31.092Z"
+      }
+    ],
+    "books": [
+      {
+        "title": "Deep Work",
+        "author": "Cal Newport",
+        "status": "reading",
+        "id": "mvgnnz3pogtraziv",
+        "createdAt": "2026-10-20T12:24:31.093Z",
+        "updatedAt": "2026-10-20T12:24:31.093Z"
+      },
+      {
+        "title": "Atomic Habits",
+        "author": "James Clear",
+        "status": "done",
+        "id": "mvgnnz3qedhgdsv5",
+        "createdAt": "2026-10-20T12:24:31.094Z",
+        "updatedAt": "2026-10-20T12:24:31.094Z"
+      },
+      {
+        "title": "The Almanack of Naval Ravikant",
+        "author": "Eric Jorgenson",
+        "status": "wishlist",
+        "id": "mvgnnz3r281o9l02",
+        "createdAt": "2026-10-20T12:24:31.095Z",
+        "updatedAt": "2026-10-20T12:24:31.095Z"
+      }
+    ],
+    "lessons": [
+      {
+        "bookId": "mvgnnz3pogtraziv",
+        "text": "Shallow work expands to fill the time you leave it.",
+        "appliedCount": 1,
+        "lastApplied": "2026-10-14",
+        "id": "mvgnnz3p31qx9hqq",
+        "createdAt": "2026-10-20T12:24:31.093Z",
+        "updatedAt": "2026-10-20T12:24:31.093Z"
+      },
+      {
+        "bookId": "mvgnnz3pogtraziv",
+        "text": "Schedule the block, don't decide in the moment.",
+        "appliedCount": 4,
+        "lastApplied": "2026-10-19",
+        "id": "mvgnnz3pgtrx4sko",
+        "createdAt": "2026-10-20T12:24:31.093Z",
+        "updatedAt": "2026-10-20T12:24:31.093Z"
+      },
+      {
+        "bookId": "mvgnnz3qedhgdsv5",
+        "text": "Make it obvious: lay out gym clothes the night before.",
+        "appliedCount": 4,
+        "lastApplied": "2026-10-19",
+        "id": "mvgnnz3q37gadwuo",
+        "createdAt": "2026-10-20T12:24:31.094Z",
+        "updatedAt": "2026-10-20T12:24:31.094Z"
+      },
+      {
+        "bookId": "mvgnnz3qedhgdsv5",
+        "text": "Never miss twice.",
+        "appliedCount": 1,
+        "lastApplied": "2026-10-14",
+        "id": "mvgnnz3ronj5vkqr",
+        "createdAt": "2026-10-20T12:24:31.095Z",
+        "updatedAt": "2026-10-20T12:24:31.095Z"
+      }
+    ],
+    "lore": [],
+    "prompts": [
+      {
+        "kind": "nightly",
+        "model": "Haiku",
+        "promptMd": "You are the game master of Chronicle, a real-life RPG. The player logs each night; you write the next morning.\n\nReply ONLY in this format, with these exact headers:\n\n## BRIEF\nA letter to the player for tomorrow morning, 150-400 words, second person, direct and warm. Use the numbers.\n\n## AFFIRMATIONS\n- Two lines. Each must contain a specific number or noun from the player's own log.\n\n## QUESTS\n- [Pillar] quest text | reward: real-life reward\n\n## STATS\nPillar +N (or -N), one per line, from the day's routines and numbers. Skills as Name A -> B when you change a ranking.\n\n## WARNINGS\n- Streaks at risk, patterns heading the wrong way.\n\n## INSIGHTS\n- One pattern you noticed across the last two weeks.\n\n## LESSON\nOne sentence: a lesson from a book the player is reading, applied to tomorrow.\n\n---\n\n# State of Me\n\n**Jaineel**, 20, Ahmedabad. Final-year CS student who runs a two-person web agency on the side. Started Chronicle 22 days ago.\n\n## Where I am\n- Body: training for a sub-4 marathon (week 11 of 22, long run 22 km). Gym Mon-Sat, squat 70 kg. Weight 72.4 kg, down from 73.1.\n- Skin: evening routine held for a week for the first time. Dermatologist follow-up next month.\n- Mind: 7 of 12 books this year. Journal every night since Day 1. Weekly friend call, 8 weeks running.\n- Work: invoicing module due Friday. CGPA 7.9, target 8.5.\n- Dopamine: screen time 100-190 minutes a day, target under 120. Three phone-free evenings in a row.\n\n## Patterns the game master has noticed\n- Sleep under 6.5 h is followed by an energy rating of 3 every time.\n- Deep work happens when the block is scheduled the night before, almost never otherwise.\n- Gym streak survives travel only when the bag is packed the night before.\n\n## People\n- Family daily. Co-founder daily. Aarav every few days. Mentor fading: 3 weeks quiet.\n\n## Voice\n- Direct, warm, no exclamation marks. Numbers over adjectives. One lesson a day, never a lecture.\n\n\n---\n\n# Last 14 days\n(14 compressed day logs)\n\n# Tonight, Day 23\n- Routines done: Gym, Run 8 km at 5:52, Evening skincare, Sunscreen, One line in the journal, Read 20 pages, Phone-free evening\n- Routines skipped: Deep work, two hours\n- Weight 72.4 kg · Sleep 6.5 h · Mood 4/5 · Energy 3/5 · Screen 2:10\n- Meals: Oats, banana · Dal rice · Paneer wrap · Protein shake\n- Felt: Tired but steady. The run was the best part of the day.\n- Lesson applied (Deep Work): Scheduled the 9 to 11 block the night before.\n",
+        "replyMd": "## BRIEF\nDay 23. Yesterday you ran 8 km at 5:52 and closed your first full week of evening skincare, which is the longest you have held that routine. Sleep was 6.5 hours again; three short nights in a row is where your energy ratings start to drop, and the log shows it, a 3 after every one of them.\n\nWork took a hit. Two days without a deep-work block, and the invoicing module slips to next week if that becomes three. Today is a focus day: protect the 9 to 11 block before anything else, then an easy 5 km to keep the legs loose for Sunday's long run. You are 11 weeks out from the marathon and 20 seconds a kilometre faster than in September.\n\nThe Mentor branch has gone quiet for three weeks; one message today costs you nothing and keeps a door open.\n\n## AFFIRMATIONS\n- Twenty-three nights in a row. You are already the person you said you wanted to become.\n- Your Body pillar has climbed 2.1 levels since Day 1, mostly on 6 AM starts nobody saw.\n\n## QUESTS\n- [Work] Two hours of deep work on the invoicing module | reward: ships Friday\n- [Body] Easy 5 km at 6:00 pace | reward: week 11 of 22 stays on plan\n- [Mind] Message Mentor, one line is enough | reward: Mind goes up by 2\n\n## STATS\nBody +2\nSkin 0\nMind -1\nWork +3\nDopamine +1\nRunning 62 -> 62\n\n## WARNINGS\n- Gym streak at risk: one shield left this week.\n\n## INSIGHTS\n- Late nights are followed by energy 3. Three of three this week.\n\n## LESSON\nFrom Deep Work: schedule the block, don't decide in the moment.\n",
+        "parsedOk": true,
+        "tokensEst": 608,
+        "sentAt": "2026-10-19T16:30:00.000Z",
+        "repliedAt": "2026-10-19T16:30:00.000Z",
+        "subject": "2026-10-19",
+        "id": "mvgnnz302k9g4ft5",
+        "createdAt": "2026-10-20T12:24:31.068Z",
+        "updatedAt": "2026-10-20T12:24:31.068Z"
+      }
+    ],
+    "digests": [],
+    "photos": [
+      {
+        "date": "2026-10-01",
+        "angle": "front",
+        "weightKg": 73.5,
+        "width": 1200,
+        "height": 1600,
+        "path": "photos/2026-10-01-front-fixture.jpg",
+        "id": "mvgnnz3v2do7wrtt",
+        "createdAt": "2026-10-20T12:24:31.099Z",
+        "updatedAt": "2026-10-20T12:24:31.099Z"
+      }
+    ]
+  }
+}

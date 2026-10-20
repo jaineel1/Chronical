@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { decodeBase64, encodeBase64 } from '@/lib/sync/github';
 import { db } from './db';
+import { SCHEMA_VERSION } from './migrations';
 import { profileRepo, resetAll } from './repo';
 import { replaceGitHubWithThisDevice, replaceThisDeviceWithGitHub, SYNC_PATH, syncNow } from './sync';
 import { getSyncState, setSyncConfig } from './syncState';
@@ -88,7 +89,7 @@ describe('sync', () => {
     const pushed = (gh.read().tables.goals as { id: string }[]).map((g) => g.id).sort();
     expect(local).toEqual(['fromPhone', 'keep']);
     expect(pushed).toEqual(['fromPhone', 'keep']);
-    expect(report).toEqual({ received: 1, removed: 1, pushed: true });
+    expect(report).toEqual({ received: 1, removed: 1, pushed: true, photos: { uploaded: 0, downloaded: 0, removed: 0 } });
     expect((await profileRepo.get())?.settings.apiKey).toBe('sk-secret');
     expect(JSON.stringify(gh.read())).not.toContain('sk-secret');
   });
@@ -140,7 +141,15 @@ describe('sync', () => {
 
   it('writes the schema version into the file on GitHub', async () => {
     await replaceGitHubWithThisDevice();
-    expect(gh.read().schema).toBe(1);
+    expect(gh.read().schema).toBe(SCHEMA_VERSION);
+  });
+
+  it('upgrades a file written by an older app and rewrites it in this schema', async () => {
+    await replaceGitHubWithThisDevice();
+    const old = gh.read();
+    gh.write({ ...old, schema: 1 });
+    expect((await syncNow()).pushed).toBe(true);
+    expect(gh.read().schema).toBe(SCHEMA_VERSION);
   });
 
   it('retries when another device writes in between, without losing its change', async () => {
