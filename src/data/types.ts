@@ -426,6 +426,23 @@ export interface Digest extends Base {
   periodEnd: string;
   md: string;
   promptId?: string;
+  /**
+   * Weekly only, optional: the boss Claude set for the seven days after the period (lib/game/boss.ts).
+   * Older digests and replies without ## BOSS have none.
+   */
+  boss?: {
+    name: string;
+    pillar: Pillar;
+    /** Starting HP. Each weak-to routine logged done in [start, end] deals its weight. */
+    hp: number;
+    /** As Claude named them; routineId when the name matched one of the player's routines. */
+    weakTo: { name: string; routineId?: string }[];
+    reward: string;
+    taunt: string;
+    /** First and last day keys of the boss's week. */
+    start: string;
+    end: string;
+  };
 }
 
 /* ---------------------------------- backup ----------------------------------- */

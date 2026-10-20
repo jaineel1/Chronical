@@ -1,0 +1,70 @@
+/* Weekly boss (features/morning/BossCard.tsx): a pixel-stepped hit shake, a damage number that
+   rises in whole pixels, and a blink on defeat. Moves are multiples of the sprite's 4px pixel. */
+
+.boss-hit {
+  animation: boss-hit 360ms steps(1, end) 1;
+}
+
+@keyframes boss-hit {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  20% {
+    transform: translateX(-4px);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateX(4px);
+    opacity: 1;
+  }
+  60% {
+    transform: translateX(-4px);
+    opacity: 0.4;
+  }
+  80% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.boss-dmg {
+  animation: boss-dmg 640ms steps(4, end) 1 forwards;
+}
+
+@keyframes boss-dmg {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+}
+
+.boss-defeat {
+  animation: boss-defeat 720ms steps(1, end) 1;
+}
+
+@keyframes boss-defeat {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  25%,
+  75% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boss-hit,
+  .boss-dmg,
+  .boss-defeat {
+    animation: none;
+  }
+  .boss-dmg {
+    display: none;
+  }
+}

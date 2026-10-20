@@ -6,11 +6,14 @@
  *   ## QUESTS       three for the coming week (or month)
  *   ## WARNINGS
  *   ## INSIGHTS
+ *   ## BOSS         weekly only, when the player has routines: one boss for the coming week
  *
  * The weekly prompt carries the last seven nights in full; the monthly one carries the month's
  * weekly digests and up to 30 compressed days.
  */
+import { PILLAR_LABEL, type Pillar } from '@/data/types';
 import { formatLongDate } from '@/lib/dates';
+import { BOSS_HP_SHARE } from '@/lib/game/boss';
 import { goalsBlock, stateOfMeBlock, type PromptGoal } from './nightly';
 import { GAME_MASTER_PREAMBLE, RULE, VOICE_RULES, joinBlocks, section, stripMoney } from './shared';
 
@@ -29,6 +32,25 @@ export interface WeeklyInput {
   excludeMoney: boolean;
   /** Newest progress photos against the previous ones (lib/photos.ts photoProgressLine). */
   photosLine?: string;
+  /** Asks for a ## BOSS for the coming week. Left out (or no routines) → no boss section. */
+  boss?: WeeklyBossInput;
+}
+
+export interface BossPromptRoutine {
+  name: string;
+  pillar: Pillar;
+  weight: number;
+  /** Days it is scheduled in the boss's week. */
+  scheduledDays: number;
+}
+
+export interface WeeklyBossInput {
+  /** The boss's week: the seven days after the period (lib/game/boss.ts bossWeek). */
+  start: string;
+  end: string;
+  routines: BossPromptRoutine[];
+  /** Current pillar levels, any order. */
+  pillarLevels: { pillar: Pillar; level: number }[];
 }
 
 export interface MonthlyInput {
@@ -48,10 +70,10 @@ export interface MonthlyInput {
 
 export const MONTHLY_DAYS = 30;
 
-function replyFormat(period: 'week' | 'month'): string {
+function replyFormat(period: 'week' | 'month', boss = false): string {
   const next = period === 'week' ? 'the coming week' : 'the coming month';
   return `## Reply format
-Reply with these five sections, with these exact headers, in this order. Nothing before the first header and nothing after the last section.
+Reply with these ${boss ? 'six' : 'five'} sections, with these exact headers, in this order. Nothing before the first header and nothing after the last section.
 
 ## DIGEST
 At most 150 words: what this ${period} was, in numbers, and what it set up. It is kept and shown to you in later prompts, so it must stand on its own.
@@ -74,7 +96,35 @@ Exactly three quests for ${next}. Pillar is one of Body, Skin, Mind, Work, Dopam
 - What is heading the wrong way. Write "- None" if nothing is.
 
 ## INSIGHTS
-- The patterns across the ${period}, with the numbers that show them.`;
+- The patterns across the ${period}, with the numbers that show them.${boss ? `\n\n${BOSS_FORMAT}` : ''}`;
+}
+
+const BOSS_PCT = Math.round(BOSS_HP_SHARE * 100);
+
+const BOSS_FORMAT = `## BOSS
+Name: the boss's name, like "The Late-Night Scroll"
+Pillar: one of Body, Skin, Mind, Work, Dopamine
+HP: a whole number
+Weak to: routine names, comma-separated
+Reward: a real-life reward, like the quests use
+Taunt: one line in your voice
+One boss for the coming week, built from their real data: their weakest pillar or a pattern from this week's nights. Weak to: one to three routines from "Routines that can hit the boss", their exact names. Each time a weak-to routine is logged done during the boss's week it deals its weight in damage. HP: about ${BOSS_PCT}% of the full-week damage of the weak-to routines added together, rounded, so a good week beats it and a lazy one does not.`;
+
+function bossBlock(boss: WeeklyBossInput): string {
+  const levels = [...boss.pillarLevels].sort((a, b) => a.level - b.level);
+  const weakest = levels[0];
+  const pillarLines = levels.map((p) => `- ${PILLAR_LABEL[p.pillar]} level ${p.level.toFixed(1)}${p === weakest ? ' (weakest)' : ''}`);
+  const routineLines = boss.routines.map((r) => {
+    const days = r.scheduledDays === 1 ? '1 day' : `${r.scheduledDays} days`;
+    return `- ${r.name} (${PILLAR_LABEL[r.pillar]}): weight ${r.weight}, scheduled ${days}, full-week damage ${r.weight * r.scheduledDays}`;
+  });
+  return joinBlocks(
+    section(
+      `The boss's week, ${formatLongDate(boss.start)} to ${formatLongDate(boss.end)}`,
+      levels.length ? `Pillar levels now:\n${pillarLines.join('\n')}` : 'No pillar levels yet.',
+    ),
+    section('Routines that can hit the boss', routineLines.join('\n')),
+  );
 }
 
 function warningsBlock(title: string, warnings: string[]): string | undefined {
@@ -84,16 +134,18 @@ function warningsBlock(title: string, warnings: string[]): string | undefined {
 
 export function buildWeeklyPrompt(input: WeeklyInput): string {
   const name = input.displayName.trim() || 'the player';
+  const boss = input.boss && input.boss.routines.length ? input.boss : undefined;
   const task = section(
     "This week's task",
-    `This is the weekly review for Days ${input.dayNoStart} to ${input.dayNoEnd}, ${formatLongDate(input.periodStart)} to ${formatLongDate(input.periodEnd)}. Read the seven nights below, then write the week's digest, rewrite ${name}'s State of Me so next week's letters start from the truth, and set three quests for the coming week.`,
+    `This is the weekly review for Days ${input.dayNoStart} to ${input.dayNoEnd}, ${formatLongDate(input.periodStart)} to ${formatLongDate(input.periodEnd)}. Read the seven nights below, then write the week's digest, rewrite ${name}'s State of Me so next week's letters start from the truth, and set three quests${boss ? ' and one boss' : ''} for the coming week.`,
   );
-  const instructions = joinBlocks(GAME_MASTER_PREAMBLE, VOICE_RULES, task, replyFormat('week'));
+  const instructions = joinBlocks(GAME_MASTER_PREAMBLE, VOICE_RULES, task, replyFormat('week', !!boss));
   const data = joinBlocks(
     stateOfMeBlock(input.stateOfMeMd),
     goalsBlock(input.goals),
     warningsBlock("This week's warnings", input.warnings),
     input.photosLine ? section('Progress photos', input.photosLine) : undefined,
+    boss ? bossBlock(boss) : undefined,
     section('The week, night by night', input.days.length ? input.days.join('\n\n') : 'Nothing was logged this week.'),
   );
   return joinBlocks(instructions, RULE, input.excludeMoney ? stripMoney(data) : data);
