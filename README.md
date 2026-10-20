@@ -36,6 +36,14 @@ the installer is unsigned: *More info*, then *Run anyway*). It installs for your
 Start menu shortcuts, and keeps your data in `%APPDATA%\Chronicle`. Every push to `main` publishes a new
 version; the app downloads it in the background and offers to restart.
 
+## One game on every device
+
+Every build (Windows app, iPhone app, the site at https://jaineel1.github.io/Chronical/) can carry the same
+game: open **Vault → Sync**, enter your private data repo (`owner/chronicle-data`) and a fine-grained token
+with *Contents: read and write* on that repo only, and choose which side to keep. From then on each device
+merges with the repo when it opens and when it goes to the background. The token stays on the device; it is
+never written into the site, a backup or the repo.
+
 ## Night 1
 
 See [docs/night-1.md](docs/night-1.md) for the first evening: onboarding, the origin prompt, the first Campfire,
