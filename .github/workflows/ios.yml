@@ -1,0 +1,60 @@
+# Builds the iPhone app on a GitHub macOS machine and publishes an unsigned Chronicle.ipa.
+# Install it with SideStore (or AltStore), which signs it with your own Apple ID on the phone.
+# Every push to main produces a new release named "iPhone build N"; download the .ipa from there.
+name: iPhone app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ios
+  cancel-in-progress: true
+
+jobs:
+  ipa:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync ios
+
+      - name: Select Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
+
+      - name: Archive (unsigned)
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" archive \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" | tail -40
+
+      - name: Package .ipa
+        run: |
+          cd "$RUNNER_TEMP"
+          mkdir -p Payload
+          cp -R App.xcarchive/Products/Applications/App.app Payload/
+          zip -qry Chronicle.ipa Payload
+          ls -la Chronicle.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chronicle-ipa
+          path: ${{ runner.temp }}/Chronicle.ipa
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ios-build-${{ github.run_number }}
+          name: iPhone build ${{ github.run_number }}
+          body: Unsigned build of ${{ github.sha }}. Install with SideStore; see docs/iphone.md.
+          files: ${{ runner.temp }}/Chronicle.ipa

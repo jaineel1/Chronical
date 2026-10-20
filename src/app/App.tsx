@@ -3,6 +3,7 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router';
 import { Shell } from './Shell';
 import { ShellProvider } from './shellContext';
 import { RequireOnboarded } from './RequireOnboarded';
+import { NativeBridge } from './NativeBridge';
 import { MorningScreen } from '@/features/morning/MorningScreen';
 import { CampfireScreen } from '@/features/campfire/CampfireScreen';
 
@@ -27,6 +28,7 @@ export function App() {
   return (
     <HashRouter>
       <ShellProvider>
+        <NativeBridge />
         <Suspense fallback={<Quiet />}>
           <Routes>
             <Route path="/onboarding/*" element={<OnboardingScreen />} />

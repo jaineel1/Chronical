@@ -35,3 +35,17 @@ await sharp(Buffer.from(svg({ size: 192, pad: 24, maskable: false }))).png().toF
 // Maskable: full-bleed background, artwork inside the 80% safe zone.
 await sharp(Buffer.from(svg({ size: 512, pad: 96, maskable: true }))).png().toFile('public/icons/icon-512-maskable.png');
 console.log('icons written to public/icons');
+
+// iOS app icon (1024, full bleed, no transparency) and splash (2732, ink with the sun centred).
+import { existsSync } from 'node:fs';
+if (existsSync('ios/App/App/Assets.xcassets')) {
+  await sharp(Buffer.from(svg({ size: 1024, pad: 150, maskable: true }))).flatten({ background: INK }).png().toFile('ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png');
+  const splash = Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="2732" height="2732"><rect width="2732" height="2732" fill="${INK}"/></svg>`,
+  );
+  const sun = await sharp(Buffer.from(svg({ size: 420, pad: 0, maskable: true }))).png().toBuffer();
+  for (const name of ['splash-2732x2732.png', 'splash-2732x2732-1.png', 'splash-2732x2732-2.png']) {
+    await sharp(splash).composite([{ input: sun, gravity: 'center' }]).png().toFile(`ios/App/App/Assets.xcassets/Splash.imageset/${name}`);
+  }
+  console.log('iOS icon and splash written');
+}

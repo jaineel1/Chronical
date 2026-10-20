@@ -119,7 +119,7 @@ function SettingsForm({ profile }: { profile: Profile }) {
         </div>
       </Section>
 
-      <SectionHeader title="Reminders" note="in-app only on the web" />
+      <SectionHeader title="Reminders" note="notifications in the iPhone app" />
       <Section className="gap-3 pb-2">
         <div className="flex flex-wrap gap-6">
           <Field label="Morning letter">
