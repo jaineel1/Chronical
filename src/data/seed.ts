@@ -73,9 +73,9 @@ From Deep Work: schedule the block, don't decide in the moment.
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
+/** `hour` o'clock on the game day `days` ago. Anchored to the game day (4 AM rollover), not the calendar date, so a demo seeded at 1 AM is still Day 23. */
 function daysAgoIso(days: number, hour = 6): string {
-  const d = new Date();
-  d.setDate(d.getDate() - days);
+  const d = fromDayKey(dayKeyAgo(days));
   d.setHours(hour, 0, 0, 0);
   return d.toISOString();
 }

@@ -6,6 +6,7 @@ import { callClaude } from '@/lib/api/anthropic';
 import { Button, Field, Section, SectionHeader, TextInput } from '@/ui/primitives';
 import { recompileOriginSheet } from '@/features/onboarding/createGame';
 import { NAME_QUESTION_ID } from '@/features/onboarding/questions';
+import { readNumber } from '@/features/campfire/ExtrasSection';
 import { CheckRow, Select } from '@/features/onboarding/ui';
 import { useSavedField } from './useSavedField';
 import { VaultPage } from './VaultPage';
@@ -86,6 +87,17 @@ function SettingsForm({ profile }: { profile: Profile }) {
         </Field>
       </Section>
 
+      <SectionHeader title="Targets" note="optional" />
+      <Section className="gap-3 pb-2">
+        <p className="text-mid">The Campfire measures each day against these. Leave a box empty for no target.</p>
+        <TargetField label="Calories" unit="kcal" field="kcal" integer settings={s} />
+        <TargetField label="Protein" unit="g" field="proteinG" integer settings={s} />
+        <TargetField label="Water" unit="L" field="waterL" settings={s} />
+        <TargetField label="Steps" unit="" field="steps" integer settings={s} />
+        <TargetField label="Sleep" unit="h" field="sleepHours" settings={s} />
+        <TargetField label="Screen time" unit="min" field="screenMin" integer settings={s} />
+      </Section>
+
       <SectionHeader title="Prompts" />
       <Section className="gap-4 pb-2">
         <CheckRow
@@ -138,6 +150,58 @@ function SettingsForm({ profile }: { profile: Profile }) {
 
       <ApiKeySection settings={s} />
     </VaultPage>
+  );
+}
+
+type TargetKey = keyof NonNullable<Settings['targets']>;
+
+/** One target as a number box. Saves on blur or Enter; empty clears it; anything else says why it was not saved. */
+function TargetField({ label, unit, field, integer, settings }: { label: string; unit: string; field: TargetKey; integer?: boolean; settings: Settings }) {
+  const stored = settings.targets?.[field];
+  const [text, setText] = useState(stored === undefined ? '' : String(stored));
+  const [error, setError] = useState<string>();
+  useEffect(() => setText(stored === undefined ? '' : String(stored)), [stored]);
+
+  async function commit() {
+    const v = readNumber(text, { integer });
+    if (v === null || v === 0) {
+      setError(integer ? 'Use a whole number above zero, or leave it empty.' : 'Use a number above zero, or leave it empty.');
+      return;
+    }
+    setError(undefined);
+    if (v === stored) return;
+    await profileRepo.updateSettingsWith((cur) => {
+      const targets = { ...cur.targets };
+      if (v === undefined) delete targets[field];
+      else targets[field] = v;
+      return { targets };
+    });
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="flex items-baseline justify-between gap-3">
+        <span>{label}</span>
+        <span className="flex items-baseline gap-1.5">
+          <TextInput
+            type="text"
+            className={`w-24 text-right ${error ? 'text-red' : ''}`}
+            inputMode={integer ? 'numeric' : 'decimal'}
+            value={text}
+            placeholder="none"
+            aria-invalid={!!error}
+            data-testid={`target-${field}`}
+            onChange={(e) => setText(e.target.value)}
+            onBlur={() => void commit()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') e.currentTarget.blur();
+            }}
+          />
+          <span className="w-10 text-mid">{unit}</span>
+        </span>
+      </label>
+      {error ? <span className="text-red">{error}</span> : null}
+    </div>
   );
 }
 
