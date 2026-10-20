@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Page } from '@/app/Shell';
 import { useShellBar } from '@/app/shellContext';
 import { useDayLog, useLatestBrief, usePillars, useProfile } from '@/data/hooks';
@@ -7,10 +7,14 @@ import { DEFAULT_ROLLOVER_HOUR, addDays, formatLongDate, todayKey } from '@/lib/
 import { dayNoFor, mondayOf } from '@/lib/game/calendar';
 import { pillarTotals } from '@/lib/game/daily';
 import { displayLevel } from '@/lib/game/level';
+import { nightMoves, type PillarMove } from '@/lib/game/rewards';
 import { isShieldNote, planClose, summariseNightWarnings } from '@/lib/game/streaks';
 import { playerSummary, weekGrid, type PlayerSummary } from '@/lib/game/xp';
 import { isPeriodQuest } from '@/lib/parse/weekly';
-import { Empty, Section, SectionHeader, StatRow } from '@/ui/primitives';
+import { Empty, Section, SectionHeader } from '@/ui/primitives';
+import { FillStatRow } from '@/ui/fx/FillStatRow';
+import { LevelUpBanner } from '@/ui/fx/LevelUpBanner';
+import { claimNight } from '@/ui/fx/nightOnce';
 import { ButtonLink, useIsDesktop, useNow } from '@/features/campfire/parts';
 import { useKnownNouns, useRoutineLogs } from '@/features/campfire/queries';
 import { AffirmationRow } from './AffirmationRow';
@@ -117,6 +121,32 @@ function fmtDelta(n: number): string {
   return r > 0 ? `+${s}` : r < 0 ? `-${s}` : '0';
 }
 
+interface NightFx {
+  date: string;
+  /** Bars fill from where the night found them, and the deltas pop in. */
+  fill: boolean;
+  /** Pillars that crossed a whole level that night, each shown as a banner. */
+  levelUps: Pillar[];
+}
+
+/**
+ * The first time this device shows a night's letter, the bars fill from before the night and every
+ * pillar that crossed a whole level gets a banner. Decided before paint, once per night on this
+ * mount, so nothing jumps after the screen appears. Waits until the night's stats are applied.
+ */
+function useNightFx(source: DayLog | null, moves: Record<Pillar, PillarMove> | undefined): NightFx | undefined {
+  const [fx, setFx] = useState<NightFx>();
+  const decided = useRef<string | undefined>(undefined);
+  useLayoutEffect(() => {
+    if (!source?.statsAppliedAt || !moves || decided.current === source.date) return;
+    decided.current = source.date;
+    const fill = claimNight('pillars', source.date);
+    const levelUps = PILLARS.filter((p) => moves[p].levelUp !== undefined && claimNight(`levelup.${p}`, source.date));
+    setFx({ date: source.date, fill, levelUps });
+  }, [source, moves]);
+  return fx && fx.date === source?.date ? fx : undefined;
+}
+
 function PillarsBlock({ view, desktop = false }: { view: MorningView; desktop?: boolean }) {
   const { source, pillars, today, profile, rollover } = view;
   const deltas = source ? pillarTotals([...(source.routineStats ?? []), ...source.stats]) : undefined;
@@ -125,6 +155,12 @@ function PillarsBlock({ view, desktop = false }: { view: MorningView; desktop?: 
   const levels = PILLARS.map((p) => displayLevel(pillars?.[p]?.points ?? 0));
   const max = Math.max(10, Math.ceil(Math.max(...levels) / 10) * 10);
   const wide = deltas ? PILLARS.some((p) => !Number.isInteger(Math.round(deltas[p] * 10) / 10)) : false;
+  const moves = useMemo(() => {
+    if (!source || !pillars) return undefined;
+    const now = Object.fromEntries(PILLARS.map((p) => [p, pillars[p].points])) as Record<Pillar, number>;
+    return nightMoves(source, now);
+  }, [source, pillars]);
+  const fx = useNightFx(source, moves);
   return (
     <>
       <SectionHeader title="Pillars" note={note} />
@@ -134,19 +170,26 @@ function PillarsBlock({ view, desktop = false }: { view: MorningView; desktop?: 
             const d = deltas?.[p];
             return (
               <div key={p} data-testid={`pillar-${p}`}>
-                <StatRow
+                <FillStatRow
                   name={PILLAR_LABEL[p]}
                   value={levels[i]!}
+                  from={fx?.fill ? moves?.[p].beforeLevel : undefined}
                   max={max}
                   nameWidth={desktop ? 84 : 76}
                   trailing={
                     d === undefined ? null : (
-                      <span className={`${wide ? 'w-9' : 'w-7'} shrink-0 text-right ${d < 0 ? 'text-red' : 'text-mid'}`}>{fmtDelta(d)}</span>
+                      <span className={`${wide ? 'w-9' : 'w-7'} shrink-0 text-right ${d < 0 ? 'text-red' : 'text-mid'}`}>
+                        {fx?.fill && d !== 0 ? <span className="rw-pop">{fmtDelta(d)}</span> : fmtDelta(d)}
+                      </span>
                     )
                   }
                 />
               </div>
             );
+          })}
+          {fx?.levelUps.map((p) => {
+            const level = moves?.[p].levelUp;
+            return level === undefined ? null : <LevelUpBanner key={p} text={`${PILLAR_LABEL[p]} reached level ${level}`} />;
           })}
         </div>
       </Section>

@@ -1,0 +1,149 @@
+/*
+  Reward moments. Keyframes only, stepped for a pixel feel, all under 900 ms, none of them
+  catches input (pointer-events: none on everything that floats) and none of them moves layout:
+  only width inside a fixed track, transform, opacity and clip-path change.
+*/
+
+/* Pillar bar filling from the value before the night to the value now. Set --rw-from / --rw-to. */
+.rw-fill {
+  animation: rw-fill 640ms steps(8, end) 120ms backwards;
+}
+@keyframes rw-fill {
+  from {
+    width: var(--rw-from);
+  }
+  to {
+    width: var(--rw-to);
+  }
+}
+
+/* The night's delta popping in beside its bar, once the bar has filled. */
+.rw-pop {
+  display: inline-block;
+  animation: rw-pop 360ms steps(4, end) 520ms backwards;
+}
+@keyframes rw-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* A short "+2" rising off a ticked row, then gone. */
+.rw-float {
+  pointer-events: none;
+  opacity: 0;
+  animation: rw-float 700ms steps(7, end) forwards;
+}
+@keyframes rw-float {
+  0% {
+    opacity: 1;
+    transform: translateY(2px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+/* The checkbox thumping once when it is ticked. Two names so a second tick restarts it. */
+.rw-pulse-a {
+  animation: rw-pulse-a 300ms steps(3, end);
+}
+.rw-pulse-b {
+  animation: rw-pulse-b 300ms steps(3, end);
+}
+@keyframes rw-pulse-a {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes rw-pulse-b {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* A streak number rolling up into place inside an overflow-hidden slot. */
+.rw-tick {
+  animation: rw-tick 320ms steps(4, end);
+}
+@keyframes rw-tick {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Level-up banner wiping in from the left, then sparks flying off its corner. */
+.rw-banner {
+  animation: rw-banner 360ms steps(6, end) 280ms backwards;
+}
+@keyframes rw-banner {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.rw-spark {
+  pointer-events: none;
+  opacity: 0;
+  animation: rw-spark 280ms steps(4, end) 600ms forwards;
+}
+@keyframes rw-spark {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--rw-dx), var(--rw-dy));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rw-fill,
+  .rw-pop,
+  .rw-pulse-a,
+  .rw-pulse-b,
+  .rw-tick,
+  .rw-banner {
+    animation: none;
+  }
+  .rw-float,
+  .rw-spark {
+    animation: none;
+    display: none;
+  }
+}
