@@ -5,6 +5,7 @@ import { GuideScreen } from './GuideScreen';
 import { LettersScreen } from './LettersScreen';
 import { OriginScreen } from './OriginScreen';
 import { SettingsScreen } from './SettingsScreen';
+import { SyncScreen } from './SyncScreen';
 import { VaultIndex } from './VaultIndex';
 
 /**
@@ -15,6 +16,7 @@ import { VaultIndex } from './VaultIndex';
  *   /vault/origin          State of Me, Origin Sheet, run the origin prompt again
  *   /vault/settings        name, rollover, deep mode, money, models, reminders, API key
  *   /vault/data            backup, import, exports, storage, start over
+ *   /vault/sync            GitHub sync (also at /sync, outside the onboarding guard)
  *   /vault/guide           Night 1
  */
 export function VaultScreen() {
@@ -28,6 +30,7 @@ export function VaultScreen() {
       <Route path="settings" element={<SettingsScreen />} />
       <Route path="data" element={<DataScreen />} />
       <Route path="guide" element={<GuideScreen />} />
+      <Route path="sync" element={<SyncScreen />} />
       <Route path="*" element={<Navigate to="/vault" replace />} />
     </Routes>
   );

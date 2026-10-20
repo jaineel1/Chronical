@@ -51,7 +51,7 @@ async function backupWithoutKey(): Promise<BackupFile> {
   return backup;
 }
 
-const DANGER = 'inline-flex h-9 cursor-pointer items-center justify-center whitespace-nowrap border border-red bg-transparent px-3 text-red disabled:cursor-default disabled:opacity-50';
+export const DANGER ='inline-flex h-9 cursor-pointer items-center justify-center whitespace-nowrap border border-red bg-transparent px-3 text-red disabled:cursor-default disabled:opacity-50';
 
 export function DataScreen() {
   const profile = useProfile();

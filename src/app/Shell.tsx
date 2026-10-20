@@ -1,6 +1,7 @@
-import { NavLink, Outlet, useLocation } from 'react-router';
+import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import { useShellContext } from './shellContext';
 import { useProfile } from '@/data/hooks';
+import { useSyncState } from '@/data/syncState';
 import { dayNumber, formatLongDate, todayKey } from '@/lib/dates';
 import { ChestIcon, FireIcon, MapIcon, PeopleIcon, PersonIcon, SunIcon } from '@/ui/icons';
 import { PixelSprite } from '@/ui/PixelSprite';
@@ -40,6 +41,7 @@ export function Shell() {
   const { bar } = useShellContext();
   const profile = useProfile();
   const location = useLocation();
+  const sync = useSyncState();
 
   const routeTitle = ROUTE_TITLES[location.pathname] ?? (location.pathname.startsWith('/edit') ? 'Edit' : 'Chronicle');
   const title = bar?.title ?? routeTitle;
@@ -78,6 +80,11 @@ export function Shell() {
           <span className="truncate">{title}</span>
           {meta ? <span className="shrink-0 text-bar-text">{meta}</span> : null}
         </header>
+        {sync.linked && sync.error && location.pathname !== '/sync' && location.pathname !== '/vault/sync' ? (
+          <Link to="/sync" className="bg-paper-2 px-6 py-1.5 text-red no-underline lg:px-10" data-testid="sync-failed">
+            Sync failed: {sync.error}
+          </Link>
+        ) : null}
 
         <main className="flex min-h-0 flex-1 flex-col pb-[calc(env(safe-area-inset-bottom)+72px)] lg:pb-8">
           <Outlet />

@@ -4,6 +4,7 @@ import { Shell } from './Shell';
 import { ShellProvider } from './shellContext';
 import { RequireOnboarded } from './RequireOnboarded';
 import { NativeBridge } from './NativeBridge';
+import { AutoSync } from './AutoSync';
 import { MorningScreen } from '@/features/morning/MorningScreen';
 import { CampfireScreen } from '@/features/campfire/CampfireScreen';
 
@@ -14,6 +15,7 @@ const PeopleScreen = lazy(() => import('@/features/people/PeopleScreen').then((m
 const VaultScreen = lazy(() => import('@/features/vault/VaultScreen').then((m) => ({ default: m.VaultScreen })));
 const OnboardingScreen = lazy(() => import('@/features/onboarding/OnboardingScreen').then((m) => ({ default: m.OnboardingScreen })));
 const EditorsRoutes = lazy(() => import('@/features/editors/EditorsRoutes').then((m) => ({ default: m.EditorsRoutes })));
+const SyncScreen = lazy(() => import('@/features/vault/SyncScreen').then((m) => ({ default: m.SyncScreen })));
 
 /** Quiet paper while a chunk loads; never a spinner. */
 function Quiet() {
@@ -29,9 +31,14 @@ export function App() {
     <HashRouter>
       <ShellProvider>
         <NativeBridge />
+        <AutoSync />
         <Suspense fallback={<Quiet />}>
           <Routes>
             <Route path="/onboarding/*" element={<OnboardingScreen />} />
+            {/* Outside the onboarding guard: a fresh phone links here to pull an existing game. */}
+            <Route element={<Shell />}>
+              <Route path="sync" element={<SyncScreen />} />
+            </Route>
             <Route element={<RequireOnboarded />}>
               <Route element={<Shell />}>
                 <Route index element={<MorningScreen />} />

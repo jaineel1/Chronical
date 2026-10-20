@@ -100,6 +100,9 @@ export function WelcomeStep() {
           <Button variant="outline" onClick={demo} disabled={busy}>
             {seeding ? 'Setting up the demo' : 'Try the demo first'}
           </Button>
+          <Button variant="text" className="self-start" onClick={() => navigate('/sync')} disabled={busy} data-testid="welcome-sync">
+            Sync from another device
+          </Button>
         </div>
 
         <p className="text-mid">Everything stays on this device. Nothing is sent anywhere until you copy it yourself.</p>

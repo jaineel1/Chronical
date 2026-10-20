@@ -23,6 +23,7 @@ const SECTIONS = [
   { to: 'origin', title: 'Origin Sheet', sub: 'Your answers, the State of Me, the origin prompt' },
   { to: 'settings', title: 'Settings', sub: 'Name, day rollover, deep mode, money, models, API key' },
   { to: 'data', title: 'Data', sub: 'Backup, import, exports, start over' },
+  { to: 'sync', title: 'Sync', sub: 'Same game on the laptop and the iPhone, through GitHub' },
   { to: 'guide', title: 'Guide', sub: 'Night 1: how the loop works' },
 ] as const;
 
