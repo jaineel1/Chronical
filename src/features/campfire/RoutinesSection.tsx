@@ -2,7 +2,10 @@ import { useState } from 'react';
 import type { RoutineWithLog } from '@/data/hooks';
 import { routineLogRepo } from '@/data/repo';
 import type { RoutineLog } from '@/data/types';
+import { formatGain } from '@/lib/game/rewards';
 import { formatStreak, isShieldNote, streakFromLogs } from '@/lib/game/streaks';
+import { TickPop, pulseClass } from '@/ui/fx/TickPop';
+import { useDataEdges } from '@/ui/fx/useDataEdges';
 import { Empty, Section, SectionHeader } from '@/ui/primitives';
 import { rescoreNight } from './nightFlow';
 import { LiveCheck, TextButton, TextLink } from './parts';
@@ -22,6 +25,18 @@ export function RoutinesSection({ date, routines, logs, closed, notes }: Props) 
   const scheduled = routines.filter((r) => r.scheduledToday);
   const rest = routines.filter((r) => !r.scheduledToday);
   const done = scheduled.filter((r) => r.log?.done).length;
+  const streaks = new Map(routines.map(({ routine }) => [routine.id, streakFromLogs(routine, logs, date, { todayPending: !closed })]));
+  // Both come from the database: a log saved as done pops "+weight", a streak that grew rolls in.
+  const ticked = useDataEdges(
+    routines.map(({ routine, log }) => [routine.id, !!log?.done] as const),
+    (was, now) => !was && now,
+    (was, now) => was && !now,
+  );
+  const grew = useDataEdges(
+    routines.map(({ routine }) => [routine.id, streaks.get(routine.id) ?? 0] as const),
+    (was, now) => now > was,
+    (was, now) => now < was,
+  );
 
   async function toggle(routineId: string, next: boolean) {
     await routineLogRepo.set(routineId, date, next);
@@ -29,12 +44,25 @@ export function RoutinesSection({ date, routines, logs, closed, notes }: Props) 
   }
 
   const row = ({ routine, log, scheduledToday }: RoutineWithLog) => {
-    const streak = streakFromLogs(routine, logs, date, { todayPending: !closed });
+    const streak = streaks.get(routine.id) ?? 0;
+    const tick = ticked.get(routine.id);
+    const roll = grew.get(routine.id);
     return (
       <label key={routine.id} className="flex cursor-pointer items-center gap-3">
-        <LiveCheck checked={!!log?.done} onCheckedChange={(next) => toggle(routine.id, next)} aria-label={routine.name} />
-        <span className="min-w-0 flex-1">{routine.name}</span>
-        <span className="shrink-0 text-mid">{scheduledToday ? formatStreak(streak) : 'not today'}</span>
+        <LiveCheck className={pulseClass(tick)} checked={!!log?.done} onCheckedChange={(next) => toggle(routine.id, next)} aria-label={routine.name} />
+        <span className="relative min-w-0 flex-1">
+          {routine.name}
+          {routine.weight > 0 ? <TickPop nonce={tick} text={formatGain(routine.weight)} className="right-1" /> : null}
+        </span>
+        <span className="shrink-0 overflow-hidden text-mid">
+          {scheduledToday ? (
+            <span key={roll ?? 'still'} className={`block ${roll === undefined ? '' : 'rw-tick'}`}>
+              {formatStreak(streak)}
+            </span>
+          ) : (
+            'not today'
+          )}
+        </span>
       </label>
     );
   };
