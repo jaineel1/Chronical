@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test -c e2e/playwright.config.ts",
-    "icons": "node scripts/icons.mjs"
+    "icons": "node scripts/icons.mjs",
+    "local": "node scripts/local.ts"
   },
   "dependencies": {
     "@capacitor/core": "^8.5.3",
