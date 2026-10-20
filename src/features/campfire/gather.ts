@@ -15,19 +15,24 @@ import {
   type Meal,
   type MealSlot,
   type Milestone,
+  type Note,
   type Nutrition,
   type Person,
   type Profile,
   type Routine,
   type RoutineLog,
   type Skill,
+  type TimetableEntry,
+  type WebEdge,
+  type WebNode,
 } from '@/data/types';
 import { addDays, daysBetween, formatLongDate, nowIso, weekdayOf } from '@/lib/dates';
 import { dayNoFor, formatMonth, formatRange, monthBounds } from '@/lib/game/calendar';
 import { computeRoutineStats, existedOn, isScheduled, pillarTotals } from '@/lib/game/daily';
 import { planClose, streakFromLogs } from '@/lib/game/streaks';
 import { isPeriodQuest, isPeriodWarning } from '@/lib/parse/weekly';
-import { compressDayLog, shortRoutineName, tonightBlock, type TonightInput, type TonightRoutine, type WeekAverages } from '@/lib/prompt/dayLog';
+import { compressDayLog, shortRoutineName, tonightBlock, type PromptNote, type TomorrowInput, type TonightInput, type TonightRoutine, type WeekAverages } from '@/lib/prompt/dayLog';
+import { ownThings, planLinks, withLinks } from '@/lib/web/link';
 import { sumNutrition } from '@/lib/nutrition';
 import { photoProgressLine } from '@/lib/photos';
 import { DEEP_DAYS } from '@/lib/prompt/deep';
@@ -58,6 +63,11 @@ interface World {
   lessons: Lesson[];
   skills: Skill[];
   digests: Digest[];
+  /** Notes from `from` to `to`, by date. */
+  notes: Map<string, Note[]>;
+  timetable: TimetableEntry[];
+  webNodes: WebNode[];
+  webEdges: WebEdge[];
 }
 
 function groupBy<T>(rows: T[], key: (row: T) => string): Map<string, T[]> {
@@ -77,7 +87,7 @@ async function loadWorld(from: string, to: string): Promise<World> {
   const settings = profile?.settings ?? DEFAULT_SETTINGS;
   const routines = (await db.routines.toArray()).filter((r) => !r.archived).sort((a, b) => a.sortOrder - b.sortOrder);
   const ids = routines.map((r) => r.id);
-  const [routineLogs, dayLogs, meals, foods, goals, milestones, people, books, lessons, skills, digests] = await Promise.all([
+  const [routineLogs, dayLogs, meals, foods, goals, milestones, people, books, lessons, skills, digests, notes, timetable, webNodes, webEdges] = await Promise.all([
     ids.length ? db.routineLogs.where('routineId').anyOf(ids).toArray() : Promise.resolve([] as RoutineLog[]),
     db.dayLogs.where('date').between(from, to, true, true).toArray(),
     db.meals.where('date').between(from, to, true, true).toArray(),
@@ -89,6 +99,10 @@ async function loadWorld(from: string, to: string): Promise<World> {
     db.lessons.toArray(),
     db.skills.toArray(),
     db.digests.toArray(),
+    db.notes.where('date').between(from, to, true, true).toArray(),
+    db.timetable.toArray(),
+    db.webNodes.toArray(),
+    db.webEdges.toArray(),
   ]);
   const earliestLog = new Map<string, string>();
   for (const l of routineLogs) {
@@ -114,6 +128,13 @@ async function loadWorld(from: string, to: string): Promise<World> {
     lessons,
     skills: [...skills].sort((a, b) => a.sortOrder - b.sortOrder),
     digests,
+    notes: groupBy(
+      [...notes].sort((a, b) => a.at.localeCompare(b.at)),
+      (n) => n.date,
+    ),
+    timetable,
+    webNodes,
+    webEdges,
   };
 }
 
@@ -295,6 +316,38 @@ function warningsIn(world: World, dates: string[]): string[] {
   return [...new Set(out)];
 }
 
+/** 'HH:MM' on this device's clock. */
+function localTime(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) throw new Error(`A note has an unreadable time: ${iso}`);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function notesOn(world: World, date: string): PromptNote[] {
+  return (world.notes.get(date) ?? []).map((n) => ({ time: localTime(n.at), kind: n.kind, text: n.text }));
+}
+
+/** The timetable entries for the day after `date` that are in force on it, and that day's routine windows. */
+function tomorrowOf(world: World, date: string): TomorrowInput {
+  const next = addDays(date, 1);
+  const weekday = weekdayOf(next);
+  return {
+    date: next,
+    slots: world.timetable
+      .filter((e) => e.day === weekday && (!e.from || e.from <= next) && (!e.to || next <= e.to))
+      .map((e) => ({ start: e.start, end: e.end, title: e.title, kind: e.kind, room: e.room })),
+    routineWindows: world.routines
+      .filter((r) => isScheduled(r, weekday) && r.window?.trim())
+      .map((r) => ({ name: r.name, window: r.window!.trim() })),
+  };
+}
+
+/** The web as `webRepo.linkExisting` would leave it: the player's own things are always in it. */
+function webOf(world: World, date: string): { nodes: WebNode[]; edges: WebEdge[] } {
+  const plan = planLinks(world.webNodes, ownThings(world), date);
+  return { nodes: withLinks(world.webNodes, plan, nowIso()), edges: world.webEdges };
+}
+
 function datesBetween(start: string, end: string): string[] {
   const out: string[] = [];
   for (let d = start; d <= end && out.length < 400; d = addDays(d, 1)) out.push(d);
@@ -334,6 +387,10 @@ export async function gatherNightlyInput(date: string): Promise<NightlyInput> {
     monthDigests,
     pastDays,
     tonight: tonightFor(world, date),
+    notes: notesOn(world, date),
+    tomorrow: tomorrowOf(world, date),
+    targets: settings.targets,
+    web: webOf(world, date),
   };
 }
 
@@ -357,6 +414,14 @@ export async function gatherWeeklyInput(endDate: string): Promise<WeeklyInput> {
     ),
     excludeMoney: (world.profile?.settings ?? DEFAULT_SETTINGS).excludeMoney,
     photosLine: photoProgressLine(await db.photos.where('date').belowOrEqual(endDate).toArray()),
+    web: webOf(world, endDate),
+    notesCount: dates.reduce(
+      (acc, d) => {
+        for (const n of world.notes.get(d) ?? []) acc[n.kind] += 1;
+        return acc;
+      },
+      { rant: 0, life: 0 },
+    ),
   };
 }
 

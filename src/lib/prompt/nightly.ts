@@ -5,15 +5,26 @@
  *
  * Pure: `gatherNightlyInput` (src/features/campfire/gather.ts) reads the store and builds the input.
  */
-import { PILLARS, PILLAR_LABEL, SUBSTATS, type GoalStatus, type Pillar } from '@/data/types';
+import { PILLARS, PILLAR_LABEL, SUBSTATS, type GoalStatus, type Pillar, type Settings, type WebEdge, type WebNode } from '@/data/types';
 import { formatLongDate } from '@/lib/dates';
+import { WEB_EXCERPT_NODES, WEB_EXCERPT_TOKENS, webExcerpt } from '@/lib/web/excerpt';
 import { DEEP_DAYS, buildDeepBlock } from './deep';
-import { formatRoutineScore, glanceBlock, tonightBlock, type TonightInput } from './dayLog';
+import {
+  formatRoutineScore,
+  glanceBlock,
+  notesBlock,
+  targetsBlock,
+  tomorrowBlock,
+  tonightBlock,
+  type PromptNote,
+  type TomorrowInput,
+  type TonightInput,
+} from './dayLog';
 import { GAME_MASTER_PREAMBLE, RULE, VOICE_RULES, estimateTokens, joinBlocks, section, stripMoney } from './shared';
 
 export const RECENT_DAYS = 14;
-export const NIGHTLY_TOKEN_BUDGET = 10_000;
-export const DEEP_TOKEN_BUDGET = 35_000;
+export const NIGHTLY_TOKEN_BUDGET = 16_000;
+export const DEEP_TOKEN_BUDGET = 40_000;
 
 export interface PromptMilestone {
   title: string;
@@ -47,6 +58,14 @@ export interface NightlyInput {
   /** Compressed lines for the days before tonight, oldest first (up to 90). */
   pastDays: string[];
   tonight: TonightInput;
+  /** Tonight's rant and life notes, oldest first. */
+  notes: PromptNote[];
+  /** Tomorrow's timetable and routine windows, for ## PLAN. */
+  tomorrow: TomorrowInput;
+  /** Settings.targets; missing when none are set. */
+  targets?: Settings['targets'];
+  /** The mind web; the prompt shows an excerpt of it. */
+  web: { nodes: WebNode[]; edges: WebEdge[] };
 }
 
 /* ------------------------------------------------------------------ */
@@ -96,9 +115,9 @@ function nightlyTask(input: NightlyInput): string {
     : '';
   return section(
     "Tonight's task",
-    `It is the end of Day ${input.dayNo}, ${formatLongDate(input.date)}. Write ${name}'s letter for tomorrow morning and set up the day: three quests, your stat adjustments, warnings, one pattern, one lesson, the numbers for each meal, a short recap, and a routine only if one is clearly missing.
+    `It is the end of Day ${input.dayNo}, ${formatLongDate(input.date)}. Write ${name}'s letter for tomorrow morning and set up the day: three quests, your stat adjustments, warnings, one pattern, one lesson, the numbers for each meal, a short recap, and a routine only if one is clearly missing. Then what went right and what to do better, the food against the targets, an answer to any rant, the people named today, what tonight adds to the mind web, and a plan for tomorrow.
 
-Read "Today at a glance" first: it has tonight against the last 7 days. The full log for tonight is at the end, after the history.
+Read "Today at a glance" first: it has tonight against the last 7 days. Then today's notes (written during the day, verbatim), tomorrow's timetable, the targets, and the mind web: what you have learned about their life so far. The full log for tonight is at the end, after the history.
 
 The app has already scored tonight's routines (a done routine earns its weight, a scheduled skip costs half of it, one shield a week covers a miss, and a pillar never loses more than 5 in a night): ${formatRoutineScore(input.tonight.routineScore)}. Do not score the routines again. Your STATS are judgment calls on top of that: effort beyond the routines, honesty in the log, numbers trending the right or the wrong way.${deep}`,
   );
@@ -111,7 +130,7 @@ function replyFormat(input: NightlyInput): string {
     : 'One sentence that applies a lesson to tomorrow, from a book they have read or from their own log, starting "From <source>:".';
   const skills = input.skills.length ? input.skills.map((s) => `${s.name} ${n1(s.level)}`).join(', ') : 'none yet';
   return `## Reply format
-Reply with these ten sections, with these exact headers, in this order. Nothing before the first header and nothing after the last section.
+Reply with these seventeen sections, with these exact headers, in this order. Nothing before the first header and nothing after the last section.
 
 ## BRIEF
 The morning letter, 150 to 400 words, in plain paragraphs (no lists, no headers). Start with what happened today, use the numbers from tonight's log, say what it builds or what it costs, and end on what tomorrow is for.
@@ -146,6 +165,34 @@ Two or three plain sentences recapping today in numbers: what was done, what sli
 ## ROUTINE
 - Name | Pillar | SubStat | weight 1-5 | days | window | upside | cost
 At most one new routine, and only when the last two weeks show a clear need that no current routine covers; otherwise write "- None". SubStat is one of that pillar's sub-stats below. weight: 1 takes two minutes, 3 is a real block of time, 5 is the hardest thing in their week. days: daily, weekdays, or a list such as Mon,Wed,Fri. window: HH:MM-HH:MM in 24-hour time, or none. Start small: something they can keep in a bad week.
+
+## RIGHT
+- Two to four lines on what today did well, each with the number or name from the log that shows it.
+
+## BETTER
+- Two to four lines on what to change tomorrow, each concrete and with a number: a time, an amount, a count.
+
+## FOOD
+- good: what the intake got right against the targets, with the numbers
+- better: what to change, with the numbers
+One to three lines of each, measured against "Targets and intake" and tonight's meals. Write "- None" if no meals were logged.
+
+## RANT
+Two to five sentences answering tonight's rant notes, in your voice: take it seriously, say what is true in it, and give one thing to do about it. Write "- None" if "Today's notes" has no rant.
+
+## PEOPLE
+- Name | circle | one line of what the log said about them
+One line per person actually named in tonight's log or notes; never guess at people who are not named. circle is one of family, close, partner, client, college, gym, other (other when unsure). Write the name as the log does, and the same way as "People going quiet" or the mind web when it is the same person. Write "- None" if nobody was named.
+
+## WEB
+- node: Type | Label | a fact learned today
+- link: Label A -> Label B | relation | note
+- summary: Label | a one-line rewrite of that node's running summary
+Three to eight lines in all tonight. Type is one of person, goal, routine, book, skill, place, topic, event, habit. Use the labels the mind web already has, and the exact names of their goals, routines, books, skills and people. Only what tonight's log and notes show, and nothing a summary in the mind web already says. A relation is a few words in your voice, like "trains for" or "keeps them up late". Write a summary line only when a node's summary is missing or no longer true.
+
+## PLAN
+- 06:30-07:00 | what to do | Pillar
+Tomorrow, four to eight blocks in 24-hour time, in order. Fit them around "Tomorrow's timetable" (never on top of a class) and the routine windows, and give tomorrow's quests a block. Pillar is one of Body, Skin, Mind, Work, Dopamine.
 
 Sub-stats you can use in STATS: ${subStatList()}
 Skills you can rank (1 to 100): ${skills}.`;
@@ -187,11 +234,17 @@ interface DataParts {
   recent: string[];
   older: string[];
   origin?: string;
+  /** Most nodes the web excerpt may show; halves when the prompt is over budget. */
+  webNodes: number;
 }
 
 function dataHalf(input: NightlyInput, parts: DataParts): string {
   return joinBlocks(
     glanceBlock(input.tonight),
+    notesBlock(input.notes),
+    tomorrowBlock(input.tomorrow),
+    targetsBlock(input.targets, input.tonight),
+    webExcerpt(input.web.nodes, input.web.edges, { maxNodes: parts.webNodes, maxTokens: WEB_EXCERPT_TOKENS }),
     stateOfMeBlock(input.stateOfMeMd),
     goalsBlock(input.goals),
     peopleBlock(input.quietPeople),
@@ -205,8 +258,9 @@ function dataHalf(input: NightlyInput, parts: DataParts): string {
 }
 
 /**
- * Build the nightly prompt. Stays under ~10k tokens (~35k in deep mode): the oldest compressed
- * days go first, then the Origin Sheet is shortened, and only then do the last 14 days shrink.
+ * Build the nightly prompt. Stays under ~16k tokens (~40k in deep mode): the oldest compressed
+ * days go first, then the Origin Sheet is shortened, then the mind web excerpt halves, and only
+ * then do the last 14 days shrink.
  */
 export function buildNightlyPrompt(input: NightlyInput): string {
   const budget = input.deepMode ? DEEP_TOKEN_BUDGET : NIGHTLY_TOKEN_BUDGET;
@@ -218,6 +272,7 @@ export function buildNightlyPrompt(input: NightlyInput): string {
     recent: window.slice(-RECENT_DAYS),
     older: window.slice(0, Math.max(0, window.length - RECENT_DAYS)),
     origin: wantsOrigin ? input.originSheetMd?.trim() || undefined : undefined,
+    webNodes: WEB_EXCERPT_NODES,
   };
 
   const build = () => {
@@ -235,6 +290,10 @@ export function buildNightlyPrompt(input: NightlyInput): string {
     const overChars = (estimateTokens(md) - budget) * 4 + 200;
     const kept = parts.origin.slice(0, Math.max(0, parts.origin.length - overChars)).trim();
     parts.origin = kept ? `${kept}\n\n(The rest of the Origin Sheet was left out to keep this prompt short.)` : undefined;
+    md = build();
+  }
+  while (over() && parts.webNodes > 0 && input.web.nodes.length) {
+    parts.webNodes = Math.floor(parts.webNodes / 2);
     md = build();
   }
   while (over() && parts.recent.length) {

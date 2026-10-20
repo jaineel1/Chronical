@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { WebNode } from '@/data/types';
 import { STATE_OF_ME_MD } from '@/data/seed';
 import { buildMonthlyPrompt, buildWeeklyPrompt } from './weekly';
 import { GAME_MASTER_PREAMBLE } from './shared';
@@ -36,6 +37,40 @@ describe('buildWeeklyPrompt', () => {
     expect(data).toContain('full detail 17');
     expect(data).toContain('full detail 23');
     expect(md).toContain('Days 17 to 23, Monday, 12 October to Sunday, 18 October');
+  });
+});
+
+describe('buildWeeklyPrompt with the mind web and notes', () => {
+  const node = (i: number): WebNode => ({
+    id: `n${i}`,
+    createdAt: '',
+    updatedAt: '',
+    type: 'topic',
+    label: `Thread ${i}`,
+    summaryMd: 'z'.repeat(400),
+    facts: [],
+    firstSeen: '2026-10-01',
+    lastSeen: '2026-10-18',
+    mentions: 1,
+    importance: 3,
+  });
+  const base = { periodStart: '2026-10-12', periodEnd: '2026-10-18', dayNoStart: 17, dayNoEnd: 23, displayName: 'Jaineel', goals, warnings: [], days: [], excludeMoney: false };
+
+  it('adds a smaller web excerpt and the week\'s notes count', () => {
+    const md = buildWeeklyPrompt({ ...base, web: { nodes: Array.from({ length: 25 }, (_, i) => node(i)), edges: [] }, notesCount: { rant: 1, life: 4 } });
+    const data = md.split('\n---\n')[1]!;
+    expect(data).toContain('## Notes this week\n5 notes written during the days: 1 rant, 4 life lines.');
+    const web = data.slice(data.indexOf('## Mind web'));
+    const shown = (web.match(/^- Thread /gm) ?? []).length;
+    expect(shown).toBeGreaterThan(0);
+    expect(shown).toBeLessThan(25);
+    expect(md).not.toContain('## WEB\n');
+  });
+
+  it('leaves both out when the input has neither', () => {
+    const md = buildWeeklyPrompt(base);
+    expect(md).not.toContain('## Mind web');
+    expect(md).not.toContain('## Notes this week');
   });
 });
 

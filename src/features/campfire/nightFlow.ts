@@ -3,9 +3,11 @@
  * night when a routine is ticked late, and saving a pasted reply. Every flow runs through one
  * queue so a fast double tap can never revert and apply the same night out of order.
  */
+import { newId } from '@/data/ids';
 import { dayLogRepo, mealRepo, promptRepo, routineRepo } from '@/data/repo';
 import type { PromptKind } from '@/data/types';
-import { nowIso } from '@/lib/dates';
+import { webRepo, type PeopleReport, type WebReport } from '@/data/webRepo';
+import { addDays, nowIso } from '@/lib/dates';
 import { applyNightStats, revertNightStats } from '@/lib/game/apply';
 import { closeNight } from '@/lib/game/streaks';
 import { parseNightlyReply } from '@/lib/parse/reply';
@@ -90,17 +92,52 @@ export function acceptReply(date: string, replyMd: string, ctx: SendContext & { 
       summaryMd: parsed.summaryMd || undefined,
       routineSuggestion: suggestion,
       extraSections: parsed.extraSections.length ? parsed.extraSections : undefined,
+      review: parsed.right.length || parsed.better.length ? { right: parsed.right, better: parsed.better } : undefined,
+      foodNotes: parsed.food.good.length || parsed.food.better.length ? parsed.food : undefined,
+      rantReplyMd: parsed.rantMd || undefined,
       rawDraft: undefined,
       repliedAt: nowIso(),
     });
+    // ## PLAN is for tomorrow, so it lives on tomorrow's log. A reply without one leaves it alone.
+    if (parsed.plan.length) {
+      const next = addDays(date, 1);
+      await dayLogRepo.ensure(next);
+      await dayLogRepo.update(next, { plan: parsed.plan.map((b) => ({ ...b, id: newId() })) });
+    }
     if (log.promptId) await promptRepo.attachReply(log.promptId, replyMd, true);
     const report = await applyNightStats(date);
     const unmatchedMeals = await mealRepo.applyEstimates(date, parsed.meals);
+    // Own things first, so ## WEB lines about a goal or routine land on its node instead of a new topic.
+    await webRepo.linkExisting(date);
+    const people = await webRepo.applyPeople(date, parsed.people);
+    const web = await webRepo.applyWeb(date, parsed.web);
 
     const notes: string[] = [];
     if (unmatchedMeals.length) notes.push(`No logged meal called ${unmatchedMeals.join(' or ')}, so ${unmatchedMeals.length === 1 ? 'its numbers were' : 'their numbers were'} skipped.`);
     if (!parsed.quests.length) notes.push('No quests came with it.');
     if (report.unknown.length) notes.push(`No skill called ${report.unknown.join(' or ')}, so ${report.unknown.length === 1 ? 'that line was' : 'those lines were'} skipped.`);
+    notes.push(...peopleNotes(people), ...webNotes(web));
+    if (parsed.plan.length) notes.push(`Tomorrow has a plan: ${parsed.plan.length} ${parsed.plan.length === 1 ? 'block' : 'blocks'}.`);
     return { ok: true, message: [SAVED_MESSAGE, ...notes].join(' ') };
   });
+}
+
+function plural(n: number, one: string, many: string): string {
+  return `${n} ${n === 1 ? one : many}`;
+}
+
+/** "Met 2 new people: Riya, Dev." */
+export function peopleNotes(r: PeopleReport): string[] {
+  if (!r.added.length) return [];
+  return [`Met ${r.added.length === 1 ? 'someone new' : `${r.added.length} new people`}: ${r.added.join(', ')}.`];
+}
+
+/** "Web: 4 nodes, 2 links." plus topics made for link ends and summaries that matched nothing. */
+export function webNotes(r: WebReport): string[] {
+  const out: string[] = [];
+  const nodes = r.added.length + r.updated.length + r.createdTopics.length;
+  if (nodes || r.links.length) out.push(`Web: ${plural(nodes, 'node', 'nodes')}, ${plural(r.links.length, 'link', 'links')}.`);
+  if (r.createdTopics.length) out.push(`New in the web as ${r.createdTopics.length === 1 ? 'a topic' : 'topics'}: ${r.createdTopics.join(', ')}.`);
+  if (r.unmatched.length) out.push(`Nothing in the web called ${r.unmatched.join(' or ')}, so ${r.unmatched.length === 1 ? 'that summary was' : 'those summaries were'} skipped.`);
+  return out;
 }

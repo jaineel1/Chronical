@@ -11,14 +11,22 @@
  *   ## MEALS          - Slot | Food | 250 g | 380 kcal | P 12 g | C 60 g | F 8 g   (optional)
  *   ## SUMMARY        two or three lines recapping the day                      (optional)
  *   ## ROUTINE        one routine row, or "- None"                              (optional)
+ *   ## RIGHT          - lines: what the day did well                            (optional, v2)
+ *   ## BETTER         - lines: what to change tomorrow                          (optional, v2)
+ *   ## FOOD           - good: … / - better: …                                   (optional, v2)
+ *   ## RANT           a short answer to the night's rant, or "- None"           (optional, v2)
+ *   ## PEOPLE         - Name | circle | what the log said                       (optional, v2)
+ *   ## WEB            - node: Type | Label | fact · - link: A -> B | relation | note · - summary: Label | text
+ *   ## PLAN           - 06:30-07:00 | text | Pillar   (tomorrow)                (optional, v2)
  *
  * Forgiving on purpose: lowercase, bold or colon headers, prose before the first header, CRLF, a
  * reply wrapped in a ``` fence, bullets or bold in STATS, unicode arrows and minus signs, and
  * repeated sections are all read. Unknown sections are kept verbatim.
  */
 import { newId } from '@/data/ids';
-import { PILLAR_LABEL, SUBSTATS, pillarFromLabel, type MealSlot, type Pillar, type Quest, type RoutineDraft, type StatDelta } from '@/data/types';
+import { PILLAR_LABEL, SUBSTATS, pillarFromLabel, type MealSlot, type Pillar, type PlanBlock, type Quest, type RoutineDraft, type StatDelta } from '@/data/types';
 import type { MealEstimate } from '@/lib/nutrition';
+import { webNodeTypeFrom, type PersonUpdate, type WebUpdates } from '@/lib/web/types';
 import { parseRoutines } from './origin';
 import { bullets, splitSections, type MdSection } from './sections';
 
@@ -40,10 +48,26 @@ export interface ParsedReply {
   summaryMd: string;
   /** ## ROUTINE: at most one suggested routine. */
   routine?: RoutineDraft;
+  /** ## RIGHT: what the day did well. */
+  right: string[];
+  /** ## BETTER: what to change tomorrow. */
+  better: string[];
+  /** ## FOOD: intake notes against the targets. */
+  food: { good: string[]; better: string[] };
+  /** ## RANT: the answer to the night's rant; '' without one. */
+  rantMd: string;
+  /** ## PEOPLE: people named in the log. */
+  people: PersonUpdate[];
+  /** ## WEB: nodes, links and summary rewrites for the mind web. */
+  web: WebUpdates;
+  /** ## PLAN: tomorrow's time blocks, in order (ids are given when saved). */
+  plan: ParsedPlanBlock[];
   extraSections: { title: string; body: string }[];
   /** When ok is false, the first entry says why. Otherwise notes about lines that were skipped or adjusted. */
   errors: string[];
 }
+
+export type ParsedPlanBlock = Omit<PlanBlock, 'id' | 'done'>;
 
 export interface ParseOptions {
   /** Routine, goal, skill, people and book names from the player's log. */
@@ -56,7 +80,25 @@ export const EMPTY_BRIEF_ERROR = 'The ## BRIEF section is empty. The reply was k
 /** Pillar adjustments from Claude stay within this range a night (routines are scored separately). */
 export const MAX_REPLY_DELTA = 3;
 
-const KNOWN = ['BRIEF', 'AFFIRMATIONS', 'QUESTS', 'STATS', 'WARNINGS', 'INSIGHTS', 'LESSON', 'MEALS', 'SUMMARY', 'ROUTINE'] as const;
+const KNOWN = [
+  'BRIEF',
+  'AFFIRMATIONS',
+  'QUESTS',
+  'STATS',
+  'WARNINGS',
+  'INSIGHTS',
+  'LESSON',
+  'MEALS',
+  'SUMMARY',
+  'ROUTINE',
+  'RIGHT',
+  'BETTER',
+  'FOOD',
+  'RANT',
+  'PEOPLE',
+  'WEB',
+  'PLAN',
+] as const;
 type Known = (typeof KNOWN)[number];
 
 const ALIASES: Record<string, Known> = {
@@ -81,7 +123,6 @@ const ALIASES: Record<string, Known> = {
   MEALS: 'MEALS',
   MEAL: 'MEALS',
   NUTRITION: 'MEALS',
-  FOOD: 'MEALS',
   CALORIES: 'MEALS',
   SUMMARY: 'SUMMARY',
   RECAP: 'SUMMARY',
@@ -92,6 +133,29 @@ const ALIASES: Record<string, Known> = {
   NEW_ROUTINE: 'ROUTINE',
   ROUTINE_SUGGESTION: 'ROUTINE',
   SUGGESTED_ROUTINE: 'ROUTINE',
+  RIGHT: 'RIGHT',
+  WENT_RIGHT: 'RIGHT',
+  WHAT_WENT_RIGHT: 'RIGHT',
+  WINS: 'RIGHT',
+  BETTER: 'BETTER',
+  DO_BETTER: 'BETTER',
+  WHAT_TO_DO_BETTER: 'BETTER',
+  IMPROVE: 'BETTER',
+  // FOOD used to be read as MEALS; meal rows under it still are (see parseFood).
+  FOOD: 'FOOD',
+  FOOD_NOTES: 'FOOD',
+  INTAKE: 'FOOD',
+  NUTRITION_NOTES: 'FOOD',
+  RANT: 'RANT',
+  RANT_REPLY: 'RANT',
+  PEOPLE: 'PEOPLE',
+  PERSONS: 'PEOPLE',
+  WEB: 'WEB',
+  MIND_WEB: 'WEB',
+  GRAPH: 'WEB',
+  PLAN: 'PLAN',
+  TOMORROW: 'PLAN',
+  SCHEDULE: 'PLAN',
 };
 
 /* ------------------------------------------------------------------ */
@@ -400,6 +464,217 @@ function parseRoutine(body: string, errors: string[]): RoutineDraft | undefined 
 }
 
 /* ------------------------------------------------------------------ */
+/* FOOD, RANT                                                          */
+/* ------------------------------------------------------------------ */
+
+const FOOD_GOOD = /^(?:good|went well|well|right|wins?)\s*[:—–-]\s*/i;
+const FOOD_BETTER = /^(?:better|could be better|do better|improve|to improve|change)\s*[:—–-]\s*/i;
+const FOOD_GOOD_HEAD = /^(?:good|went well|what went well|right)\s*:?$/i;
+const FOOD_BETTER_HEAD = /^(?:better|could be better|do better|improve|to improve)\s*:?$/i;
+
+/**
+ * `- good: …` / `- better: …`, also as "Good:" and "Better:" sub-headers over plain lines. Meal rows
+ * (`Lunch | Dal rice | 600 kcal`) are what ## FOOD meant before v2, so they still go to the meals.
+ */
+function parseFood(body: string, meals: MealEstimate[], errors: string[]): ParsedReply['food'] {
+  const out: ParsedReply['food'] = { good: [], better: [] };
+  let bucket: 'good' | 'better' | undefined;
+  for (const raw of bullets(body)) {
+    const line = plain(raw);
+    if (!line || NONE_LINE.test(line)) continue;
+    if (FOOD_GOOD_HEAD.test(line)) {
+      bucket = 'good';
+      continue;
+    }
+    if (FOOD_BETTER_HEAD.test(line)) {
+      bucket = 'better';
+      continue;
+    }
+    const good = FOOD_GOOD.exec(line);
+    const better = good ? null : FOOD_BETTER.exec(line);
+    if (good || better) {
+      const text = plain(line.slice((good ?? better)![0].length));
+      if (text && !NONE_LINE.test(text)) out[good ? 'good' : 'better'].push(text);
+      continue;
+    }
+    const meal = parseMealLine(raw);
+    if (meal) {
+      meals.push(meal);
+      continue;
+    }
+    if (bucket) out[bucket].push(line);
+    else errors.push(`A FOOD line says neither good nor better: "${line}". It was skipped.`);
+  }
+  return { good: dedupe(out.good), better: dedupe(out.better) };
+}
+
+/** The rant answer as written (paragraphs kept), or '' for "- None". */
+function parseRant(body: string): string {
+  const items = listItems(body);
+  if (!items.length) return '';
+  return body
+    .split('\n')
+    .map((l) => l.replace(/^\s*[-*•]\s+/, '').trimEnd())
+    .join('\n')
+    .trim();
+}
+
+/* ------------------------------------------------------------------ */
+/* PEOPLE, WEB                                                         */
+/* ------------------------------------------------------------------ */
+
+function cells(line: string): string[] {
+  return plain(line)
+    .split('|')
+    .map((c) => plain(c))
+    .filter((c) => c.length > 0);
+}
+
+const CIRCLE_WORD = /^(?:family|close|partner|client|college|gym|other|friends?|work|acquaintances?|colleagues?|classmates?)$/i;
+
+/** `- Riya | college | sat next to them in Maths` → a person; "Riya (college): …" also reads. */
+export function parsePersonLine(raw: string): PersonUpdate | undefined {
+  const line = plain(raw.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, ''));
+  if (!line || NONE_LINE.test(line)) return undefined;
+  const parts = cells(line);
+  if (parts.length >= 2) {
+    const [name, second, ...rest] = parts as [string, string, ...string[]];
+    if (CIRCLE_WORD.test(second)) return { name, circle: second.toLowerCase(), note: rest.join(' | ') };
+    return { name, note: [second, ...rest].join(' | ') };
+  }
+  const paren = /^([^(:]{1,60}?)\s*\(([^)]+)\)\s*[:—–-]?\s*(.*)$/.exec(line);
+  if (paren && CIRCLE_WORD.test(paren[2]!.trim())) return { name: paren[1]!.trim(), circle: paren[2]!.trim().toLowerCase(), note: paren[3]!.trim() };
+  const colon = /^([^:]{1,60}?)\s*[:—–]\s+(.+)$/.exec(line);
+  if (colon) return { name: colon[1]!.trim(), note: colon[2]!.trim() };
+  return line.length <= 60 ? { name: line, note: '' } : undefined;
+}
+
+function parsePeople(body: string, errors: string[]): PersonUpdate[] {
+  const out: PersonUpdate[] = [];
+  const seen = new Set<string>();
+  for (const raw of bullets(body)) {
+    const line = plain(raw);
+    if (!line || NONE_LINE.test(line)) continue;
+    const p = parsePersonLine(raw);
+    if (!p) {
+      errors.push(`Could not read a PEOPLE line: "${line}".`);
+      continue;
+    }
+    const key = p.name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(p);
+  }
+  return out;
+}
+
+const WEB_PREFIX = /^(node|link|edge|summary)\s*[:—–]\s*/i;
+const LINK_ARROW = /\s*(?:-{1,2}>|→|⟶|=>|—>|–>)\s*/;
+
+function parseWeb(body: string, errors: string[]): WebUpdates {
+  const out: WebUpdates = { nodes: [], links: [], summaries: [] };
+  for (const raw of bullets(body)) {
+    let line = plain(raw);
+    if (!line || NONE_LINE.test(line)) continue;
+    const prefix = WEB_PREFIX.exec(line);
+    let kind = prefix?.[1]!.toLowerCase();
+    if (prefix) line = line.slice(prefix[0].length);
+    const parts = cells(line);
+    if (!kind) {
+      if (LINK_ARROW.test(parts[0] ?? '')) kind = 'link';
+      else if (parts.length >= 3 && webNodeTypeFrom(parts[0]!)) kind = 'node';
+    }
+    if (kind === 'node' && parts.length >= 2) {
+      const type = webNodeTypeFrom(parts[0]!);
+      if (!type) errors.push(`"${parts[0]}" is not a web node type; ${parts[1]} was kept as a topic.`);
+      out.nodes.push({ type: type ?? 'topic', label: parts[1]!, fact: parts.slice(2).join(' | ') });
+      continue;
+    }
+    if ((kind === 'link' || kind === 'edge') && parts.length >= 1) {
+      const ends = parts[0]!.split(LINK_ARROW).map((e) => e.trim());
+      if (ends.length === 2 && ends[0] && ends[1]) {
+        out.links.push({ from: ends[0], to: ends[1], relation: parts[1] ?? '', note: parts.slice(2).join(' | ') || undefined });
+        continue;
+      }
+    }
+    if (kind === 'summary' && parts.length >= 2) {
+      out.summaries.push({ label: parts[0]!, summary: parts.slice(1).join(' | ') });
+      continue;
+    }
+    errors.push(`Could not read a WEB line: "${plain(raw)}".`);
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------------ */
+/* PLAN                                                                */
+/* ------------------------------------------------------------------ */
+
+const CLOCK = '(\\d{1,2})(?:[:.](\\d{2}))?\\s*(?:([ap])\\.?m\\b\\.?)?';
+const RANGE_RE = new RegExp(`^${CLOCK}\\s*(?:-|–|—|to|until|till)\\s*${CLOCK}(?![\\d:])\\s*(?:[|:—–-]\\s*)?`, 'i');
+
+function hhmm(h: number, m: number): string {
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+/** One clock time in minutes, with an optional am/pm. */
+function clockMinutes(hText: string, mText: string | undefined, ampm: string | undefined): number | undefined {
+  let h = Number(hText);
+  const m = mText === undefined ? 0 : Number(mText);
+  if (m > 59) return undefined;
+  if (ampm) {
+    if (h < 1 || h > 12) return undefined;
+    const pm = ampm.toLowerCase().startsWith('p');
+    h = (h % 12) + (pm ? 12 : 0);
+  } else if (h > 24 || (h === 24 && m > 0)) {
+    return undefined;
+  }
+  return (h % 24) * 60 + m;
+}
+
+/** "06:30-07:00", "6:30 to 7", "6:30-7pm", "11am – 1pm" → start and end as 'HH:MM'. */
+export function parseTimeRange(text: string): { start: string; end: string; rest: string } | undefined {
+  const m = RANGE_RE.exec(text.trim());
+  if (!m) return undefined;
+  const [, h1, m1, ap1, h2, m2, ap2] = m;
+  // A single am/pm at the end ("6:30-7:00 pm") covers the start too, unless that puts the start after the end.
+  let startAp = ap1;
+  const end = clockMinutes(h2!, m2, ap2);
+  if (!startAp && ap2 && Number(h1) >= 1 && Number(h1) <= 12) {
+    const same = clockMinutes(h1!, m1, ap2);
+    startAp = same !== undefined && end !== undefined && same <= end ? ap2 : 'am';
+  }
+  const start = clockMinutes(h1!, m1, startAp);
+  if (start === undefined || end === undefined || start === end) return undefined;
+  return { start: hhmm(Math.floor(start / 60), start % 60), end: hhmm(Math.floor(end / 60), end % 60), rest: text.trim().slice(m[0].length) };
+}
+
+/** `- 06:30-07:00 | Run 5 km | Body` → a plan block. The pillar is optional. */
+export function parsePlanLine(raw: string): ParsedPlanBlock | undefined {
+  const line = plain(raw.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, ''));
+  const range = parseTimeRange(line);
+  if (!range) return undefined;
+  const parts = cells(range.rest);
+  if (!parts.length) return undefined;
+  const last = parts[parts.length - 1]!;
+  const pillar = parts.length > 1 ? pillarFromLabel(last.replace(/[.\s]+$/, '')) : undefined;
+  const text = (pillar ? parts.slice(0, -1) : parts).join(' | ');
+  return { start: range.start, end: range.end, text, ...(pillar ? { pillar } : {}) };
+}
+
+function parsePlan(body: string, errors: string[]): ParsedPlanBlock[] {
+  const out: ParsedPlanBlock[] = [];
+  for (const raw of bullets(body)) {
+    const line = plain(raw);
+    if (!line || NONE_LINE.test(line)) continue;
+    const block = parsePlanLine(raw);
+    if (block) out.push(block);
+    else if (!/:\s*$/.test(line)) errors.push(`Could not read a PLAN line: "${line}". It was skipped.`);
+  }
+  return out.sort((a, b) => a.start.localeCompare(b.start));
+}
+
+/* ------------------------------------------------------------------ */
 /* Whole reply                                                         */
 /* ------------------------------------------------------------------ */
 
@@ -449,6 +724,13 @@ export function parseNightlyReply(md: string, opts: ParseOptions = {}): ParsedRe
   const meals = parseMeals(allBodies('MEALS'));
   const summaryMd = listItems(lastBody('SUMMARY')).join(' ');
   const routine = grouped.has('ROUTINE') ? parseRoutine(lastBody('ROUTINE'), errors) : undefined;
+  const right = dedupe(listItems(allBodies('RIGHT')));
+  const better = dedupe(listItems(allBodies('BETTER')));
+  const food = parseFood(allBodies('FOOD'), meals, errors);
+  const rantMd = parseRant(lastBody('RANT'));
+  const people = parsePeople(allBodies('PEOPLE'), errors);
+  const web = parseWeb(allBodies('WEB'), errors);
+  const plan = grouped.has('PLAN') ? parsePlan(lastBody('PLAN'), errors) : [];
 
   if (!grouped.has('BRIEF')) {
     return emptyResult(NO_BRIEF_ERROR, extraSections);
@@ -460,7 +742,29 @@ export function parseNightlyReply(md: string, opts: ParseOptions = {}): ParsedRe
     if (!grouped.has(t)) errors.push(`No ## ${t} section.`);
   }
 
-  return { ok: true, briefMd, affirmations, flaggedAffirmations, quests, stats, warnings, insights, lessonMd, meals, summaryMd, routine, extraSections, errors };
+  return {
+    ok: true,
+    briefMd,
+    affirmations,
+    flaggedAffirmations,
+    quests,
+    stats,
+    warnings,
+    insights,
+    lessonMd,
+    meals,
+    summaryMd,
+    routine,
+    right,
+    better,
+    food,
+    rantMd,
+    people,
+    web,
+    plan,
+    extraSections,
+    errors,
+  };
 }
 
 function emptyResult(error: string, extraSections: ParsedReply['extraSections']): ParsedReply {
@@ -476,6 +780,13 @@ function emptyResult(error: string, extraSections: ParsedReply['extraSections'])
     lessonMd: '',
     meals: [],
     summaryMd: '',
+    right: [],
+    better: [],
+    food: { good: [], better: [] },
+    rantMd: '',
+    people: [],
+    web: { nodes: [], links: [], summaries: [] },
+    plan: [],
     extraSections,
     errors: [error],
   };

@@ -2,7 +2,7 @@
  * Day logs as prompt text: one compressed line per past day, and the full detail for tonight.
  * Plain text, no emoji, numbers first.
  */
-import { PILLARS, PILLAR_LABEL, type DayLog, type MealSlot, type Nutrition, type Pillar } from '@/data/types';
+import { PILLARS, PILLAR_LABEL, type DayLog, type MealSlot, type Note, type Nutrition, type Pillar, type Settings, type TimetableKind } from '@/data/types';
 import { formatLongDate } from '@/lib/dates';
 import { shortWeekday } from '@/lib/game/calendar';
 import { formatNutrition, sumNutrition } from '@/lib/nutrition';
@@ -282,5 +282,94 @@ export function tonightBlock(t: TonightInput): string {
     lines.push('Tonight\'s questions:');
     lines.push(...answered.map((q) => `- ${q.text} ${q.answer!.trim()}`));
   }
+  return lines.join('\n');
+}
+
+/* ------------------------------------------------------------------ */
+/* Notes, tomorrow's timetable, targets                                */
+/* ------------------------------------------------------------------ */
+
+/** A rant or life note as the prompt shows it. `time` is 'HH:MM' local. */
+export interface PromptNote {
+  time: string;
+  kind: Note['kind'];
+  text: string;
+}
+
+/** The day's notes, verbatim, oldest first. */
+export function notesBlock(notes: readonly PromptNote[]): string {
+  if (!notes.length) return "## Today's notes\nNo notes today.";
+  const lines = notes.map((n) => {
+    const [first = '', ...more] = n.text.trim().split('\n');
+    return [`- ${n.time} ${n.kind}: ${first}`, ...more.map((l) => `  ${l}`)].join('\n');
+  });
+  return `## Today's notes\n${lines.join('\n')}`;
+}
+
+export interface TomorrowSlot {
+  start: string;
+  end: string;
+  title: string;
+  kind: TimetableKind;
+  room?: string;
+}
+
+export interface TomorrowInput {
+  date: string;
+  /** Timetable entries for tomorrow's weekday that are in force on that date. */
+  slots: TomorrowSlot[];
+  /** Routines scheduled tomorrow that have a time window. */
+  routineWindows: { name: string; window: string }[];
+}
+
+/** "HH:MM-HH:MM Title (room)" per entry; breaks and minor slots are listed only on a day with a class or lab. */
+export function tomorrowBlock(t: TomorrowInput): string {
+  const lines: string[] = [`## Tomorrow's timetable, ${formatLongDate(t.date)}`];
+  const sorted = [...t.slots].sort((a, b) => a.start.localeCompare(b.start));
+  if (sorted.some((s) => s.kind === 'class' || s.kind === 'lab')) {
+    lines.push(...sorted.map((s) => `- ${s.start}-${s.end} ${s.title.trim()}${s.room?.trim() ? ` (${s.room.trim()})` : ''}`));
+  } else {
+    lines.push('No classes tomorrow.');
+  }
+  if (t.routineWindows.length) lines.push(`Routine windows: ${t.routineWindows.map((r) => `${shortRoutineName(r.name)} ${r.window}`).join(' · ')}`);
+  return lines.join('\n');
+}
+
+function gap(value: number, target: number, fmt: (v: number) => string, atMost: boolean): string {
+  const diff = value - target;
+  if (atMost) return diff <= 0 ? 'within it' : `over by ${fmt(diff)}`;
+  return diff >= 0 ? 'met' : `short by ${fmt(-diff)}`;
+}
+
+function int(v: number): string {
+  return Math.round(v).toLocaleString('en-IN');
+}
+
+/** One line per target against today's numbers and meal totals, then the meal totals themselves. */
+export function targetsBlock(targets: Settings['targets'], t: TonightInput): string {
+  const log = t.log ?? { date: t.date };
+  const { total, counted } = sumNutrition(t.meals.map((m) => m.nutrition));
+  const fromMeals = t.meals.length ? ` (numbers for ${counted} of ${t.meals.length} meals)` : '';
+  const lines: string[] = ['## Targets and intake'];
+  const tg = targets ?? {};
+  const row = (label: string, target: number | undefined, value: number | undefined, fmt: (v: number) => string, unit: string, extra = '', atMost = false) => {
+    if (typeof target !== 'number') return;
+    const goal = `${atMost ? 'at most ' : ''}${fmt(target)}${unit}`;
+    lines.push(
+      typeof value === 'number'
+        ? `- ${label}: ${fmt(value)}${unit}, target ${goal}, ${gap(value, target, (v) => `${fmt(v)}${unit}`, atMost)}${extra}`
+        : `- ${label}: not logged, target ${goal}`,
+    );
+  };
+  row('Calories', tg.kcal, counted ? total.kcal : undefined, int, ' kcal', fromMeals);
+  row('Protein', tg.proteinG, counted ? total.proteinG : undefined, int, ' g', fromMeals);
+  row('Water', tg.waterL, log.waterL, n1, ' L');
+  row('Steps', tg.steps, log.steps, int, '');
+  row('Sleep', tg.sleepHours, log.sleepHours, n1, ' h');
+  row('Screen time', tg.screenMin, log.screenMin, formatScreen, '', '', true);
+  if (lines.length === 1) lines.push('No targets set.');
+  if (counted) lines.push(`Meals today: ${intakeText(total)}${fromMeals}`);
+  else if (t.meals.length) lines.push(`Meals today: ${t.meals.length}, no numbers yet.`);
+  else lines.push('Meals today: none logged.');
   return lines.join('\n');
 }

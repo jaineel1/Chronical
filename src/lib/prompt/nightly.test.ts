@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { STATE_OF_ME_MD } from '@/data/seed';
+import type { WebNode } from '@/data/types';
 import { compressDayLog, formatScreen, shortRoutineName, tonightBlock, type TonightInput } from './dayLog';
 import { buildDeepBlock } from './deep';
 import { DEEP_TOKEN_BUDGET, NIGHTLY_TOKEN_BUDGET, buildNightlyPrompt, type NightlyInput } from './nightly';
@@ -75,6 +76,9 @@ function input(over: Partial<NightlyInput> = {}): NightlyInput {
     monthDigests: [{ label: 'September 2026', md: 'A month of 6 AM starts.' }],
     pastDays: Array.from({ length: 30 }, (_, i) => `D${i + 1} line ${i + 1}`),
     tonight: TONIGHT,
+    notes: [],
+    tomorrow: { date: '2026-10-19', slots: [], routineWindows: [] },
+    web: { nodes: [], edges: [] },
     ...over,
   };
 }
@@ -226,6 +230,103 @@ describe('buildNightlyPrompt', () => {
     expect(md).not.toContain('₹12,000');
     expect(md).not.toContain('rent and felt lighter');
     expect(md).toContain('## BRIEF');
+  });
+});
+
+function node(i: number, over: Partial<WebNode> = {}): WebNode {
+  return {
+    id: `n${i}`,
+    createdAt: '2026-10-01T00:00:00.000Z',
+    updatedAt: '2026-10-01T00:00:00.000Z',
+    type: 'topic',
+    label: `Thread ${i}`,
+    summaryMd: `Summary ${i}. ${'w'.repeat(300)}`,
+    facts: [],
+    firstSeen: '2026-10-01',
+    lastSeen: '2026-10-18',
+    mentions: 1,
+    importance: 3,
+    ...over,
+  };
+}
+
+describe('v2 data blocks', () => {
+  const withAll = () =>
+    input({
+      notes: [
+        { time: '13:05', kind: 'rant', text: 'The group project is a mess.\nNobody replied.' },
+        { time: '16:40', kind: 'life', text: 'Coffee with Riya after Maths.' },
+      ],
+      tomorrow: {
+        date: '2026-10-19',
+        slots: [
+          { start: '11:00', end: '11:15', title: 'Break', kind: 'break' },
+          { start: '09:00', end: '10:00', title: 'Maths', kind: 'class', room: 'B-204' },
+        ],
+        routineWindows: [{ name: 'Run, 8 km', window: '06:00-07:00' }],
+      },
+      targets: { kcal: 2200, proteinG: 140, waterL: 3, sleepHours: 7.5, screenMin: 120 },
+      tonight: {
+        ...TONIGHT,
+        log: { ...TONIGHT.log!, waterL: 2.5 },
+        meals: [
+          { slot: 'breakfast', name: 'Oats', nutrition: { kcal: 380, proteinG: 12 } },
+          { slot: 'lunch', name: 'Dal rice' },
+        ],
+      },
+      web: {
+        nodes: [node(1, { label: 'Riya', type: 'person', importance: 4, facts: [{ date: '2026-10-18', text: 'Studies Maths with you' }] }), node(2, { label: 'Sub-4 marathon', type: 'goal' })],
+        edges: [{ id: 'e1', createdAt: '', updatedAt: '', from: 'n1', to: 'n2', relation: 'runs with', weight: 2, firstSeen: '2026-10-10', lastSeen: '2026-10-18' }],
+      },
+    });
+
+  it('renders notes, tomorrow, targets and the web after the glance, in that order', () => {
+    const md = buildNightlyPrompt(withAll());
+    const data = md.split('\n---\n')[1]!;
+    const order = ['## Today at a glance', "## Today's notes", "## Tomorrow's timetable", '## Targets and intake', '## Mind web', '# State of Me'].map((h) => data.indexOf(h));
+    expect(order.every((i) => i >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    expect(data).toContain("## Today's notes\n- 13:05 rant: The group project is a mess.\n  Nobody replied.\n- 16:40 life: Coffee with Riya after Maths.");
+    expect(data).toContain("## Tomorrow's timetable, Monday, 19 October\n- 09:00-10:00 Maths (B-204)\n- 11:00-11:15 Break\nRoutine windows: Run 06:00-07:00");
+    expect(data).toContain('- Calories: 380 kcal, target 2,200 kcal, short by 1,820 kcal (numbers for 1 of 2 meals)');
+    expect(data).toContain('- Protein: 12 g, target 140 g, short by 128 g');
+    expect(data).toContain('- Water: 2.5 L, target 3 L, short by 0.5 L');
+    expect(data).toContain('- Sleep: 6.5 h, target 7.5 h, short by 1 h');
+    expect(data).toContain('- Screen time: 2:10, target at most 2:00, over by 0:10');
+    expect(data).toContain('- Riya (person, importance 4, 1 mention, last 2026-10-18): Summary 1.');
+    expect(data).toContain('  - 2026-10-18: Studies Maths with you');
+    expect(data).toContain('Links:\n- Riya -> Sub-4 marathon: runs with');
+  });
+
+  it('says so when there are no notes, classes, targets or web', () => {
+    const md = buildNightlyPrompt(input({ tomorrow: { date: '2026-10-19', slots: [{ start: '11:00', end: '11:15', title: 'Break', kind: 'break' }], routineWindows: [] } }));
+    expect(md).toContain("## Today's notes\nNo notes today.");
+    expect(md).toContain("## Tomorrow's timetable, Monday, 19 October\nNo classes tomorrow.");
+    expect(md).not.toContain('11:00-11:15 Break');
+    expect(md).toContain('## Targets and intake\nNo targets set.\nMeals today: 2, no numbers yet.');
+    expect(md).toContain('## Mind web\nNothing in the web yet.');
+  });
+
+  it('asks for the seventeen sections with their rules', () => {
+    const head = buildNightlyPrompt(input()).split('\n---\n')[0]!;
+    expect(head).toContain('Reply with these seventeen sections');
+    const headers = [...head.matchAll(/^## ([A-Z_]+)$/gm)].map((m) => m[1]);
+    expect(headers).toEqual(['BRIEF', 'AFFIRMATIONS', 'QUESTS', 'STATS', 'WARNINGS', 'INSIGHTS', 'LESSON', 'MEALS', 'SUMMARY', 'ROUTINE', 'RIGHT', 'BETTER', 'FOOD', 'RANT', 'PEOPLE', 'WEB', 'PLAN']);
+    expect(head).toContain('- 06:30-07:00 | what to do | Pillar');
+    expect(head).toContain('never on top of a class');
+    expect(head).toContain('actually named in tonight');
+    expect(head).toContain('Three to eight lines in all tonight');
+    expect(head).toContain('- link: Label A -> Label B | relation | note');
+  });
+
+  it('halves the web excerpt before it touches the last 14 days', () => {
+    const nodes = Array.from({ length: 25 }, (_, i) => node(i));
+    const full = buildNightlyPrompt(input({ web: { nodes, edges: [] } }));
+    const pad = Math.ceil((NIGHTLY_TOKEN_BUDGET - estimateTokens(full)) * 4) + 800;
+    const md = buildNightlyPrompt(input({ web: { nodes, edges: [] }, tonight: { ...TONIGHT, log: { ...TONIGHT.log!, feltLine: 'f'.repeat(pad) } } }));
+    expect(estimateTokens(md)).toBeLessThanOrEqual(NIGHTLY_TOKEN_BUDGET);
+    expect(md).toContain('## Last 14 days, oldest first\nD17 line 17');
+    expect((md.match(/^- Thread /gm) ?? []).length).toBeLessThan((full.match(/^- Thread /gm) ?? []).length);
   });
 });
 
