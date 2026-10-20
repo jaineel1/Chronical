@@ -5,7 +5,7 @@ import { useSyncState } from '@/data/syncState';
 import { dayNumber, formatLongDate, todayKey } from '@/lib/dates';
 import { ChestIcon, FireIcon, MapIcon, PeopleIcon, PersonIcon, SunIcon } from '@/ui/icons';
 import { PixelSprite } from '@/ui/PixelSprite';
-import { SUN_MAP, SUN_PALETTE } from '@/ui/sprites';
+import { CAMPFIRE_LOGO_MAP, CAMPFIRE_LOGO_PALETTE } from '@/ui/sprites';
 
 const NAV = [
   { to: '/', label: 'Morning', Icon: SunIcon, end: true },
@@ -52,7 +52,7 @@ export function Shell() {
     <div className="flex min-h-dvh bg-paper text-ink">
       {/* Desktop rail */}
       <nav aria-label="Main" className="hidden w-24 shrink-0 flex-col items-center bg-ink pt-6 pb-5 lg:flex">
-        <PixelSprite map={SUN_MAP} palette={SUN_PALETTE} scale={3} className="mb-7" />
+        <PixelSprite map={CAMPFIRE_LOGO_MAP} palette={CAMPFIRE_LOGO_PALETTE} scale={3} className="mb-7" />
         {RAIL.map(({ to, label, Icon, ...rest }) => (
           <NavLink
             key={to}

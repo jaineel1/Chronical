@@ -1,36 +1,10 @@
-// Generates public/icons/{icon.svg, icon-192.png, icon-512.png, icon-512-maskable.png}
-// from the pixel campfire under a night sky on an ink square. Run: npm run icons
+// Generates public/icons/{icon.svg, icon-192.png, icon-512.png, icon-512-maskable.png, chronicle.ico}
+// from the campfire logo in src/ui/sprites.ts on an ink square. Run: npm run icons
 import { mkdir, writeFile } from 'node:fs/promises';
 import sharp from 'sharp';
+import { CAMPFIRE_LOGO_MAP as ART, CAMPFIRE_LOGO_PALETTE as PALETTE, PAPER as COLORS } from '../src/ui/sprites.ts';
 
-const INK = '#3a1219';
-const RED = '#b8323b';
-const PAPER = '#ebe3d4';
-const MID = '#8a4a52';
-const WALNUT = '#6b3f2a';
-
-// r flame, p flame core, w logs, m stars and moon.
-const PALETTE = { r: RED, p: PAPER, w: WALNUT, m: MID };
-const ART = [
-  '.m.........mm.',
-  '..........m...',
-  '......r...m...',
-  '......rr...mm.',
-  '.....rrr......',
-  '.....rrrr..m..',
-  '...r.rrprr....',
-  '...rrrrpprr...',
-  '..rrrrpppprr..',
-  '..rrrppppprr..',
-  '..rrpppppppr..',
-  '...rrpppppr...',
-  '....rrrrrr....',
-  'ww..........ww',
-  '.wwww....wwww.',
-  '....wwwwww....',
-  '.wwww....wwww.',
-  'ww..........ww',
-];
+const INK = COLORS.ink;
 
 function svg({ size, pad, maskable }) {
   const w = ART[0].length;
@@ -56,6 +30,50 @@ await sharp(Buffer.from(svg({ size: 512, pad: 64, maskable: false }))).png().toF
 await sharp(Buffer.from(svg({ size: 192, pad: 24, maskable: false }))).png().toFile('public/icons/icon-192.png');
 // Maskable: full-bleed background, artwork inside the 80% safe zone.
 await sharp(Buffer.from(svg({ size: 512, pad: 96, maskable: true }))).png().toFile('public/icons/icon-512-maskable.png');
+
+// Windows .ico for the desktop shortcut. By convention the 256 px image is PNG and the smaller ones are
+// 32-bit bitmaps (BGRA, bottom-up, followed by an all-clear AND mask): every Windows reader takes that.
+async function icoImage(size) {
+  const svgBuf = Buffer.from(svg({ size, pad: Math.round(size * 0.04), maskable: false }));
+  if (size >= 256) return sharp(svgBuf).png().toBuffer();
+  const rgba = await sharp(svgBuf).ensureAlpha().raw().toBuffer();
+  const maskRow = Math.ceil(size / 32) * 4;
+  const dib = Buffer.alloc(40 + size * size * 4 + maskRow * size);
+  dib.writeUInt32LE(40, 0); // header size
+  dib.writeInt32LE(size, 4);
+  dib.writeInt32LE(size * 2, 8); // image + mask
+  dib.writeUInt16LE(1, 12); // planes
+  dib.writeUInt16LE(32, 14); // bits per pixel
+  dib.writeUInt32LE(size * size * 4 + maskRow * size, 20);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const from = (y * size + x) * 4;
+      const to = 40 + ((size - 1 - y) * size + x) * 4;
+      dib[to] = rgba[from + 2];
+      dib[to + 1] = rgba[from + 1];
+      dib[to + 2] = rgba[from];
+      dib[to + 3] = rgba[from + 3];
+    }
+  }
+  return dib;
+}
+const sizes = [16, 24, 32, 48, 64, 256];
+const images = await Promise.all(sizes.map(icoImage));
+const header = Buffer.alloc(6 + 16 * sizes.length);
+header.writeUInt16LE(1, 2); // type: icon
+header.writeUInt16LE(sizes.length, 4);
+let offset = header.length;
+sizes.forEach((size, i) => {
+  const at = 6 + 16 * i;
+  header.writeUInt8(size >= 256 ? 0 : size, at); // 0 means 256
+  header.writeUInt8(size >= 256 ? 0 : size, at + 1);
+  header.writeUInt16LE(1, at + 4); // colour planes
+  header.writeUInt16LE(32, at + 6); // bits per pixel
+  header.writeUInt32LE(images[i].length, at + 8);
+  header.writeUInt32LE(offset, at + 12);
+  offset += images[i].length;
+});
+await writeFile('public/icons/chronicle.ico', Buffer.concat([header, ...images]));
 console.log('icons written to public/icons');
 
 // iOS app icon (1024, full bleed, no transparency) and splash (2732, ink with the sun centred).

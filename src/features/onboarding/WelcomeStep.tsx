@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from 'react-router';
 import { seedDemo } from '@/data/seed';
 import { Button, TextInput } from '@/ui/primitives';
 import { PixelSprite } from '@/ui/PixelSprite';
-import { HERO_MAP, HERO_PALETTE, SUN_MAP, SUN_PALETTE } from '@/ui/sprites';
+import { CAMPFIRE_LOGO_MAP, CAMPFIRE_LOGO_PALETTE, HERO_MAP, HERO_PALETTE } from '@/ui/sprites';
 import { NAME_QUESTION_ID, PARTS, QUESTION_COUNT } from './questions';
 import { WizardFrame } from './WizardFrame';
 import { pathForStep, useWizard } from './wizard';
@@ -61,7 +61,9 @@ export function WelcomeStep() {
   return (
     <WizardFrame title="Chronicle" meta="Day 0">
       <div className="relative h-[120px]" aria-hidden="true">
-        <PixelSprite map={SUN_MAP} palette={SUN_PALETTE} scale={4} className="absolute top-0 right-2" />
+        <div className="absolute top-0 right-2 bg-ink p-1.5">
+          <PixelSprite map={CAMPFIRE_LOGO_MAP} palette={CAMPFIRE_LOGO_PALETTE} scale={3} />
+        </div>
         <PixelSprite map={HERO_MAP} palette={HERO_PALETTE} scale={5} className="absolute top-1 left-2" />
         <div className="absolute inset-x-0 bottom-3 h-[2px] bg-faint" />
       </div>

@@ -12,6 +12,32 @@ export const PAPER = {
   walnut: '#6b3f2a',
 } as const;
 
+/**
+ * The app's logo and icon: a campfire under a night sky. 14×18. r flame, p flame core, w logs,
+ * m stars and moon. Drawn for an ink background. scripts/icons.mjs renders the app icons from it.
+ */
+export const CAMPFIRE_LOGO_MAP = [
+  '.m.........mm.',
+  '..........m...',
+  '......r...m...',
+  '......rr...mm.',
+  '.....rrr......',
+  '.....rrrr..m..',
+  '...r.rrprr....',
+  '...rrrrpprr...',
+  '..rrrrpppprr..',
+  '..rrrppppprr..',
+  '..rrpppppppr..',
+  '...rrpppppr...',
+  '....rrrrrr....',
+  'ww..........ww',
+  '.wwww....wwww.',
+  '....wwwwww....',
+  '.wwww....wwww.',
+  'ww..........ww',
+] as const;
+export const CAMPFIRE_LOGO_PALETTE = { r: PAPER.red, p: PAPER.paper, w: PAPER.walnut, m: PAPER.mid } as const;
+
 /** The player. 12×20. h hair, s skin, e eyes, t tunic, p trousers, b boots. */
 export const HERO_MAP = [
   '....hhhh....',
