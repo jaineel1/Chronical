@@ -7,14 +7,16 @@ const byCreated = <T extends { createdAt: string; id: string }>(a: T, b: T) => a
 
 export function useWorldCounts() {
   return useLiveQuery(async () => {
-    const [routines, goals, skills, people, books] = await Promise.all([
+    const [routines, goals, skills, people, books, days] = await Promise.all([
       db.routines.toArray(),
       db.goals.toArray(),
       db.skills.count(),
       db.people.count(),
       db.books.toArray(),
+      db.dayLogs.count(),
     ]);
     return {
+      days,
       routinesActive: routines.filter((r) => !r.archived).length,
       routinesArchived: routines.filter((r) => r.archived).length,
       goalsActive: goals.filter((g) => g.status === 'active').length,

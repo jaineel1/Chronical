@@ -8,7 +8,7 @@
  */
 import { db } from '@/data/db';
 import { patch, routineRepo, stamp } from '@/data/repo';
-import type { Achievement, Base, Book, Contact, Goal, Lesson, Lore, LoreItemType, Milestone, Person, Skill, VisionItem } from '@/data/types';
+import type { Achievement, Base, Book, Contact, Goal, Lesson, Lore, LoreItemType, Meal, Milestone, Person, Skill, VisionItem } from '@/data/types';
 import { nowIso } from '@/lib/dates';
 import { contactDayKey } from './people';
 import { levelAfterHours } from './skills';
@@ -277,5 +277,13 @@ export const loreRepo = {
   },
   forItem(itemType: LoreItemType, itemId: string): Promise<Lore[]> {
     return db.lore.where('[itemType+itemId]').equals([itemType, itemId]).sortBy('createdAt');
+  },
+};
+
+/** Changes to a logged meal that `mealRepo` has no method for (its slot, or which saved meal it is). */
+export const mealEditRepo = {
+  async update(id: string, changes: Pick<Partial<Meal>, 'slot' | 'foodId'>): Promise<void> {
+    const row = await patch(db.meals, id, changes);
+    if (!row) throw new Error(`No meal ${id}`);
   },
 };
