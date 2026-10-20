@@ -23,6 +23,7 @@ import { firstSentences, lessonLine, lowerFirst, wordCount } from './letterText'
 import { useActiveRoutines, useKeptAffirmations, usePeriodQuests, type PeriodQuests } from './queries';
 import { BossCard } from './BossCard';
 import { QuestList } from './QuestList';
+import { ReviewBlock } from './ReviewBlock';
 import { RoutineSuggestion } from './RoutineSuggestion';
 import { WeekGridSection } from './WeekGrid';
 import { XpScene } from './XpScene';
@@ -71,6 +72,7 @@ export function MorningScreen() {
         <div className="grid grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-10">
           <div className="flex min-w-0 flex-col gap-3.5">
             <LetterBlock view={view} desktop />
+            <ReviewBlock source={source} today={tonight} />
             {source ? <AffirmationBlock view={view} /> : null}
             <Notes view={view} desktop />
           </div>
@@ -96,6 +98,7 @@ export function MorningScreen() {
       <XpScene summary={summary} />
       <PillarsBlock view={view} />
       <LetterBlock view={view} />
+      <ReviewBlock source={source} today={tonight} />
       <QuestsBlock view={view} />
       <BossCard />
       {source ? <RoutineSuggestion log={source} rolloverHour={rollover} /> : null}

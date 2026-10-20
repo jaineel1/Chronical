@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/data/db';
-import type { Goal, Milestone, VisionItem } from '@/data/types';
+import type { Goal, Milestone, Routine, VisionItem } from '@/data/types';
 
 export interface MapData {
   /** Active and done goals; paused goals stay off the map. */
@@ -9,6 +9,23 @@ export interface MapData {
   vision: VisionItem[];
   /** Total goals including paused, to tell an empty map from a paused one. */
   goalCount: number;
+}
+
+export interface MapRoutines {
+  routines: Routine[];
+  /** Ids of routines with a done log for today. */
+  doneToday: Set<string>;
+}
+
+/** Active routines (for the shield rows) and which of them are done on `today`. */
+export function useMapRoutines(today: string): MapRoutines | undefined {
+  return useLiveQuery(async () => {
+    const [routines, logs] = await Promise.all([
+      db.routines.filter((r) => !r.archived).sortBy('sortOrder'),
+      db.routineLogs.where('date').equals(today).toArray(),
+    ]);
+    return { routines, doneToday: new Set(logs.filter((l) => l.done).map((l) => l.routineId)) };
+  }, [today]);
 }
 
 export function useMapData(): MapData | undefined {
