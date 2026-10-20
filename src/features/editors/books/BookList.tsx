@@ -3,6 +3,7 @@ import { Page } from '@/app/Shell';
 import { useShellBar } from '@/app/shellContext';
 import type { BookStatus } from '@/data/types';
 import { Button, Empty, SectionHeader } from '@/ui/primitives';
+import { bookRepo } from '../lib/repos';
 import { useBooksAll } from '../queries';
 
 export const BOOK_STATUSES: readonly BookStatus[] = ['reading', 'wishlist', 'done'];
@@ -26,16 +27,24 @@ export function BookList() {
             <SectionHeader title={BOOK_STATUS_LABEL[status]} note={`${list.length} ${list.length === 1 ? 'book' : 'books'}`} />
             <ul className="m-0 flex list-none flex-col p-0 px-2.5">
               {list.map(({ book, lessons }, i) => (
-                <li key={book.id} className={i ? 'border-t border-faint' : ''}>
-                  <Link to={`/edit/books/${book.id}`} className="flex items-baseline justify-between gap-3 py-2 text-ink no-underline">
+                <li key={book.id} className={`flex items-baseline gap-3 ${i ? 'border-t border-faint' : ''}`}>
+                  <Link to={`/edit/books/${book.id}`} className="flex min-w-0 flex-1 items-baseline justify-between gap-3 py-2 text-ink no-underline">
                     <span className="flex min-w-0 flex-col">
                       <span>{book.title}</span>
                       {book.author ? <span className="text-mid">{book.author}</span> : null}
                     </span>
                     <span className="shrink-0 text-mid">
-                      {lessons.length} {lessons.length === 1 ? 'lesson' : 'lessons'}
+                      {BOOK_STATUS_LABEL[book.status].toLowerCase()}, {lessons.length} {lessons.length === 1 ? 'lesson' : 'lessons'}
                     </span>
                   </Link>
+                  <Button
+                    variant="text"
+                    className="shrink-0"
+                    aria-label={book.status === 'reading' ? `Mark ${book.title} done` : `Reading ${book.title} now`}
+                    onClick={() => void bookRepo.update(book.id, { status: book.status === 'reading' ? 'done' : 'reading' })}
+                  >
+                    {book.status === 'reading' ? 'Done reading' : 'Reading now'}
+                  </Button>
                 </li>
               ))}
             </ul>

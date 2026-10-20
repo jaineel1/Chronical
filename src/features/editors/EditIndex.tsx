@@ -16,6 +16,7 @@ export function EditIndex() {
     { to: '/edit/skills', label: 'Skills', note: `${c.skills} ranked` },
     { to: '/edit/people', label: 'People', note: `${c.people} ${c.people === 1 ? 'branch' : 'branches'}` },
     { to: '/edit/books', label: 'Books', note: `${c.booksReading} reading of ${c.books}` },
+    { to: '/edit/days', label: 'Past days', note: `${c.days} logged` },
   ];
 
   return (

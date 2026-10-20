@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from 'react-router';
 import { EditIndex } from './EditIndex';
 import { BookEditor } from './books/BookEditor';
 import { BookList } from './books/BookList';
+import { DayEditor } from './day/DayEditor';
+import { DayList } from './day/DayList';
 import { GoalEditor } from './goals/GoalEditor';
 import { GoalList } from './goals/GoalList';
 import { VisionEditor } from './goals/VisionEditor';
@@ -22,6 +24,8 @@ import { SkillList } from './skills/SkillList';
  *   /edit/skills[/new|/:id]
  *   /edit/people[/new|/:id]
  *   /edit/books[/new|/:id]
+ *   /edit/days                    the last 60 days, and a jump-to-date box
+ *   /edit/day/:date               one past day: its log, meals and notes
  */
 export function EditorsRoutes() {
   return (
@@ -44,7 +48,9 @@ export function EditorsRoutes() {
       <Route path="books" element={<BookList />} />
       <Route path="books/new" element={<BookEditor />} />
       <Route path="books/:id" element={<BookEditor />} />
-      <Route path="*" element={<Navigate to="/edit" replace />} />
+      <Route path="days" element={<DayList />} />
+      <Route path="day/:date" element={<DayEditor />} />
+      <Route path="*"element={<Navigate to="/edit" replace />} />
     </Routes>
   );
 }
