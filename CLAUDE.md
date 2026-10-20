@@ -17,7 +17,13 @@ npm test             # vitest run (jsdom + fake-indexeddb)
 npm run build        # typecheck + vite build (PWA)
 npm run e2e          # playwright (builds nothing; runs against `vite preview` on :4173 — run `npm run build` first)
 npm run icons        # regenerate public/icons from scripts/icons.mjs
+npm run desktop      # build and run the Windows app (Electron) from the working copy
+npm run desktop:dist # build the Windows installer into release/ (does not publish)
 ```
+
+The Windows app (`electron/main.ts`, `electron-builder.yml`) serves `dist/` from `app://chronicle`. Every push to
+`main` publishes a new installer to GitHub Releases (`.github/workflows/desktop.yml`), and installed copies update
+themselves from the **Latest** release, so other workflows must not mark their releases as latest.
 
 All three of `typecheck`, `test`, `build` must be green before you report done.
 
@@ -87,7 +93,7 @@ The player's game lives on their devices and in their sync repo for years. Every
 - Backups and the sync file carry `schema`. An older app refuses newer data (`NewerDataError`, "Update this
   device first") instead of writing old-shaped rows over it. Do not weaken that check.
 - Never delete a feature's data when removing or reworking a feature: migrate it or leave it in place.
-- `npm test` gates every release: the Pages deploy, the iPhone build and the laptop launcher all stop on a failure.
+- `npm test` gates every release: the Pages deploy, the iPhone build and the Windows app all stop on a failure.
 
 ## Game rules (from the spec — implement exactly)
 

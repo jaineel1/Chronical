@@ -1,6 +1,8 @@
 node_modules
 dist
 dev-dist
+dist-electron
+release
 coverage
 e2e/output
 test-results

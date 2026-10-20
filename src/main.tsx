@@ -7,8 +7,9 @@ import { App } from './app/App';
 import { ErrorBoundary } from './app/ErrorBoundary';
 
 // Service workers are refused in some embedded previews; that is fine, the app still runs.
-// The native app ships its files inside the bundle, so it never needs the offline service worker.
-if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator && window.isSecureContext) {
+// The native app and the desktop app (app://) ship their files inside the bundle, so they never need
+// the offline service worker; only pages served over http(s) register it.
+if (!Capacitor.isNativePlatform() && location.protocol.startsWith('http') && 'serviceWorker' in navigator && window.isSecureContext) {
   try {
     registerSW({ immediate: true });
   } catch {

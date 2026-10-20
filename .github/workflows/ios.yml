@@ -60,3 +60,5 @@ jobs:
           name: iPhone build ${{ github.run_number }}
           body: Unsigned build of ${{ github.sha }}. Install with SideStore; see docs/iphone.md.
           files: ${{ runner.temp }}/Chronicle.ipa
+          # "Latest" belongs to the desktop app: its updater reads the latest release.
+          make_latest: false

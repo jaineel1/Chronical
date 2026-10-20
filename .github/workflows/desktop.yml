@@ -1,0 +1,35 @@
+# Builds the Windows app on every push to main and publishes it as release "v0.1.<run number>".
+# Installed copies check that release on launch and every 6 hours, download it in the background and
+# offer to restart (electron/main.ts). The installer is unsigned: SmartScreen warns on first install.
+name: Desktop app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # A failing test stops the release, so a broken build never reaches an installed app.
+      - run: npm test
+      # Every build gets a higher version, which is what tells installed apps there is an update.
+      - run: npm version "0.1.${{ github.run_number }}" --no-git-tag-version
+      - run: npm run desktop:build
+      - run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

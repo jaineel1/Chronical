@@ -29,6 +29,13 @@ npm run e2e          # playwright against `vite preview` on :4173 (run build fir
 `dist/` is a static site. Host it anywhere (GitHub Pages, Netlify, a `python -m http.server`). Open it on a
 phone and use *Add to Home Screen* to install it: it works offline after the first load.
 
+## Windows app
+
+Download `Chronicle-Setup-<version>.exe` from the latest release and run it (Windows SmartScreen warns because
+the installer is unsigned: *More info*, then *Run anyway*). It installs for your user only, adds Desktop and
+Start menu shortcuts, and keeps your data in `%APPDATA%\Chronicle`. Every push to `main` publishes a new
+version; the app downloads it in the background and offers to restart.
+
 ## Night 1
 
 See [docs/night-1.md](docs/night-1.md) for the first evening: onboarding, the origin prompt, the first Campfire,

@@ -1,0 +1,28 @@
+# Windows installer for Chronicle. Built and published by .github/workflows/desktop.yml.
+appId: com.jaineel.chronicle
+productName: Chronicle
+directories:
+  output: release
+# The renderer is dist/ and the main process is one bundled file: no node_modules in the app.
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - package.json
+  - '!**/node_modules/**/*'
+win:
+  target: nsis
+  icon: public/icons/chronicle.ico
+  artifactName: Chronicle-Setup-${version}.${ext}
+nsis:
+  # Per-user install: no admin prompt. Desktop and Start menu shortcuts. Data stays on uninstall.
+  oneClick: true
+  perMachine: false
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: Chronicle
+  deleteAppDataOnUninstall: false
+publish:
+  provider: github
+  owner: jaineel1
+  repo: Chronical
+  releaseType: release
