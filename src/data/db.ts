@@ -1,4 +1,5 @@
-import Dexie, { type EntityTable } from 'dexie';
+import Dexie, { type EntityTable, type Transaction } from 'dexie';
+import { MIGRATIONS, type Migration, type Row, type Tables } from './migrations';
 import type {
   Achievement,
   Assessment,
@@ -52,8 +53,9 @@ export class ChronicleDB extends Dexie {
   prompts!: EntityTable<Prompt, 'id'>;
   digests!: EntityTable<Digest, 'id'>;
 
-  constructor(name = 'chronicle') {
+  constructor(name = 'chronicle', migrations: readonly Migration[] = MIGRATIONS) {
     super(name);
+    // Shipped schema: never edit. Changes go in migrations.ts as a new version.
     this.version(1).stores({
       profile: 'id',
       pillarState: 'id, pillar',
@@ -78,6 +80,25 @@ export class ChronicleDB extends Dexie {
       prompts: 'id, kind, sentAt, subject',
       digests: 'id, kind, periodStart',
     });
+    for (const m of migrations) {
+      const version = this.version(m.version).stores(m.stores ?? {});
+      const upgrade = m.upgrade;
+      if (upgrade) version.upgrade((tx) => upgradeAllTables(tx, upgrade));
+    }
+  }
+}
+
+/** Runs one migration's pure upgrade over every table inside Dexie's upgrade transaction. */
+async function upgradeAllTables(tx: Transaction, upgrade: (tables: Tables) => Tables): Promise<void> {
+  const names = tx.storeNames;
+  const before: Tables = {};
+  for (const name of names) before[name] = await tx.table<Row, string>(name).toArray();
+  const after = upgrade(before);
+  for (const name of names) {
+    const rows = after[name] ?? [];
+    if (JSON.stringify(rows) === JSON.stringify(before[name])) continue;
+    await tx.table(name).clear();
+    if (rows.length) await tx.table(name).bulkAdd(rows);
   }
 }
 

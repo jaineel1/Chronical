@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable, type Table } from 'dexie';
 import { db, TABLE_NAMES, type TableName } from './db';
 import { newId } from './ids';
+import { migrateTables, SCHEMA_VERSION, type Tables } from './migrations';
 import { nowIso } from '@/lib/dates';
 import {
   DEFAULT_SETTINGS,
@@ -319,7 +320,12 @@ export async function exportBackup(): Promise<BackupFile> {
   for (const name of TABLE_NAMES) {
     tables[name] = await db.table(name).toArray();
   }
-  return { app: 'chronicle', version: 1, exportedAt: nowIso(), tables };
+  return { app: 'chronicle', version: 1, exportedAt: nowIso(), schema: SCHEMA_VERSION, tables };
+}
+
+/** The file's tables in the current shape. Throws for a file from a newer app (see migrations.ts). */
+export function backupTables(file: BackupFile): Record<string, unknown[]> {
+  return migrateTables(file.tables as Tables, file.schema ?? 1);
 }
 
 /**
@@ -349,7 +355,9 @@ function checkBackup(file: BackupFile, mode: 'replace' | 'merge'): void {
   }
 }
 
-export async function importBackup(file: BackupFile, mode: 'replace' | 'merge' = 'replace'): Promise<void> {
+export async function importBackup(input: BackupFile, mode: 'replace' | 'merge' = 'replace'): Promise<void> {
+  checkBackup(input, mode);
+  const file: BackupFile = { ...input, schema: SCHEMA_VERSION, tables: backupTables(input) };
   checkBackup(file, mode);
   await db.transaction('rw', TABLE_NAMES.map((n) => db.table(n)), async () => {
     for (const name of TABLE_NAMES) {

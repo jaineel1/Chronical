@@ -36,6 +36,7 @@ src/app/            router (App.tsx), Shell (top bar, bottom nav, desktop rail, 
 src/theme/          tokens.css                                                                            — foundation
 src/ui/             primitives.tsx, icons.tsx, PixelSprite.tsx, sprites.ts                                 — foundation (add, don't rewrite)
 src/data/           types.ts, db.ts (Dexie schema), repo.ts (repositories), hooks.ts (live hooks), seed.ts  — foundation (add, don't rewrite)
+src/data/           migrations.ts (schema changes, see "Updates"), sync.ts + syncState.ts (GitHub sync)
 src/lib/dates.ts    day keys, rollover, formatting                                                         — foundation
 src/lib/game/       level.ts (foundation) · pillars/streaks/shields/daily delta (Agent Loop)
 src/lib/prompt/     nightly.ts, origin.ts, weekly.ts, deep.ts (Agent Loop) · skill.ts, lore.ts (Agent World)
@@ -69,6 +70,24 @@ Put feature-specific helpers in your own feature folder.
 - Demo world: `seedDemo()` in `src/data/seed.ts` (Day 23, mirrors the mockups). `settings.demo === true`
   while it is active. `DEMO_REPLY_MD` is the canonical sample reply: the parser must parse it, and the Morning
   screen must render the seeded `DayLog` for yesterday exactly as the Morning mockup shows.
+
+## Updates: old data must keep working
+
+The player's game lives on their devices and in their sync repo for years. Every update must open it as it is.
+
+- **Never edit `version(1)` in `db.ts`, and never edit or remove a shipped entry in `src/data/migrations.ts`.**
+  Any change to stored data (new table, new index, renamed/reshaped field, a new setting that needs a value)
+  is a new entry appended to `MIGRATIONS` (`version` = previous + 1): `stores` for index changes, and a pure
+  `upgrade(tables) → tables` for row changes. The same entry upgrades IndexedDB, old backups and sync files.
+- A new table also goes into `TABLE_NAMES` in `db.ts`, or backups and sync skip it.
+- New optional fields need no migration if every reader handles `undefined`. A new required field, or a
+  new `Settings` key, gets a migration that fills it (merge `DEFAULT_SETTINGS` under the stored settings).
+- With each migration, export a backup from the new build into `tests/fixtures/backup-schema-<version>.json`.
+  Never edit or delete an existing fixture: `migrations.test.ts` imports every one into the current build.
+- Backups and the sync file carry `schema`. An older app refuses newer data (`NewerDataError`, "Update this
+  device first") instead of writing old-shaped rows over it. Do not weaken that check.
+- Never delete a feature's data when removing or reworking a feature: migrate it or leave it in place.
+- `npm test` gates every release: the Pages deploy, the iPhone build and the laptop launcher all stop on a failure.
 
 ## Game rules (from the spec — implement exactly)
 

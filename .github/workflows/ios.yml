@@ -25,6 +25,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # A failing test stops the release, so a broken build never replaces a working app on the phone.
+      - run: npm test
       - run: npm run build
       - run: npx cap sync ios
 

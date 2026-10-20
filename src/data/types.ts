@@ -356,7 +356,10 @@ export interface Digest extends Base {
 
 export interface BackupFile {
   app: 'chronicle';
+  /** Version of this file envelope. The shape of the rows inside is `schema`. */
   version: 1;
   exportedAt: string;
+  /** Data schema that wrote the tables (see data/migrations.ts). Missing in files from before it existed: 1. */
+  schema?: number;
   tables: Record<string, unknown[]>;
 }
