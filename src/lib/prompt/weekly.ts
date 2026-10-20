@@ -11,9 +11,10 @@
  * The weekly prompt carries the last seven nights in full; the monthly one carries the month's
  * weekly digests and up to 30 compressed days.
  */
-import { PILLAR_LABEL, type Pillar } from '@/data/types';
+import { PILLAR_LABEL, type Pillar, type WebEdge, type WebNode } from '@/data/types';
 import { formatLongDate } from '@/lib/dates';
 import { BOSS_HP_SHARE } from '@/lib/game/boss';
+import { webExcerpt } from '@/lib/web/excerpt';
 import { goalsBlock, stateOfMeBlock, type PromptGoal } from './nightly';
 import { GAME_MASTER_PREAMBLE, RULE, VOICE_RULES, joinBlocks, section, stripMoney } from './shared';
 
@@ -34,7 +35,14 @@ export interface WeeklyInput {
   photosLine?: string;
   /** Asks for a ## BOSS for the coming week. Left out (or no routines) → no boss section. */
   boss?: WeeklyBossInput;
+  /** The mind web; the prompt shows a short excerpt of it. */
+  web?: { nodes: WebNode[]; edges: WebEdge[] };
+  /** How many rant and life notes the week has. */
+  notesCount?: { rant: number; life: number };
 }
+
+/** The weekly prompt's web excerpt is smaller than the nightly one. */
+export const WEEKLY_WEB_TOKENS = 1_200;
 
 export interface BossPromptRoutine {
   name: string;
@@ -132,6 +140,12 @@ function warningsBlock(title: string, warnings: string[]): string | undefined {
   return section(title, [...new Set(warnings)].map((w) => `- ${w}`).join('\n'));
 }
 
+function notesCountLine({ rant, life }: { rant: number; life: number }): string {
+  const total = rant + life;
+  if (!total) return 'No notes written this week.';
+  return `${total} ${total === 1 ? 'note' : 'notes'} written during the days: ${rant} ${rant === 1 ? 'rant' : 'rants'}, ${life} ${life === 1 ? 'life line' : 'life lines'}.`;
+}
+
 export function buildWeeklyPrompt(input: WeeklyInput): string {
   const name = input.displayName.trim() || 'the player';
   const boss = input.boss && input.boss.routines.length ? input.boss : undefined;
@@ -145,6 +159,8 @@ export function buildWeeklyPrompt(input: WeeklyInput): string {
     goalsBlock(input.goals),
     warningsBlock("This week's warnings", input.warnings),
     input.photosLine ? section('Progress photos', input.photosLine) : undefined,
+    input.notesCount ? section('Notes this week', notesCountLine(input.notesCount)) : undefined,
+    input.web ? webExcerpt(input.web.nodes, input.web.edges, { maxTokens: WEEKLY_WEB_TOKENS }) : undefined,
     boss ? bossBlock(boss) : undefined,
     section('The week, night by night', input.days.length ? input.days.join('\n\n') : 'Nothing was logged this week.'),
   );

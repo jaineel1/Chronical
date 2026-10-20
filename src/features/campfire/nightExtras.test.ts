@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '@/data/db';
-import { dayLogRepo, foodRepo, mealRepo, routineRepo } from '@/data/repo';
+import { dayLogRepo, foodRepo, mealRepo, noteRepo, profileRepo, routineRepo, timetableRepo } from '@/data/repo';
 import { DEMO_REPLY_MD, seedDemo } from '@/data/seed';
-import { todayKey } from '@/lib/dates';
-import { buildNightlyPrompt } from '@/lib/prompt/nightly';
+import { addDays, todayKey, weekdayOf } from '@/lib/dates';
+import { NIGHTLY_TOKEN_BUDGET, buildNightlyPrompt } from '@/lib/prompt/nightly';
+import { estimateTokens } from '@/lib/prompt/shared';
 import { gatherNightlyInput } from './gather';
 import { acceptReply } from './nightFlow';
 
@@ -49,7 +50,7 @@ describe('more of today, meals and the new reply sections', () => {
     expect(md).toContain('## MEALS');
     expect(md).toContain('## SUMMARY');
     expect(md).toContain('## ROUTINE');
-    expect(md).toContain('Reply with these ten sections');
+    expect(md).toContain('Reply with these seventeen sections');
   });
 
   it('a pasted reply fills the meals and saved meals, keeps typed numbers, and stores the recap and routine', async () => {
@@ -81,5 +82,125 @@ describe('more of today, meals and the new reply sections', () => {
     await db.routines.put({ ...(await routineRepo.listActive())[0]!, id: 'walk', name: 'Evening walk' });
     await acceptReply(today, REPLY, ctx);
     expect((await dayLogRepo.get(today))?.routineSuggestion).toBeUndefined();
+  });
+});
+
+const V2_REPLY = `${DEMO_REPLY_MD}
+
+## RIGHT
+- 8 km run, day 15 of the streak.
+
+## BETTER
+- Lights out by 23:00.
+
+## FOOD
+- good: protein near 120 g
+- better: water 1.8 of 3 L
+
+## RANT
+It is fair to be annoyed. Send the one message before 10.
+
+## PEOPLE
+- Riya | college | lent her Maths notes
+- Dev | acquaintance | met at the gym
+- Mentor | close | finally replied
+
+## WEB
+- node: person | Riya | lent her Maths notes
+- node: place | Library | the quiet floor works
+- link: Riya -> Library | studies at
+- link: Riya -> Maths revision | helps with
+- summary: Nobody | x
+
+## PLAN
+- 06:30-07:00 | Easy 5 km | Body
+- 09:00-11:00 | Deep work | Work
+- nonsense line`;
+
+describe('the v2 night: notes, timetable, targets, the web and the plan', () => {
+  let today: string;
+
+  beforeEach(async () => {
+    await seedDemo();
+    today = todayKey();
+  });
+
+  it('puts the day\'s notes, tomorrow\'s timetable, the targets and the web into the prompt', async () => {
+    await noteRepo.add(today, 'rant', 'The group project is a mess.');
+    await noteRepo.add(today, 'life', 'Coffee with Riya.');
+    const tomorrow = addDays(today, 1);
+    await timetableRepo.add({ day: weekdayOf(tomorrow), start: '09:00', end: '10:00', title: 'Maths', kind: 'class', room: 'B-204' });
+    await timetableRepo.add({ day: weekdayOf(tomorrow), start: '11:00', end: '12:00', title: 'Old lab', kind: 'lab', to: addDays(today, -1) });
+    await timetableRepo.add({ day: (weekdayOf(tomorrow) + 1) % 7, start: '08:00', end: '09:00', title: 'Other day', kind: 'class' });
+    await profileRepo.updateSettings({ targets: { kcal: 2200, waterL: 3 } });
+
+    const md = buildNightlyPrompt(await gatherNightlyInput(today));
+    expect(md).toMatch(/## Today's notes\n- \d\d:\d\d rant: The group project is a mess.\n- \d\d:\d\d life: Coffee with Riya./);
+    expect(md).toContain('- 09:00-10:00 Maths (B-204)');
+    expect(md).not.toContain('Old lab');
+    expect(md).not.toContain('Other day');
+    expect(md).toContain('- Calories: ');
+    expect(md).toContain('target 3 L');
+    // The player's own things are in the web excerpt before anything is written.
+    expect(md).toContain('## Mind web\nThe ');
+    expect(md).toContain('- Mentor (person');
+    expect(await db.webNodes.count()).toBe(0);
+    expect(estimateTokens(md)).toBeLessThanOrEqual(NIGHTLY_TOKEN_BUDGET);
+  });
+
+  it('saves the review, food notes and rant answer, puts the plan on tomorrow, and fills people and the web', async () => {
+    const before = await db.people.count();
+    const res = await acceptReply(today, V2_REPLY, ctx);
+    expect(res.ok).toBe(true);
+    expect(res.message).toContain('Met 2 new people: Riya, Dev.');
+    // Riya (already a node from ## PEOPLE), Library, and the topic made for "Maths revision".
+    expect(res.message).toContain('Web: 3 nodes, 2 links.');
+    expect(res.message).toContain('New in the web as a topic: Maths revision.');
+    expect(res.message).toContain('Nothing in the web called Nobody, so that summary was skipped.');
+    expect(res.message).toContain('Tomorrow has a plan: 2 blocks.');
+
+    const log = await dayLogRepo.get(today);
+    expect(log?.review).toEqual({ right: ['8 km run, day 15 of the streak.'], better: ['Lights out by 23:00.'] });
+    expect(log?.foodNotes).toEqual({ good: ['protein near 120 g'], better: ['water 1.8 of 3 L'] });
+    expect(log?.rantReplyMd).toBe('It is fair to be annoyed. Send the one message before 10.');
+    expect(log?.plan).toBeUndefined();
+
+    const next = await dayLogRepo.get(addDays(today, 1));
+    expect(next?.plan?.map((b) => [b.start, b.end, b.text, b.pillar])).toEqual([
+      ['06:30', '07:00', 'Easy 5 km', 'BODY'],
+      ['09:00', '11:00', 'Deep work', 'WORK'],
+    ]);
+    expect(new Set(next!.plan!.map((b) => b.id)).size).toBe(2);
+
+    expect(await db.people.count()).toBe(before + 2);
+    const mentor = (await db.people.toArray()).find((p) => p.name === 'Mentor')!;
+    expect(mentor.lastContact).toBe(today);
+    const riya = (await db.people.toArray()).find((p) => p.name === 'Riya')!;
+    const riyaNode = await db.webNodes.filter((n) => n.refId === riya.id).toArray();
+    expect(riyaNode).toHaveLength(1);
+    expect(riyaNode[0]!.facts).toEqual([{ date: today, text: 'lent her Maths notes' }]);
+    // linkExisting ran: the demo's goals and skills have nodes too.
+    expect(await db.webNodes.filter((n) => n.type === 'skill').count()).toBeGreaterThan(0);
+    expect(await db.webEdges.count()).toBe(2);
+  });
+
+  it('a re-paste changes nothing in people, contacts or the web', async () => {
+    await acceptReply(today, V2_REPLY, ctx);
+    const counts = async () => [await db.people.count(), await db.contacts.count(), await db.webNodes.count(), await db.webEdges.count()];
+    const first = await counts();
+    const mentions = (await db.webNodes.toArray()).map((n) => `${n.label}:${n.mentions}`).sort();
+    const res = await acceptReply(today, V2_REPLY, ctx);
+    expect(res.ok).toBe(true);
+    expect(await counts()).toEqual(first);
+    expect((await db.webNodes.toArray()).map((n) => `${n.label}:${n.mentions}`).sort()).toEqual(mentions);
+  });
+
+  it('an older reply leaves tomorrow\'s plan and the web alone', async () => {
+    await dayLogRepo.update(addDays(today, 1), { plan: [{ id: 'mine', start: '07:00', end: '08:00', text: 'My own block' }] });
+    const res = await acceptReply(today, DEMO_REPLY_MD, ctx);
+    expect(res.ok).toBe(true);
+    expect(res.message).not.toContain('Web:');
+    expect((await dayLogRepo.get(addDays(today, 1)))?.plan).toEqual([{ id: 'mine', start: '07:00', end: '08:00', text: 'My own block' }]);
+    expect(await db.webEdges.count()).toBe(0);
   });
 });
