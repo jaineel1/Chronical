@@ -13,12 +13,15 @@ import { PromptHandoff } from '@/ui/PromptHandoff';
 import { ExtrasSection } from './ExtrasSection';
 import { Section, SectionHeader } from '@/ui/primitives';
 import { FireScene } from './FireScene';
+import { IntakeSection } from './IntakeSection';
+import { LifeFeed } from './LifeFeed';
 import { MealsSection } from './MealsSection';
 import { acceptReply, sendNight, type SendContext } from './nightFlow';
 import { NumbersSection } from './NumbersSection';
 import { LineInput, TextButton, TextLink, useNow } from './parts';
 import { useFoods, useKnownNouns, useMeals, useNightlyPrompt, useReadingBooks, useRoutineLogs } from './queries';
 import { questionsFor } from './questions';
+import { RantSection } from './RantSection';
 import { ReviewPanel } from './ReviewPanel';
 import { RoutinesSection } from './RoutinesSection';
 
@@ -101,6 +104,7 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
           <RoutinesSection date={date} routines={routines} logs={logs} closed={closed} notes={notes} />
           <NumbersSection date={date} log={log} yesterday={yesterday} />
           <MealsSection date={date} meals={meals} foods={foods} />
+          <IntakeSection log={log} meals={meals} targets={profile.settings.targets} />
           <ExtrasSection date={date} log={log} meals={meals} />
           <Section>
             <LessonField date={date} log={log} books={books} />
@@ -112,6 +116,8 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
             </div>
           </Section>
           <Questions date={date} night={night} log={log} />
+          <RantSection date={date} log={log} />
+          <LifeFeed date={date} />
           {promptMd !== undefined ? (
             <PromptHandoff
               promptMd={promptMd}
