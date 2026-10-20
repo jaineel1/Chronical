@@ -63,7 +63,7 @@ export function WebScreen() {
             <NodeRow key={n.id} node={n} first={i === 0} active={n.id === selectedId} onOpen={() => setSelectedId(n.id)} />
           ))}
         </div>
-        <div className={`min-w-0 ${selected ? '' : 'max-lg:hidden'}`} data-testid="web-detail">
+        <div className={`min-w-0 lg:sticky lg:top-4 lg:self-start ${selected ? '' : 'max-lg:hidden'}`} data-testid="web-detail">
           {selected ? (
             <Detail
               key={selected.id}

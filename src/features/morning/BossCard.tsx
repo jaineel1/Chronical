@@ -70,7 +70,7 @@ export function BossCard() {
           </div>
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
             <span className="flex items-baseline justify-between gap-3">
-              <span className="min-w-0 truncate">{boss.name}</span>
+              <span className="min-w-0 break-words">{boss.name}</span>
               <span className="shrink-0 text-mid">{PILLAR_LABEL[boss.pillar]}</span>
             </span>
             {boss.taunt ? <span className="text-mid">{boss.taunt}</span> : null}
@@ -88,7 +88,7 @@ export function BossCard() {
           <span className="text-mid">Weak to</span>
           {state.hits.map((h, i) => (
             <div key={`${h.name}-${i}`} className="flex items-baseline justify-between gap-3 border-b border-faint py-1 last:border-b-0">
-              <span className="min-w-0 truncate">{h.name}</span>
+              <span className="min-w-0 break-words">{h.name}</span>
               <span className="shrink-0 text-mid">{h.weight ? `${h.weight} a hit, ${h.damage} dealt` : 'not one of your routines'}</span>
             </div>
           ))}

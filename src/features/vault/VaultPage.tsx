@@ -9,16 +9,19 @@ export function VaultPage({
   title,
   meta,
   back = { to: '/vault', label: 'Vault' },
+  wide = false,
   children,
 }: {
   title: string;
   meta?: string;
   back?: { to: string; label: string } | null;
+  /** Use the full desktop width (for screens with a two-column layout). */
+  wide?: boolean;
   children: ReactNode;
 }) {
   useShellBar(title, meta);
   return (
-    <Page>
+    <Page wide={wide}>
       {back ? <BackLink to={back.to} label={back.label} /> : null}
       {children}
     </Page>

@@ -96,15 +96,21 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
   const ctx: SendContext = { promptMd: promptMd ?? '', model: deep ? MODEL_LABEL.deep : MODEL_LABEL.nightly, kind: deep ? 'deep' : 'nightly' };
 
   return (
-    <Page>
+    <Page wide>
+      <div className="flex flex-col gap-2 lg:max-w-[760px]">
       <FireScene logged={logged} total={total} />
       {log?.briefMd ? <LetterIn editing={editing} summary={log.summaryMd} rantReply={editing ? undefined : log.rantReplyMd} onEdit={() => setEditing(true)} /> : null}
+      </div>
       {editing ? (
         <>
+          <div className="grid grid-cols-1 gap-x-10 gap-y-2 lg:grid-cols-2 lg:items-start">
+          <div className="flex min-w-0 flex-col gap-2">
           <RoutinesSection date={date} routines={routines} logs={logs} closed={closed} notes={notes} />
           <NumbersSection date={date} log={log} yesterday={yesterday} />
           <MealsSection date={date} meals={meals} foods={foods} />
           <IntakeSection log={log} meals={meals} targets={profile.settings.targets} />
+          </div>
+          <div className="flex min-w-0 flex-col gap-2">
           <ExtrasSection date={date} log={log} meals={meals} />
           <Section>
             <LessonField date={date} log={log} books={books} />
@@ -118,6 +124,9 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
           <Questions date={date} night={night} log={log} />
           <RantSection date={date} log={log} />
           <LifeFeed date={date} />
+          </div>
+          </div>
+          <div className="flex flex-col gap-2 lg:max-w-[760px]">
           {promptMd !== undefined ? (
             <PromptHandoff
               promptMd={promptMd}
@@ -138,9 +147,12 @@ function NightLog({ date, night, profile, onReview }: { date: string; night: num
               {sendError ? <span className="text-red">The night could not be closed ({sendError}). Copy it again to retry.</span> : null}
             </PromptHandoff>
           ) : null}
+          </div>
         </>
       ) : null}
-      <ReviewLinks date={date} onReview={onReview} />
+      <div className="lg:max-w-[760px]">
+        <ReviewLinks date={date} onReview={onReview} />
+      </div>
     </Page>
   );
 }

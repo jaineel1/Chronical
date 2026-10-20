@@ -10,7 +10,7 @@ export function SectionHeader({ title, note, action }: { title: ReactNode; note?
     <div className="flex items-baseline justify-between gap-3 bg-paper-2 px-2.5 py-[3px]">
       <span>{title}</span>
       <span className="flex items-baseline gap-3">
-        {note ? <span className="text-mid">{note}</span> : null}
+        {note ? <span className="text-right text-mid">{note}</span> : null}
         {action}
       </span>
     </div>

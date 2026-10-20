@@ -290,7 +290,9 @@ export function TimetableScreen() {
   const close = () => setEditing(null);
 
   return (
-    <VaultPage title="Timetable" meta={entries ? plural(entries.length, 'slot') : undefined}>
+    <VaultPage title="Timetable" meta={entries ? plural(entries.length, 'slot') : undefined} wide>
+      <div className="grid grid-cols-1 gap-x-10 gap-y-2 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+      <div className="flex min-w-0 flex-col gap-2">
       <SectionHeader
         title="Week"
         action={
@@ -305,7 +307,9 @@ export function TimetableScreen() {
         ) : null}
         {entries === undefined ? null : <Grid entries={entries} selectedId={selected?.id} onSelect={setEditing} />}
       </Section>
+      </div>
 
+      <div className="flex min-w-0 flex-col gap-2">
       {editing === 'new' || selected ? (
         <>
           <SectionHeader title={selected ? 'Edit slot' : 'New slot'} note={selected ? `${DAY_LONG[selected.day]}, ${selected.start}-${selected.end}` : undefined} />
@@ -319,6 +323,8 @@ export function TimetableScreen() {
       <Section className="gap-0">
         {entries === undefined ? null : TIMETABLE_PRESETS.map((p) => <PresetRow key={p.id} preset={p} existing={entries.length} />)}
       </Section>
+      </div>
+      </div>
     </VaultPage>
   );
 }

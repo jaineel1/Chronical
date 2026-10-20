@@ -55,6 +55,9 @@ export function MapScreen() {
           />
         ))}
       </div>
+      {routines.routines.length > 0 ? (
+        <span className="px-2.5 text-mid">Shields: one per routine per week. Faint is spent. Red outline: today is not done.</span>
+      ) : null}
       {!empty ? (
         <TextLink to="/edit/goals/new" className="px-2.5 pt-1">
           Add a goal
@@ -127,7 +130,6 @@ function Region({
                   <ShieldMark key={r.id} routine={r} state={shieldState(r, today, doneToday.has(r.id))} />
                 ))}
               </div>
-              <span className="text-mid">One shield per routine per week. Faint is spent. Red outline: today is not done.</span>
             </div>
           ) : null}
           <div className="flex items-center justify-between">
@@ -135,7 +137,7 @@ function Region({
             <TextLink to="/edit/routines">Options</TextLink>
           </div>
         </div>
-        {fog ? <span className="text-red">Still in fog. The lowest region clears as it levels.</span> : null}
+        {fog ? <span className="text-mid">Still in fog. The lowest region clears as it levels.</span> : null}
       </div>
     </section>
   );

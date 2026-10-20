@@ -13,7 +13,7 @@ export function QuickCapture() {
   const date = todayKey(profile.settings.rolloverHour ?? DEFAULT_ROLLOVER_HOUR, now);
   return (
     <>
-      <SectionHeader title="Quick capture" note="goes into tonight's prompt" />
+      <SectionHeader title="Quick capture" note="for tonight" />
       <Section>
         <LifeLineForm date={date} id="quick-life-line" />
         <TextLink to="/campfire">Open the rant box</TextLink>

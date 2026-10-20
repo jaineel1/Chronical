@@ -54,11 +54,20 @@ function Block({ block, top, height, lane, lanes, current, onToggle }: {
   };
   const cls = `absolute box-border overflow-hidden border border-faint px-1.5 text-left ${KIND_CLASS[block.kind]} ${current ? 'outline outline-1 outline-ink' : ''}`;
   const done = block.done === true;
-  const body = (
+  const narrow = lanes > 1;
+  const when = block.kind === 'plan' && done ? 'done' : `${block.start}-${block.end}`;
+  const body = narrow ? (
+    // Side by side with another block: no room for title and time on one line, so stack them and let the title wrap.
+    <>
+      <span className={`block ${tight ? 'truncate text-[12px] leading-[14px]' : 'break-words'} ${done ? 'text-mid line-through' : ''}`}>{block.title}</span>
+      {!tight ? <span className="block text-mid">{when}</span> : null}
+      {!tight && block.sub ? <span className="block break-words text-mid">{block.sub}</span> : null}
+    </>
+  ) : (
     <>
       <span className={`flex items-baseline justify-between gap-2 ${tight ? 'text-[12px] leading-[14px]' : ''}`}>
         <span className={`min-w-0 truncate ${done ? 'text-mid line-through' : ''}`}>{block.title}</span>
-        <span className="shrink-0 text-mid">{block.kind === 'plan' && done ? 'done' : `${block.start}-${block.end}`}</span>
+        <span className="shrink-0 text-mid">{when}</span>
       </span>
       {!tight && block.sub ? <span className="block truncate text-mid">{block.sub}</span> : null}
     </>
@@ -128,8 +137,8 @@ export function NowScreen() {
   const status = !isToday ? null : current ? `Now: ${current.title}, until ${current.end}` : freeUntil ? `Free until ${freeUntil}` : null;
 
   return (
-    <Page>
-      <div className="flex items-center justify-between gap-3">
+    <Page wide>
+      <div className="flex items-center justify-between gap-3 lg:max-w-[760px]">
         <Button variant="outline" onClick={() => setPicked(addDays(date, -1))}>
           {relativeLabel(addDays(date, -1), today)}
         </Button>
@@ -143,6 +152,8 @@ export function NowScreen() {
         </Button>
       </div>
 
+      <div className="grid grid-cols-1 gap-x-10 lg:grid-cols-[minmax(0,720px)_minmax(240px,340px)]">
+      <div className="flex min-w-0 flex-col gap-2">
       <SectionHeader title={formatLongDate(date)} note={isToday ? formatMinute(now.getHours() * 60 + now.getMinutes()) : relativeLabel(date, today)} />
       <Section>
         {status ? <span>{status}</span> : null}
@@ -193,6 +204,24 @@ export function NowScreen() {
           </div>
         ) : null}
       </Section>
+      </div>
+      {timeline.length > 0 ? (
+        <div className="hidden min-w-0 flex-col gap-2 lg:flex" data-testid="agenda">
+          <SectionHeader title="The day in order" note={`${timeline.length} blocks`} />
+          <Section>
+            {timeline.map((b) => (
+              <div key={b.id} className={`flex items-baseline justify-between gap-3 border-b border-faint py-1 last:border-b-0 ${b.kind === 'break' ? 'text-mid' : ''}`}>
+                <span className="min-w-0">
+                  <span className={b.done ? 'text-mid line-through' : ''}>{b.title}</span>
+                  {b.sub ? <span className="block text-mid">{b.sub}</span> : null}
+                </span>
+                <span className="shrink-0 text-mid">{b.start}</span>
+              </div>
+            ))}
+          </Section>
+        </div>
+      ) : null}
+      </div>
     </Page>
   );
 }
