@@ -135,7 +135,10 @@ describe('the v2 night: notes, timetable, targets, the web and the plan', () => 
     await profileRepo.updateSettings({ targets: { kcal: 2200, waterL: 3 } });
 
     const md = buildNightlyPrompt(await gatherNightlyInput(today));
-    expect(md).toMatch(/## Today's notes\n- \d\d:\d\d rant: The group project is a mess.\n- \d\d:\d\d life: Coffee with Riya./);
+    // Both notes land in the same millisecond here, so their order is not fixed; real notes are minutes apart.
+    const notes = md.split("## Today's notes\n")[1]?.split('\n\n')[0] ?? '';
+    expect(notes).toMatch(/^- \d\d:\d\d rant: The group project is a mess\.$/m);
+    expect(notes).toMatch(/^- \d\d:\d\d life: Coffee with Riya\.$/m);
     expect(md).toContain('- 09:00-10:00 Maths (B-204)');
     expect(md).not.toContain('Old lab');
     expect(md).not.toContain('Other day');
