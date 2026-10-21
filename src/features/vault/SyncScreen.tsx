@@ -157,7 +157,16 @@ export function SyncScreen() {
                 </Button>
               </div>
             ) : (
-              <span className="text-mid">GitHub has no game yet and neither does this device. Start a game on the laptop first, then come back here.</span>
+              <div className="flex flex-col gap-1" data-testid="sync-empty-both">
+                <span>{sync.config?.repo ?? 'The repo'} is empty: no device has put a game there yet.</span>
+                <span className="text-mid">
+                  On the device that has your game (the laptop app): Vault, then Sync, enter this same repo and token, Save and check, then Put this
+                  device&apos;s game on GitHub. Then tap Save and check here again.
+                </span>
+                <Button variant="outline" className="self-start" onClick={() => void check()} disabled={busy}>
+                  Check again
+                </Button>
+              </div>
             )}
           </Section>
         </>
