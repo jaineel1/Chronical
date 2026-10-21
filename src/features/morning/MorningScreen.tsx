@@ -2,16 +2,17 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Page } from '@/app/Shell';
 import { useShellBar } from '@/app/shellContext';
 import { useDayLog, useLatestBrief, usePillars, useProfile } from '@/data/hooks';
-import { PILLARS, PILLAR_LABEL, type DayLog, type Pillar, type PillarState, type Profile } from '@/data/types';
+import { PILLARS, PILLAR_LABEL, type DayLog, type Pillar, type PillarState, type Profile, type Quest, type Routine, type RoutineLog } from '@/data/types';
 import { DEFAULT_ROLLOVER_HOUR, addDays, formatLongDate, todayKey } from '@/lib/dates';
 import { dayNoFor, mondayOf } from '@/lib/game/calendar';
 import { pillarTotals } from '@/lib/game/daily';
 import { displayLevel } from '@/lib/game/level';
 import { nightMoves, type PillarMove } from '@/lib/game/rewards';
-import { isShieldNote, planClose, summariseNightWarnings } from '@/lib/game/streaks';
+import { planClose, summariseNightWarnings } from '@/lib/game/streaks';
 import { playerSummary, weekGrid, type PlayerSummary } from '@/lib/game/xp';
-import { isPeriodQuest } from '@/lib/parse/weekly';
+import { PERIOD_QUEST_PREFIX, isPeriodQuest } from '@/lib/parse/weekly';
 import { Empty, Section, SectionHeader } from '@/ui/primitives';
+import { dayLogRepo } from '@/data/repo';
 import { FillStatRow } from '@/ui/fx/FillStatRow';
 import { LevelUpBanner } from '@/ui/fx/LevelUpBanner';
 import { claimNight } from '@/ui/fx/nightOnce';
@@ -19,8 +20,13 @@ import { ButtonLink, useIsDesktop, useNow } from '@/features/campfire/parts';
 import { useKnownNouns, useRoutineLogs } from '@/features/campfire/queries';
 import { AffirmationRow } from './AffirmationRow';
 import { Letter } from './Letter';
-import { firstSentences, lessonLine, lowerFirst, wordCount } from './letterText';
-import { useActiveRoutines, useKeptAffirmations, usePeriodQuests, type PeriodQuests } from './queries';
+import { firstSentences, wordCount } from './letterText';
+import { useActiveRoutines, useKeptAffirmations, useNameTargets, usePeriodQuests, type PeriodQuests } from './queries';
+import { EditableSection } from './edit/EditableSection';
+import { ProseEditor } from './edit/ProseEditor';
+import { QuestEditor } from './edit/QuestEditor';
+import { EditLinksRow, NotesArea } from './NotesArea';
+import type { NameTarget } from './linkNames';
 import { BossCard } from './BossCard';
 import { NowStrip } from '@/features/now/NowStrip';
 import { QuickCapture } from '@/features/campfire/QuickCapture';
@@ -49,9 +55,10 @@ export function MorningScreen() {
   const kept = useKeptAffirmations(source?.date);
   const period = usePeriodQuests(today);
   const tonight = useDayLog(today);
+  const targets = useNameTargets();
   const desktop = useIsDesktop();
 
-  if (!profile || source === undefined || !routines || !logs || !nouns || !kept || !period || tonight === undefined) return <Page>{null}</Page>;
+  if (!profile || source === undefined || !routines || !logs || !nouns || !kept || !period || !targets || tonight === undefined) return <Page>{null}</Page>;
 
   const nightNotes = source?.closedAt ? summariseNightWarnings(planClose(routines, logs, source.date, rollover).warnings) : [];
   const view: MorningView = {
@@ -65,6 +72,9 @@ export function MorningScreen() {
     nouns,
     kept,
     period,
+    targets,
+    routines,
+    logs,
   };
 
   if (desktop) {
@@ -78,6 +88,7 @@ export function MorningScreen() {
             <ReviewBlock source={source} today={tonight} />
             {source ? <AffirmationBlock view={view} /> : null}
             <Notes view={view} desktop />
+            <EditLinksRow />
           </div>
           <div className="flex min-w-0 flex-col gap-4">
             <XpScene summary={summary} />
@@ -110,6 +121,7 @@ export function MorningScreen() {
       <QuickCapture />
       {source ? <AffirmationBlock view={view} /> : null}
       <Notes view={view} />
+      <EditLinksRow />
     </Page>
   );
 }
@@ -125,6 +137,9 @@ interface MorningView {
   nouns: string[];
   kept: Set<string>;
   period: PeriodQuests[];
+  targets: NameTarget[];
+  routines: Routine[];
+  logs: RoutineLog[];
 }
 
 function fmtDelta(n: number): string {
@@ -229,26 +244,42 @@ function LetterBlock({ view, desktop = false }: { view: MorningView; desktop?: b
   const older = source.date < yesterday;
   const collapsed = !desktop && !expanded ? firstSentences(source.briefMd, 2) : undefined;
   return (
-    <>
-      <SectionHeader title="This morning's letter" note={note} />
-      <Section>
-        <div className={`flex flex-col ${desktop ? 'gap-3.5' : 'gap-1.5'}`}>
-          {older ? <span className="text-mid">From Night {dayNoFor(profile.startedAt, source.date, rollover)}</span> : null}
-          <Letter md={source.briefMd} paragraphs={collapsed ? [collapsed.text] : undefined} large={desktop} />
-          {collapsed?.more ? (
-            <button type="button" className="cursor-pointer self-start border-0 bg-transparent p-0 text-mid" onClick={() => setExpanded(true)}>
-              Read the whole letter
-            </button>
-          ) : null}
-          {source.summaryMd ? (
-            <p className="m-0 text-mid" data-testid="morning-summary">
-              The day in numbers: {source.summaryMd}
-            </p>
-          ) : null}
-        </div>
-      </Section>
-    </>
+    <EditableSection
+      title="This morning's letter"
+      note={note}
+      label="the letter"
+      edit={(close) => (
+        <ProseEditor
+          label="The letter"
+          initial={source.briefMd ?? ''}
+          rows={14}
+          onSave={async (briefMd) => {
+            if (!briefMd) throw new Error('The letter cannot be empty.');
+            await dayLogRepo.update(source.date, { briefMd });
+            close();
+          }}
+          onCancel={close}
+        />
+      )}
+    >
+      <div className={`flex flex-col ${desktop ? 'gap-3.5' : 'gap-1.5'}`}>
+        {older ? <span className="text-mid">From Night {dayNoFor(profile.startedAt, source.date, rollover)}</span> : null}
+        <Letter md={source.briefMd} paragraphs={collapsed ? [collapsed.text] : undefined} large={desktop} />
+        {collapsed?.more ? (
+          <button type="button" className="cursor-pointer self-start border-0 bg-transparent p-0 text-mid" onClick={() => setExpanded(true)}>
+            Read the whole letter
+          </button>
+        ) : null}
+      </div>
+    </EditableSection>
   );
+}
+
+/** Replace the quests the editor opened with its result, leaving the day's other quests alone. */
+async function saveQuests(date: string, openedIds: ReadonlySet<string>, next: Quest[]): Promise<void> {
+  const log = await dayLogRepo.get(date);
+  if (!log) throw new Error('That day is no longer saved.');
+  await dayLogRepo.update(date, { quests: [...next, ...log.quests.filter((q) => !openedIds.has(q.id))] });
 }
 
 function QuestsBlock({ view, desktop = false }: { view: MorningView; desktop?: boolean }) {
@@ -257,21 +288,48 @@ function QuestsBlock({ view, desktop = false }: { view: MorningView; desktop?: b
   return (
     <>
       {source && today.length ? (
-        <>
-          <SectionHeader title="Today's quests" note={`${today.filter((q) => !q.done).length} of ${today.length} open`} />
-          <Section>
-            <QuestList date={source.date} quests={today} desktop={desktop} testId="quests" />
-          </Section>
-        </>
+        <EditableSection
+          title="Today's quests"
+          note={`${today.filter((q) => !q.done).length} of ${today.length} open`}
+          label="today's quests"
+          edit={(close) => (
+            <QuestEditor
+              initial={today}
+              onSave={async (next) => {
+                await saveQuests(source.date, new Set(today.map((q) => q.id)), next);
+                close();
+              }}
+              onCancel={close}
+            />
+          )}
+        >
+          <QuestList date={source.date} quests={today} desktop={desktop} testId="quests" />
+        </EditableSection>
       ) : null}
-      {period.map((p) => (
-        <div key={p.kind} className="flex flex-col gap-2">
-          <SectionHeader title={p.kind === 'weekly' ? 'Quests for the week' : 'Quests for the month'} note={`${p.quests.filter((q) => !q.done).length} of ${p.quests.length} open`} />
-          <Section>
+      {period.map((p) => {
+        const title = p.kind === 'weekly' ? 'Quests for the week' : 'Quests for the month';
+        return (
+          <EditableSection
+            key={p.kind}
+            title={title}
+            note={`${p.quests.filter((q) => !q.done).length} of ${p.quests.length} open`}
+            label={title.toLowerCase()}
+            edit={(close) => (
+              <QuestEditor
+                initial={p.quests}
+                idPrefix={PERIOD_QUEST_PREFIX[p.kind]}
+                onSave={async (next) => {
+                  await saveQuests(p.log.date, new Set(p.quests.map((q) => q.id)), next);
+                  close();
+                }}
+                onCancel={close}
+              />
+            )}
+          >
             <QuestList date={p.log.date} quests={p.quests} desktop={desktop} />
-          </Section>
-        </div>
-      ))}
+          </EditableSection>
+        );
+      })}
     </>
   );
 }
@@ -283,40 +341,6 @@ function AffirmationBlock({ view }: { view: MorningView }) {
 }
 
 function Notes({ view, desktop = false }: { view: MorningView; desktop?: boolean }) {
-  const { source, warnings, nouns } = view;
-  const insights = (source?.insights ?? []).map((i) => `Pattern noticed: ${lowerFirst(i, nouns)}`);
-  const lesson = source?.lessonMd ? lessonLine(source.lessonMd) : undefined;
-  if (!warnings.length && !insights.length && !lesson) return null;
-  // A used shield is the game working, so it reads in mid; Claude's warnings and broken streaks are red.
-  const warningLines = warnings.map((w) => (
-    <span key={`w-${w}`} className={isShieldNote(w) ? 'text-mid' : 'text-red'}>
-      {w}
-    </span>
-  ));
-  const quiet = [
-    ...insights.map((i) => (
-      <span key={`i-${i}`} className="text-mid">
-        {i}
-      </span>
-    )),
-    lesson ? (
-      <span key="lesson" className="text-mid">
-        {lesson}
-      </span>
-    ) : null,
-  ];
-  if (desktop) {
-    return (
-      <div className="mt-auto flex flex-col gap-1.5 border-t border-faint pt-3.5" data-testid="notes">
-        {quiet}
-        {warningLines}
-      </div>
-    );
-  }
-  return (
-    <div className="flex flex-col gap-1.5 px-2.5 pt-1" data-testid="notes">
-      {warningLines}
-      {quiet}
-    </div>
-  );
+  const { source, warnings, routines, logs, targets } = view;
+  return <NotesArea source={source} warnings={warnings} routines={routines} logs={logs} targets={targets} desktop={desktop} />;
 }

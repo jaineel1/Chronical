@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { affirmationRepo } from '@/data/repo';
+import { affirmationRepo, dayLogRepo } from '@/data/repo';
 import { isGenericAffirmation } from '@/lib/parse/reply';
 import { Button } from '@/ui/primitives';
+import { EditableSection } from './edit/EditableSection';
+import { LineListEditor } from './edit/LineListEditor';
 
 /**
  * One affirmation at a time, italic serif, with "Keep". Keeping saves it and shows the next one;
- * after the last it reads "Kept". Lines with no number and no name from the log are marked generic.
+ * after the last it reads "Kept". A line with no number and no name from the log carries a quiet
+ * "no number or name" title, shown on hover only. "Edit" opens every line for editing.
  */
 export function AffirmationRow({ date, affirmations, kept, knownNouns }: { date: string; affirmations: string[]; kept: Set<string>; knownNouns: string[] }) {
   const [index, setIndex] = useState<number | null>(null);
@@ -24,14 +27,32 @@ export function AffirmationRow({ date, affirmations, kept, knownNouns }: { date:
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 border-t border-faint px-2.5 pt-2" data-testid="affirmation">
-      <p className="m-0 font-serif text-[15px] leading-[1.45] italic">
-        {text}
-        {generic ? <span className="font-pixel text-mid not-italic"> (generic)</span> : null}
-      </p>
-      <Button variant="outline" className="shrink-0" onClick={() => void keep()} disabled={isKept} aria-label={isKept ? 'Kept' : 'Keep this affirmation'}>
-        {isKept ? 'Kept' : 'Keep'}
-      </Button>
-    </div>
+    <EditableSection
+      title="Affirmation"
+      note={affirmations.length > 1 ? `${i + 1} of ${affirmations.length}` : undefined}
+      label="the affirmations"
+      testId="affirmation"
+      edit={(close) => (
+        <LineListEditor
+          label="Affirmation"
+          initial={affirmations}
+          onSave={async (lines) => {
+            await dayLogRepo.update(date, { affirmations: lines });
+            setIndex(null);
+            close();
+          }}
+          onCancel={close}
+        />
+      )}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p className="m-0 font-serif text-[15px] leading-[1.45] italic" title={generic ? 'No number or name from your log' : undefined}>
+          {text}
+        </p>
+        <Button variant="outline" className="shrink-0" onClick={() => void keep()} disabled={isKept} aria-label={isKept ? 'Kept' : 'Keep this affirmation'}>
+          {isKept ? 'Kept' : 'Keep'}
+        </Button>
+      </div>
+    </EditableSection>
   );
 }

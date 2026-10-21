@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import type { RoutineWithLog } from '@/data/hooks';
 import { routineLogRepo } from '@/data/repo';
 import type { RoutineLog } from '@/data/types';
@@ -48,22 +49,27 @@ export function RoutinesSection({ date, routines, logs, closed, notes }: Props) 
     const tick = ticked.get(routine.id);
     const roll = grew.get(routine.id);
     return (
-      <label key={routine.id} className="flex cursor-pointer items-center gap-3">
-        <LiveCheck className={pulseClass(tick)} checked={!!log?.done} onCheckedChange={(next) => toggle(routine.id, next)} aria-label={routine.name} />
-        <span className="relative min-w-0 flex-1">
-          {routine.name}
-          {routine.weight > 0 ? <TickPop nonce={tick} text={formatGain(routine.weight)} className="right-1" /> : null}
-        </span>
-        <span className="shrink-0 overflow-hidden text-mid">
-          {scheduledToday ? (
-            <span key={roll ?? 'still'} className={`block ${roll === undefined ? '' : 'rw-tick'}`}>
-              {formatStreak(streak)}
-            </span>
-          ) : (
-            'not today'
-          )}
-        </span>
-      </label>
+      <div key={routine.id} className="flex items-center gap-3">
+        <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
+          <LiveCheck className={pulseClass(tick)} checked={!!log?.done} onCheckedChange={(next) => toggle(routine.id, next)} aria-label={routine.name} />
+          <span className="relative min-w-0 flex-1">
+            {routine.name}
+            {routine.weight > 0 ? <TickPop nonce={tick} text={formatGain(routine.weight)} className="right-1" /> : null}
+          </span>
+          <span className="shrink-0 overflow-hidden text-mid">
+            {scheduledToday ? (
+              <span key={roll ?? 'still'} className={`block ${roll === undefined ? '' : 'rw-tick'}`}>
+                {formatStreak(streak)}
+              </span>
+            ) : (
+              'not today'
+            )}
+          </span>
+        </label>
+        <Link to={`/edit/routines/${routine.id}`} aria-label={`Edit ${routine.name}`} className="shrink-0 text-walnut no-underline">
+          edit
+        </Link>
+      </div>
     );
   };
 

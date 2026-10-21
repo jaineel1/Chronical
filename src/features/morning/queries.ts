@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/data/db';
 import { routineRepo } from '@/data/repo';
 import type { DayLog, Quest, Routine } from '@/data/types';
+import type { NameTarget } from './linkNames';
 import { addDays } from '@/lib/dates';
 import { PERIOD_QUEST_PREFIX } from '@/lib/parse/weekly';
 
@@ -46,4 +47,24 @@ export function usePeriodQuests(today: string): PeriodQuests[] | undefined {
     }
     return out;
   }, [today]);
+}
+
+/** The player's active routines, goals, skills, people and books, each with the route of its editor. */
+export function useNameTargets(): NameTarget[] | undefined {
+  return useLiveQuery(async () => {
+    const [routines, goals, skills, people, books] = await Promise.all([
+      routineRepo.listActive(),
+      db.goals.where('status').equals('active').toArray(),
+      db.skills.toArray(),
+      db.people.toArray(),
+      db.books.toArray(),
+    ]);
+    return [
+      ...routines.map((r) => ({ name: r.name, to: `/edit/routines/${r.id}` })),
+      ...goals.map((g) => ({ name: g.title, to: `/edit/goals/${g.id}` })),
+      ...skills.map((s) => ({ name: s.name, to: `/edit/skills/${s.id}` })),
+      ...people.map((p) => ({ name: p.name, to: `/edit/people/${p.id}` })),
+      ...books.map((b) => ({ name: b.title, to: `/edit/books/${b.id}` })),
+    ];
+  }, []);
 }

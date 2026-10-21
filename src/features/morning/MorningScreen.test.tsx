@@ -33,7 +33,7 @@ describe('MorningScreen', () => {
     expect(screen.queryByText("Today's quests")).not.toBeInTheDocument();
   });
 
-  it('says which night an older letter came from, omits empty quests, and marks a generic affirmation', async () => {
+  it('says which night an older letter came from, omits empty quests, and marks a generic affirmation by title only', async () => {
     const date = addDays(todayKey(), -3);
     await dayLogRepo.update(date, {
       briefMd: 'Day 7. You slept 8 hours.\n\nKeep going.',
@@ -47,10 +47,13 @@ describe('MorningScreen', () => {
     expect(screen.getByText('since Night 7')).toBeInTheDocument();
     expect(screen.getByTestId('letter')).toHaveTextContent('ay 7. You slept 8 hours.');
     expect(screen.queryByText("Today's quests")).not.toBeInTheDocument();
-    expect(screen.getByText('(generic)')).toBeInTheDocument();
-    expect(screen.getByText('Sleep slipped twice.')).toHaveClass('text-red');
-    expect(screen.getByText('Pattern noticed: runs follow early nights.')).toBeInTheDocument();
-    expect(screen.getByText('Lesson for today, from Atomic Habits: never miss twice.')).toBeInTheDocument();
+    expect(screen.getByText('You are enough.')).toHaveAttribute('title', 'No number or name from your log');
+    expect(screen.queryByText('(generic)')).not.toBeInTheDocument();
+    expect(screen.getByText('Sleep slipped twice.')).not.toHaveClass('text-red');
+    expect(screen.getByTestId('warnings')).toHaveTextContent('Watch out');
+    expect(screen.getByTestId('patterns')).toHaveTextContent('Runs follow early nights.');
+    expect(screen.getByTestId('lesson')).toHaveTextContent('From Atomic Habits: never miss twice.');
+    expect(screen.getByRole('link', { name: 'Routines' })).toHaveAttribute('href', '/edit/routines');
   });
 });
 
